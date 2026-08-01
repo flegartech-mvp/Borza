@@ -1,0 +1,54 @@
+services:
+  valkey-test:
+    profiles: ["integration"]
+    image: valkey/valkey:8-alpine
+    command: ["valkey-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+  postgres-test:
+    profiles: ["integration"]
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: borza_test
+      POSTGRES_USER: borza_test
+      POSTGRES_PASSWORD: borza_test_only
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U borza_test -d borza_test"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+  backend-postgres-test:
+    profiles: ["integration"]
+    build:
+      context: ./backend
+      target: test
+    environment:
+      ENVIRONMENT: production
+      DATABASE_URL: postgresql+psycopg://borza_test:borza_test_only@postgres-test:5432/borza_test
+      MIGRATION_DATABASE_URL: postgresql+psycopg://borza_test:borza_test_only@postgres-test:5432/borza_test
+      POSTGRES_TEST_DATABASE_URL: postgresql+psycopg://borza_test:borza_test_only@postgres-test:5432/borza_test
+      EVENT_BUS_URL: redis://valkey-test:6379/0
+      VALKEY_TEST_URL: redis://valkey-test:6379/0
+      REALTIME_ENABLED: "true"
+      ALLOWED_HOSTS: testserver,localhost,127.0.0.1
+      CORS_ORIGINS: http://testserver
+      FINBERT_ENABLED: "false"
+      DEMO_MODE: "false"
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+      valkey-test:
+        condition: service_healthy
+    command:
+      [
+        "sh",
+        "-c",
+        "python -m pytest tests/integration -q",
+      ]
