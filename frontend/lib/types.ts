@@ -11,6 +11,12 @@ export type Article = {
   description: string;
   article_url: string;
   source: string;
+  source_id?: string | null;
+  source_domain?: string | null;
+  source_type?:
+    "official" | "regulator" | "exchange" | "editorial" | "discovery" | "demo";
+  canonical_url?: string | null;
+  original_url?: string | null;
   source_country?: string | null;
   language?: string | null;
   image_url?: string | null;
@@ -30,6 +36,26 @@ export type Article = {
   geography_confidence?: string | null;
   geography_reason?: string | null;
   geography_is_inferred?: boolean | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  categories?: string[];
+  organizations?: string[];
+  companies?: string[];
+  asset_classes?: string[];
+  trust_score?: number;
+  relevance_score?: number;
+  relevance_reason?: string | null;
+  duplicate_group_id?: string | null;
+  duplicate_count?: number;
+  duplicate_source_count?: number;
+  alternative_sources?: Array<{
+    provider: string;
+    source: string;
+    url: string;
+    source_type: string;
+  }>;
+  extraction_status?: string;
+  is_stale?: boolean;
   sentiment_source?: string | null;
   tone_method?: string;
   tone_kind?: "article_tone" | "model_inference" | "demo" | "fallback";
@@ -101,6 +127,12 @@ export type NewsPage = {
   window_start: string;
   window_end: string;
   timestamp_field: "published_at";
+  active_filters?: Record<string, string | number | boolean>;
+  sort?: "newest" | "relevance" | "most_covered";
+  data_freshness?: "fresh" | "stale" | "unknown";
+  most_recent_successful_ingestion?: string | null;
+  contains_demo_data?: boolean;
+  partial_results?: boolean;
 };
 
 export type AnalysisDataset = {

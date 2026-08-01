@@ -4,6 +4,15 @@ export type Filters = {
   ticker: string;
   urgency: string;
   minimum_impact: string;
+  category: string;
+  source: string;
+  source_type: string;
+  region: string;
+  language: string;
+  official_only: string;
+  sort: string;
+  window_hours: string;
+  minimum_relevance: string;
 };
 
 export const DEFAULT_FILTERS: Filters = {
@@ -12,13 +21,19 @@ export const DEFAULT_FILTERS: Filters = {
   ticker: "",
   urgency: "",
   minimum_impact: "",
+  category: "",
+  source: "",
+  source_type: "",
+  region: "",
+  language: "",
+  official_only: "",
+  sort: "newest",
+  window_hours: "24",
+  minimum_relevance: "",
 };
 
 export const FILTER_KEYS = Object.keys(DEFAULT_FILTERS) as Array<keyof Filters>;
-
-export const FIXED_WINDOW_HOURS_PARAM = "24";
-
-export type FilterField = keyof Filters | "window_hours";
+export type FilterField = keyof Filters;
 
 export type FilterIssue = {
   field: FilterField;
@@ -29,10 +44,26 @@ export type FilterIssue = {
 
 export type FilterSearchParams = Record<string, string | string[] | undefined>;
 
-const sentimentValues = new Set(["", "positive", "negative", "neutral"]);
-const urgencyValues = new Set(["", "breaking", "high", "medium", "low"]);
+const choices: Partial<Record<keyof Filters, Set<string>>> = {
+  sentiment: new Set(["", "positive", "negative", "neutral"]),
+  urgency: new Set(["", "breaking", "high", "medium", "low"]),
+  source_type: new Set([
+    "",
+    "official",
+    "regulator",
+    "exchange",
+    "editorial",
+    "discovery",
+    "demo",
+  ]),
+  region: new Set(["", "global", "europe", "north_america", "asia", "other"]),
+  language: new Set(["", "en", "sl", "de", "fr", "it"]),
+  official_only: new Set(["", "true"]),
+  sort: new Set(["newest", "relevance", "most_covered"]),
+  window_hours: new Set(["24", "48", "168"]),
+};
 const tickerPattern = /^[A-Z][A-Z0-9.-]{0,11}$/;
-const impactPattern = /^(?:0|[1-9]\d?|100)$/;
+const scorePattern = /^(?:0|[1-9]\d?|100)$/;
 
 function issue(
   field: FilterField,
@@ -49,49 +80,20 @@ function parseFilterValue(
 ): { value: string; issue?: FilterIssue } {
   const trimmed = rawValue.trim();
 
-  if (field === "search") {
-    if (trimmed.length > 200) {
+  if (["search", "source", "category"].includes(field)) {
+    const limit = field === "search" ? 200 : 120;
+    if (trimmed.length > limit) {
       return {
-        value: "",
+        value: DEFAULT_FILTERS[field],
         issue: issue(
           field,
           "too_long",
-          "Search was ignored because it exceeds 200 characters. Shorten the search and try again.",
+          `${field.replace("_", " ")} was ignored because it exceeds ${limit} characters.`,
           [rawValue],
         ),
       };
     }
     return { value: trimmed };
-  }
-
-  if (field === "sentiment") {
-    const normalized = trimmed.toLowerCase();
-    return sentimentValues.has(normalized)
-      ? { value: normalized }
-      : {
-          value: "",
-          issue: issue(
-            field,
-            "invalid_choice",
-            'Article tone was ignored. Choose "positive", "negative", "neutral", or all tones.',
-            [rawValue],
-          ),
-        };
-  }
-
-  if (field === "urgency") {
-    const normalized = trimmed.toLowerCase();
-    return urgencyValues.has(normalized)
-      ? { value: normalized }
-      : {
-          value: "",
-          issue: issue(
-            field,
-            "invalid_choice",
-            'Urgency was ignored. Choose "breaking", "high", "medium", "low", or all urgency levels.',
-            [rawValue],
-          ),
-        };
   }
 
   if (field === "ticker") {
@@ -109,17 +111,34 @@ function parseFilterValue(
         };
   }
 
-  return !trimmed || impactPattern.test(trimmed)
-    ? { value: trimmed }
-    : {
-        value: "",
-        issue: issue(
-          field,
-          "invalid_format",
-          "Minimum base attention was ignored. Enter a whole number from 0 to 100.",
-          [rawValue],
-        ),
-      };
+  if (field === "minimum_impact" || field === "minimum_relevance") {
+    return !trimmed || scorePattern.test(trimmed)
+      ? { value: trimmed }
+      : {
+          value: "",
+          issue: issue(
+            field,
+            "invalid_format",
+            `${field.replace("_", " ")} was ignored. Enter a whole number from 0 to 100.`,
+            [rawValue],
+          ),
+        };
+  }
+
+  const normalized = trimmed.toLowerCase();
+  const allowed = choices[field];
+  if (!allowed?.has(normalized)) {
+    return {
+      value: DEFAULT_FILTERS[field],
+      issue: issue(
+        field,
+        "invalid_choice",
+        `${field.replace("_", " ")} was ignored because the selected value is unsupported.`,
+        [rawValue],
+      ),
+    };
+  }
+  return { value: normalized };
 }
 
 export function parseFilterSearchParams(searchParams: FilterSearchParams): {
@@ -137,7 +156,7 @@ export function parseFilterSearchParams(searchParams: FilterSearchParams): {
         issue(
           field,
           "duplicate",
-          `${field.replace("_", " ")} was ignored because it was supplied more than once. Keep one value and try again.`,
+          `${field.replace("_", " ")} was ignored because it was supplied more than once.`,
           rawValue,
         ),
       );
@@ -146,30 +165,6 @@ export function parseFilterSearchParams(searchParams: FilterSearchParams): {
     const parsed = parseFilterValue(field, rawValue);
     filters[field] = parsed.value;
     if (parsed.issue) issues.push(parsed.issue);
-  }
-
-  const rawWindow = searchParams.window_hours;
-  if (Array.isArray(rawWindow)) {
-    issues.push(
-      issue(
-        "window_hours",
-        "duplicate",
-        "Analysis window was removed because it was supplied more than once. Borza uses a fixed rolling 24-hour window.",
-        rawWindow,
-      ),
-    );
-  } else if (
-    rawWindow !== undefined &&
-    rawWindow.trim() !== FIXED_WINDOW_HOURS_PARAM
-  ) {
-    issues.push(
-      issue(
-        "window_hours",
-        "invalid_format",
-        "Analysis window was removed. Borza uses a fixed rolling 24-hour window.",
-        [rawWindow],
-      ),
-    );
   }
 
   return { filters, issues };
@@ -186,11 +181,7 @@ export function applyFilterUpdate(
   currentDrafts: Filters,
   currentIssues: FilterIssue[],
   nextDrafts: Filters,
-): {
-  filters: Filters;
-  drafts: Filters;
-  issues: FilterIssue[];
-} {
+): { filters: Filters; drafts: Filters; issues: FilterIssue[] } {
   const changedFields = FILTER_KEYS.filter(
     (field) => nextDrafts[field] !== currentDrafts[field],
   );
@@ -198,7 +189,6 @@ export function applyFilterUpdate(
   const drafts = { ...parsed.filters };
 
   for (const validationIssue of parsed.issues) {
-    if (validationIssue.field === "window_hours") continue;
     drafts[validationIssue.field] = nextDrafts[validationIssue.field];
   }
 
@@ -207,11 +197,10 @@ export function applyFilterUpdate(
     drafts,
     issues: [
       ...currentIssues.filter(
-        (validationIssue) =>
-          !changedFields.some((field) => field === validationIssue.field),
+        (validationIssue) => !changedFields.includes(validationIssue.field),
       ),
       ...parsed.issues.filter((validationIssue) =>
-        changedFields.some((field) => field === validationIssue.field),
+        changedFields.includes(validationIssue.field),
       ),
     ],
   };
@@ -222,20 +211,15 @@ export function filtersToUrlSearchParams(
   filters: Filters,
 ): URLSearchParams {
   const query = new URLSearchParams(currentSearch);
-
   for (const key of FILTER_KEYS) {
-    if (filters[key]) query.set(key, filters[key]);
+    const value = filters[key];
+    if (key === "window_hours" && value === DEFAULT_FILTERS.window_hours) {
+      const existing = query.getAll(key);
+      if (existing.length !== 1 || existing[0] !== value) query.delete(key);
+      continue;
+    }
+    if (value && value !== DEFAULT_FILTERS[key]) query.set(key, value);
     else query.delete(key);
   }
-
-  const windowValues = query.getAll("window_hours");
-  if (
-    windowValues.length > 0 &&
-    (windowValues.length !== 1 ||
-      windowValues[0].trim() !== FIXED_WINDOW_HOURS_PARAM)
-  ) {
-    query.delete("window_hours");
-  }
-
   return query;
 }

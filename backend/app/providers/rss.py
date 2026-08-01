@@ -4,14 +4,16 @@ Includes strict SSRF protection (IP validation, scheme restrictions, redirect pr
 """
 
 import hashlib
+import html
 import ipaddress
 import logging
+import re
 import socket
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from email.utils import parsedate_to_datetime
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
 import httpx
 
@@ -23,6 +25,8 @@ from app.providers.base import (
     normalized_source_country,
     sanitized_provider_error,
 )
+from app.services.deduplication import normalized_url
+from app.version import __version__
 
 logger = logging.getLogger(__name__)
 
@@ -93,10 +97,13 @@ def validate_safe_url(url: str, allowlist_domains: set[str] | None = None) -> st
 class RSSFeedConfig:
     display_name: str
     feed_url: str
-    source_type: str = "first_party"  # first_party, regulator, statistical, exchange, press_release
+    source_id: str = ""
+    source_type: str = "official"
     country: str = "US"
+    region: str = "global"
     language: str = "en"
     category: str = "macro"
+    trust_tier: int = 90
     refresh_interval_seconds: int = 1800
     enabled: bool = True
 
@@ -105,34 +112,35 @@ DEFAULT_OFFICIAL_FEEDS: list[RSSFeedConfig] = [
     RSSFeedConfig(
         display_name="European Central Bank Press Releases",
         feed_url="https://www.ecb.europa.eu/rss/press.html",
-        source_type="first_party",
+        source_id="ecb-press",
+        source_type="official",
         country="EU",
+        region="europe",
         language="en",
         category="central_banks",
-    ),
-    RSSFeedConfig(
-        display_name="Federal Reserve Press Releases",
-        feed_url="https://www.federalreserve.gov/feeds/press_all.xml",
-        source_type="first_party",
-        country="US",
-        language="en",
-        category="central_banks",
-    ),
-    RSSFeedConfig(
-        display_name="Banka Slovenije Novice",
-        feed_url="https://www.bsi.si/rss/novice",
-        source_type="first_party",
-        country="SI",
-        language="sl",
-        category="slovenian_economy",
+        trust_tier=100,
     ),
     RSSFeedConfig(
         display_name="SEC News & Press Releases",
         feed_url="https://www.sec.gov/news/pressreleases.rss",
+        source_id="sec-press",
         source_type="regulator",
         country="US",
+        region="north_america",
         language="en",
         category="regulation",
+        trust_tier=100,
+    ),
+    RSSFeedConfig(
+        display_name="Ministrstvo za finance Republike Slovenije",
+        feed_url="https://www.gov.si/novice/rss/?orgID%5B0%5D=24",
+        source_id="gov-si-finance",
+        source_type="official",
+        country="SI",
+        region="europe",
+        language="sl",
+        category="slovenian_economy",
+        trust_tier=100,
     ),
 ]
 
@@ -152,8 +160,9 @@ class RSSNewsProvider(NewsProvider):
         self.request_timeout_seconds = request_timeout_seconds
         self.transport = transport
         self.allowlist_domains = allowlist_domains
-        self.user_agent = "Borza/0.1.0 (+https://github.com/borza/borza)"
+        self.user_agent = f"Borza/{__version__} (+https://github.com/borza/borza)"
         self._client: httpx.AsyncClient | None = None
+        self._validators: dict[str, dict[str, str]] = {}
 
     async def get_client(self) -> httpx.AsyncClient:
         if self._client is None or self._client.is_closed:
@@ -174,13 +183,20 @@ class RSSNewsProvider(NewsProvider):
             await self._client.aclose()
             self._client = None
 
-    async def fetch_market_news(self) -> ProviderFetchResult:
+    async def fetch_market_news(
+        self,
+        *,
+        start_datetime: datetime | None = None,
+        end_datetime: datetime | None = None,
+        max_articles: int | None = None,
+    ) -> ProviderFetchResult:
         started_at = datetime.now(UTC)
         records: list[NormalizedArticle] = []
         successful_groups: list[str] = []
         failed_groups: list[str] = []
         errors: list[str] = []
         request_count = 0
+        raw_record_count = 0
 
         client = await self.get_client()
 
@@ -192,7 +208,7 @@ class RSSNewsProvider(NewsProvider):
                 safe_url = validate_safe_url(
                     feed.feed_url, allowlist_domains=self.allowlist_domains
                 )
-                response = await client.get(safe_url)
+                response = await client.get(safe_url, headers=self._validators.get(safe_url))
 
                 # Check for redirects manually to protect against open redirects
                 if response.status_code in (301, 302, 303, 307, 308):
@@ -200,12 +216,37 @@ class RSSNewsProvider(NewsProvider):
                     if not redirect_target:
                         raise RSSProviderError("Redirect response missing Location header")
                     safe_url = validate_safe_url(
-                        redirect_target, allowlist_domains=self.allowlist_domains
+                        urljoin(safe_url, redirect_target),
+                        allowlist_domains=self.allowlist_domains,
                     )
                     response = await client.get(safe_url)
 
+                if response.status_code == 304:
+                    successful_groups.append(feed.display_name)
+                    continue
                 response.raise_for_status()
+                validators = {
+                    key: value
+                    for key, value in {
+                        "If-None-Match": response.headers.get("ETag"),
+                        "If-Modified-Since": response.headers.get("Last-Modified"),
+                    }.items()
+                    if value
+                }
+                if validators:
+                    self._validators[safe_url] = validators
                 feed_articles = self.parse_feed_xml(response.text, feed)
+                raw_record_count += len(feed_articles)
+                if start_datetime is not None:
+                    start = self._as_utc(start_datetime)
+                    feed_articles = [
+                        article for article in feed_articles if article.published_at >= start
+                    ]
+                if end_datetime is not None:
+                    end = self._as_utc(end_datetime)
+                    feed_articles = [
+                        article for article in feed_articles if article.published_at <= end
+                    ]
                 records.extend(feed_articles)
                 successful_groups.append(feed.display_name)
             except Exception as exc:
@@ -213,6 +254,10 @@ class RSSNewsProvider(NewsProvider):
                 sanitized_msg = sanitized_provider_error(exc)
                 errors.append(f"{feed.display_name}: {sanitized_msg}")
                 logger.warning("RSS feed fetch failed (%s): %s", feed.display_name, sanitized_msg)
+
+        records.sort(key=lambda article: article.published_at, reverse=True)
+        if max_articles is not None:
+            records = records[: max(0, max_articles)]
 
         return ProviderFetchResult(
             records=records,
@@ -222,7 +267,7 @@ class RSSNewsProvider(NewsProvider):
             errors=tuple(errors),
             provider_started_at=started_at,
             provider_completed_at=datetime.now(UTC),
-            raw_record_count=len(records),
+            raw_record_count=raw_record_count,
         )
 
     def parse_feed_xml(
@@ -259,12 +304,15 @@ class RSSNewsProvider(NewsProvider):
         article_url = normalized_http_url(link)
         if not article_url:
             return None
+        canonical_url = normalized_url(article_url)
 
         published_at = self._parse_datetime(pub_date_raw) or datetime.now(UTC)
-        description = (item.findtext("description") or item.findtext("summary") or "").strip()
+        description = self._clean_summary(
+            item.findtext("description") or item.findtext("summary") or ""
+        )
 
         provider_article_id = hashlib.sha256(
-            f"{article_url}:{published_at.isoformat()}".encode()
+            f"{canonical_url}:{published_at.isoformat()}".encode()
         ).hexdigest()
 
         return NormalizedArticle(
@@ -277,12 +325,19 @@ class RSSNewsProvider(NewsProvider):
             article_url=article_url,
             source=feed.display_name[:120],
             published_at=published_at,
+            source_id=feed.source_id or None,
+            source_domain=urlparse(article_url).hostname,
+            source_type=feed.source_type,
+            canonical_url=canonical_url,
+            original_url=article_url,
             language=feed.language,
             source_country=normalized_source_country(feed.country),
-            provider_sentiment="neutral",
-            provider_sentiment_confidence=0.0,
-            provider_sentiment_probabilities={"positive": 0.0, "negative": 0.0, "neutral": 0.0},
-            provider_sentiment_reason="rss_official_source",
+            region=feed.region,
+            categories=[feed.category],
+            organizations=[feed.display_name],
+            trust_score=feed.trust_tier,
+            relevance_score=80 if feed.country in {"SI", "EU"} else 70,
+            relevance_reason="Verified first-party financial publication",
         )
 
     def _parse_atom_entry(self, entry: ET.Element, feed: RSSFeedConfig) -> NormalizedArticle | None:
@@ -311,12 +366,15 @@ class RSSNewsProvider(NewsProvider):
         article_url = normalized_http_url(link)
         if not article_url:
             return None
+        canonical_url = normalized_url(article_url)
 
         published_at = self._parse_datetime(pub_date_raw) or datetime.now(UTC)
-        description = (entry.findtext("summary") or entry.findtext("content") or "").strip()
+        description = self._clean_summary(
+            entry.findtext("summary") or entry.findtext("content") or ""
+        )
 
         provider_article_id = hashlib.sha256(
-            f"{article_url}:{published_at.isoformat()}".encode()
+            f"{canonical_url}:{published_at.isoformat()}".encode()
         ).hexdigest()
 
         return NormalizedArticle(
@@ -329,12 +387,19 @@ class RSSNewsProvider(NewsProvider):
             article_url=article_url,
             source=feed.display_name[:120],
             published_at=published_at,
+            source_id=feed.source_id or None,
+            source_domain=urlparse(article_url).hostname,
+            source_type=feed.source_type,
+            canonical_url=canonical_url,
+            original_url=article_url,
             language=feed.language,
             source_country=normalized_source_country(feed.country),
-            provider_sentiment="neutral",
-            provider_sentiment_confidence=0.0,
-            provider_sentiment_probabilities={"positive": 0.0, "negative": 0.0, "neutral": 0.0},
-            provider_sentiment_reason="rss_official_source",
+            region=feed.region,
+            categories=[feed.category],
+            organizations=[feed.display_name],
+            trust_score=feed.trust_tier,
+            relevance_score=80 if feed.country in {"SI", "EU"} else 70,
+            relevance_reason="Verified first-party financial publication",
         )
 
     def _parse_datetime(self, raw_str: str) -> datetime | None:
@@ -351,6 +416,15 @@ class RSSNewsProvider(NewsProvider):
                 )
             except Exception:
                 return None
+
+    @staticmethod
+    def _as_utc(value: datetime) -> datetime:
+        return value.replace(tzinfo=UTC) if value.tzinfo is None else value.astimezone(UTC)
+
+    @staticmethod
+    def _clean_summary(value: str) -> str:
+        plain = re.sub(r"<[^>]+>", " ", html.unescape(value))
+        return " ".join(plain.split())[:2000]
 
     def normalize_article(self, payload: dict) -> NormalizedArticle | None:
         return None

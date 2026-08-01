@@ -16,6 +16,7 @@ from app.core.rate_limiter import RateLimitMiddleware
 from app.events.bus import RedisEventBus
 from app.services.provider_factory import build_news_provider, effective_provider_name
 from app.services.schema_state import ensure_schema_at_head
+from app.version import __version__
 
 settings = get_settings()
 configure_logging(settings.log_level)
@@ -51,7 +52,7 @@ async def lifespan(app: FastAPI):
 production_docs = not settings.is_deployed
 app = FastAPI(
     title="Borza API",
-    version="0.3.0",
+    version=__version__,
     lifespan=lifespan,
     docs_url="/docs" if production_docs else None,
     redoc_url="/redoc" if production_docs else None,

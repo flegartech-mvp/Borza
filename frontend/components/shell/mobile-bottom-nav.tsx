@@ -11,7 +11,7 @@ export function MobileBottomNav() {
   return (
     <nav
       aria-label="Mobile primary navigation"
-      className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t border-[var(--border-strong)] bg-[color-mix(in_srgb,var(--surface-1)_96%,transparent)] pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_28px_rgb(0_0_0_/_14%)] backdrop-blur md:hidden"
+      className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-3 border-t border-[var(--border-strong)] bg-[color-mix(in_srgb,var(--surface-1)_96%,transparent)] pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_28px_rgb(0_0_0_/_14%)] backdrop-blur md:hidden"
     >
       {PRIMARY_NAVIGATION.map((item) => {
         const active = isNavigationItemActive(pathname, item.href);

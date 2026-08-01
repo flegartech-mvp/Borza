@@ -17,6 +17,11 @@ class ArticleRead(BaseModel):
     description: str = ""
     article_url: str
     source: str
+    source_id: str | None = None
+    source_domain: str | None = None
+    source_type: str = "editorial"
+    canonical_url: str | None = None
+    original_url: str | None = None
     source_country: str | None = None
     language: str | None = None
     image_url: str | None = None
@@ -38,6 +43,20 @@ class ArticleRead(BaseModel):
     geography_confidence: str | None = None
     geography_reason: str | None = None
     geography_is_inferred: bool | None = None
+    latitude: float | None = None
+    longitude: float | None = None
+    categories: list[str] = Field(default_factory=list)
+    organizations: list[str] = Field(default_factory=list)
+    companies: list[str] = Field(default_factory=list)
+    asset_classes: list[str] = Field(default_factory=list)
+    trust_score: int = 50
+    relevance_score: int = 0
+    relevance_reason: str | None = None
+    duplicate_group_id: str | None = None
+    duplicate_count: int = 1
+    alternative_sources: list[dict[str, str]] = Field(default_factory=list)
+    extraction_status: str = "provider_metadata"
+    is_stale: bool = False
     sentiment_source: str | None = None
 
     @field_validator("published_at", "received_at")
@@ -68,6 +87,11 @@ class ArticleRead(BaseModel):
     @property
     def is_demo(self) -> bool:
         return self.provider == "demo"
+
+    @computed_field
+    @property
+    def duplicate_source_count(self) -> int:
+        return max(self.duplicate_count, 1 + len(self.alternative_sources))
 
     @computed_field
     @property
@@ -129,6 +153,12 @@ class NewsPageRead(BaseModel):
     window_start: datetime
     window_end: datetime
     timestamp_field: Literal["published_at"] = "published_at"
+    active_filters: dict[str, str | int | bool] = Field(default_factory=dict)
+    sort: Literal["newest", "relevance", "most_covered"] = "newest"
+    data_freshness: Literal["fresh", "stale", "unknown"] = "unknown"
+    most_recent_successful_ingestion: datetime | None = None
+    contains_demo_data: bool = False
+    partial_results: bool = False
 
 
 class NewsRevisionRead(BaseModel):

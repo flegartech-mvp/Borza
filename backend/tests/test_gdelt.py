@@ -161,6 +161,9 @@ def test_deterministic_provider_id_and_url_normalization_preserve_real_parameter
     assert normalized_url("https://NEWS.example/a/?id=42&utm_source=one&fbclid=x#part") == (
         "https://news.example/a?id=42"
     )
+    assert normalized_url("https://news.example//press///release/") == (
+        "https://news.example/press/release"
+    )
 
 
 def test_controlled_finance_query_groups_and_request_parameters():
@@ -180,6 +183,10 @@ def test_controlled_finance_query_groups_and_request_parameters():
     query = build_finance_query("macro", source_language="en", source_country="si")
 
     assert "inflation" in query and "sourcelang:en" in query and "sourcecountry:SI" in query
+    slovenian_query = build_finance_query("slovenian_economy")
+    assert '"slovenian economy"' in slovenian_query
+    assert "surs" in slovenian_query
+    assert "(slovenia OR" not in slovenian_query
     captured: dict[str, str] = {}
 
     async def handler(request: httpx.Request) -> httpx.Response:
@@ -222,6 +229,27 @@ def test_controlled_finance_query_groups_and_request_parameters():
         )
 
 
+def test_slovenian_query_group_limits_results_to_slovenian_publishers():
+    captured: dict[str, str] = {}
+
+    async def handler(request: httpx.Request) -> httpx.Response:
+        captured.update(request.url.params)
+        return httpx.Response(200, json={"articles": []}, request=request)
+
+    provider = GdeltNewsProvider(
+        base_url="https://gdelt.test/doc",
+        query_groups=("slovenian_economy",),
+        request_delay_seconds=0,
+        transport=httpx.MockTransport(handler),
+        sleep=no_sleep,
+    )
+
+    result = asyncio.run(provider.fetch_market_news(max_requests=1))
+
+    assert result.records == []
+    assert "sourcecountry:SI" in captured["query"]
+
+
 def test_retry_after_429_and_temporary_500_are_retried():
     calls = 0
     delays: list[float] = []
@@ -248,7 +276,7 @@ def test_retry_after_429_and_temporary_500_are_retried():
     )
     result = fetch_result(provider)
     assert result.articles == []
-    assert calls == 3 and delays == [3.0, 2]
+    assert calls == 3 and delays == [5, 2]
     assert result.retry_count == 2
 
     second = fetch_result(provider)
@@ -266,12 +294,41 @@ def test_timeout_and_retry_exhaustion_are_controlled_failures():
         transport=httpx.MockTransport(timeout),
         sleep=no_sleep,
     )
-    with pytest.raises(GdeltProviderError, match="retry budget"):
+    with pytest.raises(GdeltProviderError, match="retry budget.*ReadTimeout"):
         fetch(timeout_provider)
 
     exhausted = provider_with_response(status=500, body={})
-    with pytest.raises(GdeltProviderError, match="retry budget"):
+    with pytest.raises(GdeltProviderError, match="retry budget.*HTTP 500"):
         fetch(exhausted)
+
+
+def test_rate_limit_without_retry_after_waits_for_upstream_minimum():
+    delays: list[float] = []
+    calls = 0
+
+    async def sleep(seconds: float) -> None:
+        delays.append(seconds)
+
+    async def handler(request: httpx.Request) -> httpx.Response:
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            return httpx.Response(429, request=request)
+        return httpx.Response(200, json={"articles": []}, request=request)
+
+    provider = GdeltNewsProvider(
+        base_url="https://gdelt.test/doc",
+        request_delay_seconds=0,
+        max_retries=1,
+        transport=httpx.MockTransport(handler),
+        sleep=sleep,
+        jitter=lambda _start, _end: 0,
+    )
+    result = fetch_result(provider)
+
+    assert result.articles == []
+    assert calls == 2
+    assert delays == [5]
 
 
 def test_one_failed_query_group_keeps_partial_gdelt_success():

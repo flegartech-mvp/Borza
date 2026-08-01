@@ -58,13 +58,14 @@ class Settings(BaseSettings):
     opennews_token: str | None = Field(default=None, max_length=512)
     opennews_api_base: str = "https://ai.6551.io"
     opennews_fetch_limit: int = Field(50, ge=1, le=100)
-    news_provider: Literal["demo", "finnhub", "opennews", "gdelt"] = "gdelt"
+    news_provider: Literal["composite", "demo", "finnhub", "opennews", "gdelt", "rss"] = "composite"
+    composite_providers: str = "rss,gdelt"
     demo_mode: bool = False
     news_fetch_interval_seconds: int = Field(60, ge=15, le=86_400)
     gdelt_base_url: str = "https://api.gdeltproject.org/api/v2/doc/doc"
-    gdelt_request_timeout_seconds: float = Field(20, ge=1, le=60)
-    gdelt_max_retries: int = Field(4, ge=0, le=8)
-    gdelt_request_delay_seconds: float = Field(1, ge=0, le=30)
+    gdelt_request_timeout_seconds: float = Field(30, ge=1, le=60)
+    gdelt_max_retries: int = Field(2, ge=0, le=8)
+    gdelt_request_delay_seconds: float = Field(5, ge=0, le=30)
     gdelt_max_records: int = Field(250, ge=1, le=250)
     gdelt_default_lookback_hours: int = Field(48, ge=1, le=168)
     gdelt_query_groups: str = "markets,macro,companies,assets"
@@ -197,6 +198,16 @@ class Settings(BaseSettings):
     @property
     def gdelt_query_group_list(self) -> list[str]:
         return [item.strip().lower() for item in self.gdelt_query_groups.split(",") if item.strip()]
+
+    @property
+    def composite_provider_list(self) -> list[str]:
+        supported = {"rss", "gdelt", "opennews", "finnhub"}
+        providers: list[str] = []
+        for raw_provider in self.composite_providers.split(","):
+            provider = raw_provider.strip().lower()
+            if provider and provider in supported and provider not in providers:
+                providers.append(provider)
+        return providers or ["rss", "gdelt"]
 
     @property
     def event_bus_channel(self) -> str:

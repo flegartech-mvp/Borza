@@ -75,6 +75,20 @@ UrgencyFilter = Annotated[
     Literal["breaking", "high", "medium", "low"] | None,
     Query(),
 ]
+SortOrder = Annotated[
+    Literal["newest", "relevance", "most_covered"],
+    Query(),
+]
+SourceTypeFilter = Annotated[
+    Literal["official", "regulator", "exchange", "editorial", "discovery", "demo"] | None,
+    Query(),
+]
+RelevanceFilter = Annotated[int | None, Query(ge=0, le=100)]
+CategoryFilter = Annotated[str | None, Query(max_length=80)]
+SourceFilter = Annotated[str | None, Query(max_length=120)]
+RegionFilter = Annotated[str | None, Query(max_length=32)]
+LanguageFilter = Annotated[str | None, Query(max_length=32)]
+CompanyFilter = Annotated[str | None, Query(max_length=120)]
 
 
 def utc_now() -> datetime:
@@ -139,6 +153,14 @@ def _filters(
     urgency: str | None,
     minimum_impact: int | None,
     search: str | None,
+    category: str | None = None,
+    source: str | None = None,
+    source_type: str | None = None,
+    region: str | None = None,
+    language: str | None = None,
+    company: str | None = None,
+    minimum_relevance: int | None = None,
+    official_only: bool = False,
 ) -> list:
     conditions = [
         Article.published_at.is_not(None),
@@ -183,6 +205,22 @@ def _filters(
             Article.title.ilike(pattern, escape="\\")
             | Article.description.ilike(pattern, escape="\\")
         )
+    if category and (value := category.strip()):
+        conditions.append(Article.categories.contains(value))
+    if source and (value := source.strip()):
+        conditions.append(Article.source == value)
+    if source_type and (value := source_type.strip().lower()):
+        conditions.append(Article.source_type == value)
+    if region and (value := region.strip().lower()):
+        conditions.append(func.lower(Article.region) == value)
+    if language and (value := language.strip().lower()):
+        conditions.append(func.lower(Article.language) == value)
+    if company and (value := company.strip()):
+        conditions.append(Article.companies.contains(value))
+    if minimum_relevance is not None:
+        conditions.append(Article.relevance_score >= minimum_relevance)
+    if official_only:
+        conditions.append(Article.source_type.in_(("official", "regulator", "exchange")))
     return conditions
 
 
@@ -266,6 +304,14 @@ def _query_arguments(
     urgency: str | None,
     minimum_impact: int | None,
     search: str | None,
+    category: str | None = None,
+    source: str | None = None,
+    source_type: str | None = None,
+    region: str | None = None,
+    language: str | None = None,
+    company: str | None = None,
+    minimum_relevance: int | None = None,
+    official_only: bool = False,
 ) -> tuple[datetime, datetime, list]:
     start, end = _scope(window_hours, published_after, published_before)
     return (
@@ -280,8 +326,24 @@ def _query_arguments(
             urgency=urgency,
             minimum_impact=minimum_impact,
             search=search,
+            category=category,
+            source=source,
+            source_type=source_type,
+            region=region,
+            language=language,
+            company=company,
+            minimum_relevance=minimum_relevance,
+            official_only=official_only,
         ),
     )
+
+
+def _news_order(sort: str):
+    if sort == "relevance":
+        return (desc(Article.relevance_score), desc(Article.published_at), desc(Article.id))
+    if sort == "most_covered":
+        return (desc(Article.duplicate_count), desc(Article.relevance_score), desc(Article.id))
+    return (desc(Article.published_at), desc(Article.id))
 
 
 @router.get("/news-revision", response_model=NewsRevisionRead)
@@ -292,7 +354,15 @@ def news_revision(
     sector: str | None = Query(None, min_length=1, max_length=80),
     urgency: UrgencyFilter = None,
     minimum_impact: int | None = Query(None, ge=0, le=100),
+    minimum_relevance: RelevanceFilter = None,
     search: str | None = Query(None, max_length=200),
+    category: CategoryFilter = None,
+    source: SourceFilter = None,
+    source_type: SourceTypeFilter = None,
+    region: RegionFilter = None,
+    language: LanguageFilter = None,
+    company: CompanyFilter = None,
+    official_only: bool = False,
     published_after: datetime | None = None,
     published_before: datetime | None = None,
     db: Session = Depends(get_db),
@@ -306,7 +376,15 @@ def news_revision(
         sector=sector,
         urgency=urgency,
         minimum_impact=minimum_impact,
+        minimum_relevance=minimum_relevance,
         search=search,
+        category=category,
+        source=source,
+        source_type=source_type,
+        region=region,
+        language=language,
+        company=company,
+        official_only=official_only,
     )
     res = db.execute(
         select(func.count(Article.id), func.max(Article.published_at)).where(*conditions)
@@ -334,7 +412,16 @@ def list_news(
     sector: str | None = Query(None, min_length=1, max_length=80),
     urgency: UrgencyFilter = None,
     minimum_impact: int | None = Query(None, ge=0, le=100),
+    minimum_relevance: RelevanceFilter = None,
     search: str | None = Query(None, max_length=200),
+    category: CategoryFilter = None,
+    source: SourceFilter = None,
+    source_type: SourceTypeFilter = None,
+    region: RegionFilter = None,
+    language: LanguageFilter = None,
+    company: CompanyFilter = None,
+    official_only: bool = False,
+    sort: SortOrder = "newest",
     published_after: datetime | None = None,
     published_before: datetime | None = None,
     db: Session = Depends(get_db),
@@ -348,9 +435,21 @@ def list_news(
         sector=sector,
         urgency=urgency,
         minimum_impact=minimum_impact,
+        minimum_relevance=minimum_relevance,
         search=search,
+        category=category,
+        source=source,
+        source_type=source_type,
+        region=region,
+        language=language,
+        company=company,
+        official_only=official_only,
     )
     page_conditions = list(conditions)
+    if cursor and sort != "newest":
+        raise HTTPException(
+            status_code=422, detail="cursor pagination is available for newest sort"
+        )
     if cursor:
         cursor_dt, cursor_id = decode_cursor(cursor)
         page_conditions.append(
@@ -359,12 +458,7 @@ def list_news(
                 and_(Article.published_at == cursor_dt, Article.id < cursor_id),
             )
         )
-    query = (
-        select(Article)
-        .where(*page_conditions)
-        .order_by(desc(Article.published_at), desc(Article.id))
-        .limit(limit)
-    )
+    query = select(Article).where(*page_conditions).order_by(*_news_order(sort)).limit(limit)
     if not cursor:
         query = query.offset(offset)
     return list(db.scalars(query))
@@ -381,7 +475,16 @@ def news_page(
     sector: str | None = Query(None, min_length=1, max_length=80),
     urgency: UrgencyFilter = None,
     minimum_impact: int | None = Query(None, ge=0, le=100),
+    minimum_relevance: RelevanceFilter = None,
     search: str | None = Query(None, max_length=200),
+    category: CategoryFilter = None,
+    source: SourceFilter = None,
+    source_type: SourceTypeFilter = None,
+    region: RegionFilter = None,
+    language: LanguageFilter = None,
+    company: CompanyFilter = None,
+    official_only: bool = False,
+    sort: SortOrder = "newest",
     published_after: datetime | None = None,
     published_before: datetime | None = None,
     db: Session = Depends(get_db),
@@ -395,10 +498,22 @@ def news_page(
         sector=sector,
         urgency=urgency,
         minimum_impact=minimum_impact,
+        minimum_relevance=minimum_relevance,
         search=search,
+        category=category,
+        source=source,
+        source_type=source_type,
+        region=region,
+        language=language,
+        company=company,
+        official_only=official_only,
     )
     total = db.scalar(select(func.count(Article.id)).where(*conditions)) or 0
     page_conditions = list(conditions)
+    if cursor and sort != "newest":
+        raise HTTPException(
+            status_code=422, detail="cursor pagination is available for newest sort"
+        )
     if cursor:
         cursor_dt, cursor_id = decode_cursor(cursor)
         page_conditions.append(
@@ -408,12 +523,7 @@ def news_page(
             )
         )
 
-    query = (
-        select(Article)
-        .where(*page_conditions)
-        .order_by(desc(Article.published_at), desc(Article.id))
-        .limit(limit)
-    )
+    query = select(Article).where(*page_conditions).order_by(*_news_order(sort)).limit(limit)
     if not cursor:
         query = query.offset(offset)
 
@@ -445,8 +555,43 @@ def news_page(
         else:
             has_more = offset + len(items) < total
 
-        if has_more:
+        if has_more and sort == "newest":
             next_cursor = encode_cursor(last_dt, last.id)
+
+    latest_ingestion = db.scalar(
+        select(IngestionRun)
+        .where(
+            IngestionRun.status.in_(("complete", "partial")),
+            IngestionRun.completed_at.is_not(None),
+        )
+        .order_by(desc(IngestionRun.completed_at), desc(IngestionRun.id))
+        .limit(1)
+    )
+    latest_success = latest_ingestion.completed_at if latest_ingestion else None
+    if latest_success is not None and latest_success.tzinfo is None:
+        latest_success = latest_success.replace(tzinfo=UTC)
+    freshness = "unknown"
+    if latest_success is not None:
+        freshness = "fresh" if utc_now() - latest_success <= timedelta(hours=6) else "stale"
+    active_filters = {
+        key: value
+        for key, value in {
+            "search": search,
+            "category": category,
+            "source": source,
+            "source_type": source_type,
+            "region": region,
+            "language": language,
+            "company": company,
+            "ticker": ticker,
+            "sentiment": sentiment,
+            "urgency": urgency,
+            "minimum_impact": minimum_impact,
+            "minimum_relevance": minimum_relevance,
+            "official_only": official_only or None,
+        }.items()
+        if value is not None and value != ""
+    }
 
     return NewsPageRead(
         items=[ArticleRead.model_validate(item) for item in items],
@@ -459,6 +604,12 @@ def news_page(
         effective_window_hours=(end - start).total_seconds() / 3600,
         window_start=start,
         window_end=end,
+        active_filters=active_filters,
+        sort=sort,
+        data_freshness=freshness,
+        most_recent_successful_ingestion=latest_success,
+        contains_demo_data=any(item.provider == "demo" for item in items),
+        partial_results=bool(latest_ingestion and latest_ingestion.status == "partial"),
     )
 
 
@@ -471,7 +622,15 @@ def analysis_dataset(
     sector: str | None = Query(None, min_length=1, max_length=80),
     urgency: UrgencyFilter = None,
     minimum_impact: int | None = Query(None, ge=0, le=100),
+    minimum_relevance: RelevanceFilter = None,
     search: str | None = Query(None, max_length=200),
+    category: CategoryFilter = None,
+    source: SourceFilter = None,
+    source_type: SourceTypeFilter = None,
+    region: RegionFilter = None,
+    language: LanguageFilter = None,
+    company: CompanyFilter = None,
+    official_only: bool = False,
     published_after: datetime | None = None,
     published_before: datetime | None = None,
     db: Session = Depends(get_db),
@@ -485,7 +644,15 @@ def analysis_dataset(
         sector=sector,
         urgency=urgency,
         minimum_impact=minimum_impact,
+        minimum_relevance=minimum_relevance,
         search=search,
+        category=category,
+        source=source,
+        source_type=source_type,
+        region=region,
+        language=language,
+        company=company,
+        official_only=official_only,
     )
     total = db.scalar(select(func.count(Article.id)).where(*conditions)) or 0
     articles = list(
@@ -525,7 +692,15 @@ def stats(
     sector: str | None = Query(None, min_length=1, max_length=80),
     urgency: UrgencyFilter = None,
     minimum_impact: int | None = Query(None, ge=0, le=100),
+    minimum_relevance: RelevanceFilter = None,
     search: str | None = Query(None, max_length=200),
+    category: CategoryFilter = None,
+    source: SourceFilter = None,
+    source_type: SourceTypeFilter = None,
+    region: RegionFilter = None,
+    language: LanguageFilter = None,
+    company: CompanyFilter = None,
+    official_only: bool = False,
     published_after: datetime | None = None,
     published_before: datetime | None = None,
     db: Session = Depends(get_db),
@@ -539,7 +714,15 @@ def stats(
         sector=sector,
         urgency=urgency,
         minimum_impact=minimum_impact,
+        minimum_relevance=minimum_relevance,
         search=search,
+        category=category,
+        source=source,
+        source_type=source_type,
+        region=region,
+        language=language,
+        company=company,
+        official_only=official_only,
     )
     article_count = db.scalar(select(func.count(Article.id)).where(*conditions)) or 0
     distribution_rows = db.execute(

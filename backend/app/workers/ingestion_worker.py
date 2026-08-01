@@ -25,6 +25,7 @@ from app.services.ingestion_queue import (
 )
 from app.services.schema_state import ensure_schema_at_head
 from app.services.sentiment import SentimentService
+from app.version import __version__
 
 logger = logging.getLogger(__name__)
 
@@ -82,7 +83,7 @@ class LeaseHeartbeat(threading.Thread):
                     "ingestion-worker",
                     self.worker_id,
                     current_job_id=self.job.id,
-                    version="0.3.0",
+                    version=__version__,
                     now=now,
                 )
             except Exception:
@@ -250,7 +251,7 @@ async def run_worker(settings: Settings | None = None) -> None:
                     record_service_heartbeat,
                     "ingestion-worker",
                     worker_id,
-                    version="0.3.0",
+                    version=__version__,
                 )
                 job = await asyncio.to_thread(claim_next_job, worker_id)
                 backoff = 1.0

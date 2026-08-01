@@ -1,6 +1,7 @@
 import hashlib
 from datetime import UTC, datetime
 from math import isfinite
+from urllib.parse import urlsplit
 
 import httpx
 
@@ -181,6 +182,14 @@ class OpenNewsProvider(NewsProvider):
             )
             or "OpenNews",
             published_at=published_at,
+            source_domain=urlsplit(article_url).hostname,
+            source_type="editorial",
+            canonical_url=article_url,
+            original_url=article_url,
+            categories=[_text(payload.get("category"))] if _text(payload.get("category")) else [],
+            trust_score=60,
+            relevance_score=60,
+            relevance_reason="OpenNews financial-news aggregation result",
             image_url=normalized_http_url(payload.get("image") or payload.get("imageUrl")) or None,
             supplied_tickers=_tickers(payload.get("coins")),
             sector=_text(payload.get("sector")) or None,

@@ -28,14 +28,6 @@ export const PRIMARY_NAVIGATION: readonly WorkspaceNavigationItem[] = [
     availability: "current",
   },
   {
-    href: "/map",
-    label: "World Map",
-    shortLabel: "Map",
-    description: "Explore geographic coverage",
-    icon: "map",
-    availability: "current",
-  },
-  {
     href: "/learn",
     label: "Learn",
     shortLabel: "Learn",
@@ -45,24 +37,7 @@ export const PRIMARY_NAVIGATION: readonly WorkspaceNavigationItem[] = [
   },
 ] as const;
 
-export const FUTURE_NAVIGATION: readonly WorkspaceNavigationItem[] = [
-  {
-    href: "/study",
-    label: "Student Workspace",
-    shortLabel: "Study",
-    description: "Private study tools preview",
-    icon: "study",
-    availability: "preview",
-  },
-  {
-    href: "/paper",
-    label: "Paper Trading",
-    shortLabel: "Paper",
-    description: "Simulation workspace preview",
-    icon: "paper",
-    availability: "preview",
-  },
-] as const;
+export const FUTURE_NAVIGATION: readonly WorkspaceNavigationItem[] = [];
 
 export function isNavigationItemActive(
   pathname: string,

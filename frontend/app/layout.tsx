@@ -4,6 +4,7 @@ import {
   PREFERENCE_BOOTSTRAP_SCRIPT,
   PreferencesProvider,
 } from "@/features/preferences";
+import { BorzaQueryProvider } from "@/features/query/query-provider";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -34,7 +35,9 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <PreferencesProvider>{children}</PreferencesProvider>
+        <BorzaQueryProvider>
+          <PreferencesProvider>{children}</PreferencesProvider>
+        </BorzaQueryProvider>
       </body>
     </html>
   );

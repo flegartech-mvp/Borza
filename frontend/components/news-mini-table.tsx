@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowUpRight, Inbox } from "lucide-react";
+import { ArrowUpRight, Inbox, ShieldCheck } from "lucide-react";
 import { getArticleGeography, REGION_OPTIONS } from "@/lib/geography";
 import { relativeTime } from "@/lib/formatters";
 import { safeExternalUrl } from "@/lib/safe-url";
@@ -40,8 +40,28 @@ function SourceLink({ article }: { article: Article }) {
       aria-label={`Open source for ${article.title}`}
       className="inline-flex items-center gap-1 text-[var(--accent)] hover:underline"
     >
-      Source <ArrowUpRight aria-hidden="true" size={13} />
+      Original <ArrowUpRight aria-hidden="true" size={13} />
     </a>
+  );
+}
+
+function SourceType({ article }: { article: Article }) {
+  const official = ["official", "regulator", "exchange"].includes(
+    article.source_type ?? "",
+  );
+  return (
+    <span
+      className={`inline-flex items-center gap-1 rounded-sm px-1.5 py-0.5 text-[10px] font-medium ${
+        official
+          ? "bg-[var(--positive-soft)] text-[var(--positive)]"
+          : "bg-[var(--status-soft)] text-[var(--information)]"
+      }`}
+    >
+      {official ? <ShieldCheck aria-hidden="true" size={11} /> : null}
+      {article.source_type === "discovery"
+        ? "Discovered"
+        : article.source_type || "Editorial"}
+    </span>
   );
 }
 
@@ -168,8 +188,8 @@ function NewsMiniTableResults({
           <table className="w-full min-w-[760px] table-fixed border-collapse text-left">
             <caption className="sr-only">
               Server-paginated financial news for {selectionLabel}, including
-              publication time, headline, inferred or explicit geography,
-              article tone, attention score, and source.
+              publication time, headline, inferred or explicit geography, source
+              type, publication time, region, relevance, and original link.
             </caption>
             <colgroup>
               <col className="w-24" />
@@ -216,12 +236,26 @@ function NewsMiniTableResults({
                       <p className="break-words text-sm font-medium leading-5">
                         {article.title}
                       </p>
-                      <p
-                        className="mt-1 truncate text-[11px] text-[var(--muted)]"
-                        title={article.source}
-                      >
-                        {article.source}
+                      <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-[var(--muted)]">
+                        {article.description ||
+                          "No publisher summary available."}
                       </p>
+                      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                        <SourceType article={article} />
+                        {article.categories?.slice(0, 2).map((category) => (
+                          <span
+                            key={category}
+                            className="rounded-sm border border-[var(--line)] px-1.5 py-0.5 text-[10px] text-[var(--muted)]"
+                          >
+                            {category.replaceAll("_", " ")}
+                          </span>
+                        ))}
+                        {(article.duplicate_source_count ?? 1) > 1 ? (
+                          <span className="text-[10px] text-[var(--muted)]">
+                            {article.duplicate_source_count} sources
+                          </span>
+                        ) : null}
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-xs text-[var(--muted)]">
                       <span className="break-words">{geography.label}</span>
@@ -241,7 +275,7 @@ function NewsMiniTableResults({
                       className="px-4 py-3 text-right font-mono text-xs"
                       title="Editorial-attention heuristic; not a price forecast"
                     >
-                      {article.impact_score}
+                      {article.relevance_score ?? article.impact_score}
                     </td>
                     <td className="px-4 py-3 text-right text-xs">
                       <SourceLink article={article} />
@@ -270,6 +304,20 @@ function NewsMiniTableResults({
                   <h3 className="mt-2 break-words text-sm font-semibold leading-5">
                     {article.title}
                   </h3>
+                  <p className="mt-2 line-clamp-3 text-xs leading-5 text-[var(--muted)]">
+                    {article.description || "No publisher summary available."}
+                  </p>
+                  <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                    <SourceType article={article} />
+                    {article.categories?.slice(0, 2).map((category) => (
+                      <span
+                        key={category}
+                        className="rounded-sm border border-[var(--line)] px-1.5 py-0.5 text-[10px] text-[var(--muted)]"
+                      >
+                        {category.replaceAll("_", " ")}
+                      </span>
+                    ))}
+                  </div>
                   <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-xs">
                     <div className="min-w-0">
                       <dt className="text-[10px] text-[var(--muted)]">
@@ -292,9 +340,11 @@ function NewsMiniTableResults({
                     </div>
                     <div>
                       <dt className="text-[10px] text-[var(--muted)]">
-                        Attention score
+                        Relevance
                       </dt>
-                      <dd className="mt-1 font-mono">{article.impact_score}</dd>
+                      <dd className="mt-1 font-mono">
+                        {article.relevance_score ?? article.impact_score}
+                      </dd>
                     </div>
                     <div className="min-w-0">
                       <dt className="text-[10px] text-[var(--muted)]">

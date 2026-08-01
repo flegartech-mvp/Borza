@@ -5,7 +5,10 @@ import {
 } from "./config/public-environment";
 
 const publicEndpoints = resolvePublicEndpointConfiguration(process.env);
-const contentSecurityPolicy = createContentSecurityPolicy(publicEndpoints);
+const contentSecurityPolicy = createContentSecurityPolicy(
+  publicEndpoints,
+  process.env.NODE_ENV === "development",
+);
 
 const securityHeaders = [
   { key: "Content-Security-Policy", value: contentSecurityPolicy },
@@ -20,16 +23,9 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  output: "standalone",
   async headers() {
     return [{ source: "/(.*)", headers: securityHeaders }];
-  },
-  async rewrites() {
-    return [
-      {
-        source: "/api/:path*",
-        destination: "/api/index",
-      },
-    ];
   },
 };
 

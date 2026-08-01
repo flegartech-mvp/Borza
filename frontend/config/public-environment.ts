@@ -146,12 +146,18 @@ export function resolvePublicEndpointConfiguration(
 
 export function createContentSecurityPolicy(
   configuration: PublicEndpointConfiguration,
+  development = false,
 ): string {
   const connectSources = ["'self'", ...configuration.connectOrigins].join(" ");
+  const scriptSources = [
+    "'self'",
+    "'unsafe-inline'",
+    ...(development ? ["'unsafe-eval'"] : []),
+  ].join(" ");
   return [
     "default-src 'self'",
     // Next.js emits small inline bootstrap scripts for static App Router pages.
-    "script-src 'self' 'unsafe-inline'",
+    `script-src ${scriptSources}`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: https:",
     "font-src 'self' data:",

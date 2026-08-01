@@ -67,6 +67,11 @@ class NormalizedArticle:
     article_url: str
     source: str
     published_at: datetime
+    source_id: str | None = None
+    source_domain: str | None = None
+    source_type: str = "editorial"
+    canonical_url: str | None = None
+    original_url: str | None = None
     image_url: str | None = None
     supplied_tickers: list[str] = field(default_factory=list)
     sector: str | None = None
@@ -81,11 +86,26 @@ class NormalizedArticle:
     geography_confidence: str | None = None
     geography_reason: str | None = None
     geography_is_inferred: bool | None = None
+    latitude: float | None = None
+    longitude: float | None = None
     provider_payload_version: str | None = None
     provider_sentiment: str | None = None
     provider_sentiment_confidence: float | None = None
     provider_sentiment_probabilities: dict[str, float] | None = None
     provider_sentiment_reason: str | None = None
+    categories: list[str] = field(default_factory=list)
+    organizations: list[str] = field(default_factory=list)
+    companies: list[str] = field(default_factory=list)
+    asset_classes: list[str] = field(default_factory=list)
+    trust_score: int = 50
+    relevance_score: int = 0
+    relevance_reason: str | None = None
+    duplicate_group_id: str | None = None
+    duplicate_count: int = 1
+    alternative_sources: list[dict[str, str]] = field(default_factory=list)
+    extraction_status: str = "provider_metadata"
+    is_stale: bool = False
+    is_demo: bool = False
 
 
 class ProviderRecordValidationError(ValueError):
@@ -101,6 +121,13 @@ class _ProviderArticleBoundary(BaseModel):
     article_url: str = Field(min_length=1, max_length=2000)
     source: str = Field(min_length=1, max_length=120)
     published_at: datetime
+    source_id: str | None = Field(default=None, max_length=80)
+    source_domain: str | None = Field(default=None, max_length=255)
+    source_type: Literal["official", "regulator", "exchange", "editorial", "discovery", "demo"] = (
+        "editorial"
+    )
+    canonical_url: str | None = Field(default=None, max_length=2000)
+    original_url: str | None = Field(default=None, max_length=2000)
     image_url: str | None = Field(default=None, max_length=2000)
     supplied_tickers: list[str] = Field(default_factory=list, max_length=64)
     sector: str | None = Field(default=None, max_length=80)
@@ -115,11 +142,28 @@ class _ProviderArticleBoundary(BaseModel):
     geography_confidence: str | None = Field(default=None, max_length=16)
     geography_reason: str | None = Field(default=None, max_length=64)
     geography_is_inferred: bool | None = None
+    latitude: float | None = Field(default=None, ge=-90, le=90)
+    longitude: float | None = Field(default=None, ge=-180, le=180)
     provider_payload_version: str | None = Field(default=None, max_length=32)
     provider_sentiment: Literal["positive", "negative", "neutral"] | None = None
     provider_sentiment_confidence: float | None = Field(default=None, ge=0, le=1)
     provider_sentiment_probabilities: dict[str, float] | None = None
     provider_sentiment_reason: str | None = Field(default=None, max_length=64)
+    categories: list[str] = Field(default_factory=list, max_length=24)
+    organizations: list[str] = Field(default_factory=list, max_length=32)
+    companies: list[str] = Field(default_factory=list, max_length=32)
+    asset_classes: list[str] = Field(default_factory=list, max_length=16)
+    trust_score: int = Field(default=50, ge=0, le=100)
+    relevance_score: int = Field(default=0, ge=0, le=100)
+    relevance_reason: str | None = Field(default=None, max_length=500)
+    duplicate_group_id: str | None = Field(default=None, max_length=64)
+    duplicate_count: int = Field(default=1, ge=1, le=1000)
+    alternative_sources: list[dict[str, str]] = Field(default_factory=list, max_length=20)
+    extraction_status: Literal["provider_metadata", "extracted", "failed", "not_requested"] = (
+        "provider_metadata"
+    )
+    is_stale: bool = False
+    is_demo: bool = False
 
     @field_validator("article_url")
     @classmethod
@@ -134,6 +178,23 @@ class _ProviderArticleBoundary(BaseModel):
         if value is not None and not normalized_http_url(value):
             raise ValueError("image URL must be an absolute HTTP(S) URL")
         return value
+
+    @field_validator("canonical_url", "original_url")
+    @classmethod
+    def validate_optional_article_url(cls, value: str | None) -> str | None:
+        if value is not None and not normalized_http_url(value):
+            raise ValueError("article URL must be an absolute HTTP(S) URL")
+        return value
+
+    @field_validator("categories", "organizations", "companies", "asset_classes")
+    @classmethod
+    def normalize_string_lists(cls, value: list[str]) -> list[str]:
+        normalized: list[str] = []
+        for item in value:
+            candidate = item.strip()
+            if candidate and len(candidate) <= 120 and candidate not in normalized:
+                normalized.append(candidate)
+        return normalized
 
     @field_validator("published_at")
     @classmethod

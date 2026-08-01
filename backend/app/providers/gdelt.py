@@ -27,6 +27,7 @@ from app.providers.base import (
     normalized_source_country,
 )
 from app.services.deduplication import normalized_url
+from app.version import __version__
 
 logger = logging.getLogger(__name__)
 
@@ -49,12 +50,14 @@ FINANCE_QUERY_GROUPS: dict[str, tuple[str, ...]] = {
         "eurozone market",
     ),
     "slovenian_economy": (
-        "slovenia",
         "slovenian economy",
+        "slovenia economy",
+        "slovenian finance",
+        "slovenian inflation",
         "ljubljana stock exchange",
         "ljse",
         "banka slovenije",
-        "sstat",
+        "surs",
     ),
     "central_banks": (
         "central bank",
@@ -374,7 +377,8 @@ class GdeltNewsProvider(NewsProvider):
         self.cooldown_until = 0.0
         self.last_successful_ingestion_at: datetime | None = None
         self.user_agent = (
-            "Borza/0.1.0 (+https://github.com/borza/borza; contact: contact@example.invalid)"
+            f"Borza/{__version__} "
+            "(+https://github.com/borza/borza; contact: contact@example.invalid)"
         )
         self._client = None
         self._owns_client = True
@@ -447,7 +451,10 @@ class GdeltNewsProvider(NewsProvider):
                 request_count += 1
                 try:
                     result = await self.fetch_article_list_result(
-                        build_finance_query(group),
+                        build_finance_query(
+                            group,
+                            source_country="si" if group == "slovenian_economy" else None,
+                        ),
                         start_datetime=start,
                         end_datetime=end,
                         ownership_check=ownership_check,
@@ -462,6 +469,8 @@ class GdeltNewsProvider(NewsProvider):
                             f"{group}: provider record ceiling reached; coverage may be incomplete."
                         )
                     for article in result.articles:
+                        if group not in article.categories:
+                            article.categories.append(group)
                         articles[article.external_id] = article
                 except (GdeltProviderError, ValueError) as exc:
                     retry_count += int(getattr(exc, "retry_count", 0))
@@ -602,6 +611,7 @@ class GdeltNewsProvider(NewsProvider):
             )
 
         retry_count = 0
+        last_failure = "unknown upstream error"
         for attempt in range(self.max_retries + 1):
             if ownership_check:
                 ownership_check()
@@ -627,12 +637,23 @@ class GdeltNewsProvider(NewsProvider):
                         retry_count=retry_count,
                     ) from exc
             except _RetryableGdeltError as exc:
+                status_code = exc.response.status_code
+                last_failure = f"HTTP {status_code}"
+                fallback_delay = 5 if status_code == 429 else 2**attempt
                 retry_after = _retry_after_seconds(
-                    exc.response.headers.get("Retry-After"), 2**attempt
+                    exc.response.headers.get("Retry-After"), fallback_delay
                 )
+                if status_code == 429:
+                    retry_after = max(5, retry_after)
             except (httpx.TimeoutException, httpx.NetworkError) as exc:
+                last_failure = type(exc).__name__
                 retry_after = 2**attempt
-                logger.warning("GDELT network attempt %s failed: %s", attempt + 1, exc)
+                logger.warning(
+                    "GDELT network attempt %s failed (%s): %s",
+                    attempt + 1,
+                    last_failure,
+                    exc,
+                )
             except httpx.HTTPStatusError as exc:
                 self._record_failure()
                 raise GdeltProviderError(
@@ -642,7 +663,7 @@ class GdeltNewsProvider(NewsProvider):
             if attempt == self.max_retries:
                 self._record_failure()
                 raise GdeltProviderError(
-                    "GDELT retry budget exhausted",
+                    f"GDELT retry budget exhausted after {last_failure}",
                     retry_count=retry_count,
                 )
             retry_count += 1
@@ -669,6 +690,7 @@ class GdeltNewsProvider(NewsProvider):
         if not title or not article_url or not published_at:
             return None
         source = _text(payload.get("domain")) or urlsplit(article_url).netloc or "GDELT"
+        source_domain = (urlsplit(article_url).hostname or source).lower()
         provider_article_id = deterministic_provider_id(article_url, published_at, source)
         label, confidence, probabilities = gdelt_tone_to_sentiment(payload.get("tone"))
         image_url = normalized_http_url(payload.get("socialimage")) or None
@@ -683,6 +705,10 @@ class GdeltNewsProvider(NewsProvider):
             source=source,
             image_url=image_url,
             published_at=published_at,
+            source_domain=source_domain,
+            source_type="discovery",
+            canonical_url=normalized_url(article_url),
+            original_url=article_url,
             language=_text(payload.get("language")).lower() or None,
             # sourcecountry is publisher metadata, never an article subject mapping.
             source_country=normalized_source_country(payload.get("sourcecountry")),
@@ -691,6 +717,9 @@ class GdeltNewsProvider(NewsProvider):
             geography_confidence=None,
             geography_reason=None,
             geography_is_inferred=None,
+            trust_score=45,
+            relevance_score=55,
+            relevance_reason="Broad financial-news discovery result; verify with the publisher",
             provider_sentiment=label,
             provider_sentiment_confidence=confidence,
             provider_sentiment_probabilities=probabilities,

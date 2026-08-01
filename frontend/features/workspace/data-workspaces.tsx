@@ -7,13 +7,13 @@ import {
   AlertTriangle,
   ArrowRight,
   BookOpenText,
-  Map,
   Newspaper,
   RefreshCw,
 } from "lucide-react";
 import { FilterBar } from "@/components/filter-bar";
 import { MarketOverview } from "@/components/market-overview";
 import { NewsMiniTable } from "@/components/news-mini-table";
+import { NewsFreshnessPanel } from "@/components/news-freshness-panel";
 import { RegionNewsPanel } from "@/components/region-news-panel";
 import { SectorBriefing } from "@/components/sector-briefing";
 import { useNewsStream } from "@/hooks/use-news-stream";
@@ -301,12 +301,6 @@ export function OverviewWorkspace() {
                 icon: Newspaper,
               },
               {
-                href: "/map",
-                label: "Explore the World Map",
-                detail: "Compare geographic coverage",
-                icon: Map,
-              },
-              {
                 href: "/learn",
                 label: "Learn the methods",
                 detail: "Understand tone, attention, and freshness",
@@ -385,6 +379,25 @@ export function NewsWorkspace({
         fallback={data.feedUsingDemoFallback}
         apiDemo={data.feedApiDemo}
       />
+
+      <NewsFreshnessPanel
+        state={data.freshnessState}
+        referenceTime={data.feed?.window_end}
+      />
+
+      {data.feed?.partial_results ? (
+        <InlineEndpointNotice
+          message="Some configured news providers were degraded during the latest ingestion run."
+          retained
+        />
+      ) : null}
+
+      {data.feed?.data_freshness === "stale" ? (
+        <InlineEndpointNotice
+          message="The newest successful ingestion is older than the freshness target."
+          retained
+        />
+      ) : null}
 
       <FilterBar
         filters={data.filterDrafts}

@@ -12,6 +12,7 @@ from app.services.ingestion_queue import (
 )
 from app.services.provider_factory import effective_provider_name
 from app.services.schema_state import ensure_schema_at_head
+from app.version import __version__
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +37,7 @@ def enqueue_scheduled_job(instance_id: str) -> None:
     record_service_heartbeat(
         "ingestion-scheduler",
         instance_id,
-        version="0.3.0",
+        version=__version__,
         now=end,
     )
     logger.info(
@@ -69,7 +70,7 @@ def main() -> None:
         record_service_heartbeat,
         "interval",
         args=["ingestion-scheduler", instance_id],
-        kwargs={"version": "0.3.0"},
+        kwargs={"version": __version__},
         seconds=settings.ingestion_worker_heartbeat_seconds,
         id="scheduler-heartbeat",
         max_instances=1,

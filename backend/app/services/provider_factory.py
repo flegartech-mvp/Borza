@@ -1,11 +1,13 @@
 from datetime import UTC, datetime
 
 from app.providers.base import NewsProvider, NormalizedArticle, ProviderFetchResult
+from app.providers.composite import CompositeNewsProvider
 from app.providers.demo import DemoNewsProvider
 from app.providers.fallback import FallbackNewsProvider
 from app.providers.finnhub import FinnhubNewsProvider
 from app.providers.gdelt import GdeltNewsProvider
 from app.providers.opennews import OpenNewsProvider
+from app.providers.rss import RSSNewsProvider
 
 
 class UnavailableNewsProvider(NewsProvider):
@@ -34,7 +36,7 @@ class UnavailableNewsProvider(NewsProvider):
 def effective_provider_name(settings) -> str:
     """Return the provider that a queued job will initially execute."""
 
-    provider_name = getattr(settings, "news_provider", "gdelt")
+    provider_name = getattr(settings, "news_provider", "composite")
     if getattr(settings, "demo_mode", False) or provider_name == "demo":
         return "demo"
     if provider_name == "opennews" and not getattr(settings, "opennews_token", None):
@@ -58,6 +60,24 @@ def build_news_provider(settings, *, provider_name: str | None = None):
             default_lookback_hours=settings.gdelt_default_lookback_hours,
             query_groups=settings.gdelt_query_group_list,
         )
+    if selected == "composite":
+        providers: list[NewsProvider] = []
+        for name in settings.composite_provider_list:
+            if name == "rss":
+                providers.append(RSSNewsProvider())
+            elif name == "gdelt":
+                providers.append(build_news_provider(settings, provider_name="gdelt"))
+            elif name == "opennews" and settings.opennews_token:
+                providers.append(
+                    OpenNewsProvider(
+                        api_token=settings.opennews_token,
+                        api_base=settings.opennews_api_base,
+                        fetch_limit=settings.opennews_fetch_limit,
+                    )
+                )
+            elif name == "finnhub" and settings.finnhub_api_key:
+                providers.append(FinnhubNewsProvider(settings.finnhub_api_key))
+        return CompositeNewsProvider(providers)
     if selected == "opennews":
         if not settings.opennews_token:
             return UnavailableNewsProvider(
@@ -74,8 +94,6 @@ def build_news_provider(settings, *, provider_name: str | None = None):
             allow_demo_fallback=True,
         )
     if selected == "rss":
-        from app.providers.rss import RSSNewsProvider
-
         return RSSNewsProvider()
     if selected == "finnhub":
         if not settings.finnhub_api_key:

@@ -1,6 +1,8 @@
 // @vitest-environment jsdom
 
 import { act, renderHook, waitFor } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import type { PropsWithChildren } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { DEFAULT_FILTERS } from "@/lib/filters";
 import type {
@@ -78,7 +80,18 @@ const freshness: IngestionStatus = {
   records_inserted: 4,
 };
 
+let queryClient: QueryClient;
+
+function QueryWrapper({ children }: PropsWithChildren) {
+  return (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
+}
+
 beforeEach(() => {
+  queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false, staleTime: 0 } },
+  });
   vi.clearAllMocks();
   apiMocks.getNewsRevision.mockResolvedValue({
     latest_published_at: null,
@@ -102,8 +115,9 @@ describe("useNewsStream endpoint isolation", () => {
       }),
     );
 
-    const { result, unmount } = renderHook(() =>
-      useNewsStream(DEFAULT_FILTERS),
+    const { result, unmount } = renderHook(
+      () => useNewsStream(DEFAULT_FILTERS),
+      { wrapper: QueryWrapper },
     );
 
     await waitFor(() => {
@@ -118,8 +132,9 @@ describe("useNewsStream endpoint isolation", () => {
   });
 
   it("preserves prior feed data when a later reconciliation fails", async () => {
-    const { result, unmount } = renderHook(() =>
-      useNewsStream(DEFAULT_FILTERS),
+    const { result, unmount } = renderHook(
+      () => useNewsStream(DEFAULT_FILTERS),
+      { wrapper: QueryWrapper },
     );
     await waitFor(() => expect(result.current.feedState.phase).toBe("ready"));
 
@@ -153,8 +168,9 @@ describe("useNewsStream endpoint isolation", () => {
       revision: "rev-static",
     });
 
-    const { result, unmount } = renderHook(() =>
-      useNewsStream(DEFAULT_FILTERS),
+    const { result, unmount } = renderHook(
+      () => useNewsStream(DEFAULT_FILTERS),
+      { wrapper: QueryWrapper },
     );
     await waitFor(() => expect(result.current.feedState.phase).toBe("ready"));
     const initialCallCount = apiMocks.getNewsPage.mock.calls.length;

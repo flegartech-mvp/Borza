@@ -33,11 +33,12 @@ def normalized_url(url: str) -> str:
         for key, value in parse_qsl(parts.query, keep_blank_values=True)
         if key.lower() not in tracking_keys and not key.lower().startswith("utm_")
     ]
+    clean_path = re.sub(r"/{2,}", "/", parts.path)
     return urlunsplit(
         (
             parts.scheme.lower(),
             parts.netloc.lower(),
-            parts.path.rstrip("/") or "/",
+            clean_path.rstrip("/") or "/",
             urlencode(query, doseq=True),
             "",
         )

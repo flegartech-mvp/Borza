@@ -107,6 +107,8 @@ def test_cursor_pagination_ordering_and_filters():
         # 1. Fetch initial page
         page1 = client.get("/api/news-page?limit=2").json()
         assert page1["items"]
+        assert page1["data_freshness"] in {"fresh", "stale", "unknown"}
+        assert page1["sort"] == "newest"
         cursor = page1["next_cursor"]
         assert cursor is not None
 
@@ -122,6 +124,16 @@ def test_cursor_pagination_ordering_and_filters():
         # 3. Reject malformed cursor
         bad_cursor = client.get("/api/news-page?cursor=invalid_base64_json!!!")
         assert bad_cursor.status_code in (400, 422)
+
+        demo_only = client.get("/api/news-page?source_type=demo&sort=relevance")
+        assert demo_only.status_code == 200
+        assert demo_only.json()["items"]
+        assert all(item["source_type"] == "demo" for item in demo_only.json()["items"])
+        assert demo_only.json()["active_filters"]["source_type"] == "demo"
+
+        official_only = client.get("/api/news-page?official_only=true")
+        assert official_only.status_code == 200
+        assert official_only.json()["items"] == []
 
 
 def test_operational_health_freshness_thresholds():

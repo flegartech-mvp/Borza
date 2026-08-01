@@ -1,11 +1,10 @@
-"""Package the clean, production-ready Borza application into Borza-production-ready.zip."""
+"""Package the current Borza source tree for private handoff."""
 
-import os
 import zipfile
 from pathlib import Path
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-OUTPUT_ZIP = ROOT_DIR / "Borza-production-ready.zip"
+OUTPUT_ZIP = ROOT_DIR / "Borza-source.zip"
 
 EXCLUDE_DIRS = {
     ".git",
@@ -35,12 +34,15 @@ EXCLUDE_EXTENSIONS = {
 }
 
 EXCLUDE_FILES = {
+    ".coverage",
     ".env",
     ".env.local",
     ".env.production",
     "marketpulse.db",
     "test_markets.db",
     "Borza-production-ready.zip",
+    "Borza-source.zip",
+    "coverage.xml",
 }
 
 
@@ -53,12 +55,14 @@ def package_release():
         for path in ROOT_DIR.rglob("*"):
             if path.is_dir():
                 continue
-                
+
             rel_path = path.relative_to(ROOT_DIR)
             parts = rel_path.parts
 
             # Check directory exclusions
-            if any(part in EXCLUDE_DIRS for part in parts):
+            if any(
+                part in EXCLUDE_DIRS or part.startswith(".pytest-") for part in parts
+            ):
                 continue
 
             # Check file exclusions

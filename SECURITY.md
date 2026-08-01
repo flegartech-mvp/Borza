@@ -57,4 +57,3 @@ Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-...'; styl
 - Automated Python dependency auditing via `pip_audit`.
 - Automated Node dependency auditing via `npm audit`.
 - Pinned commit SHAs in GitHub Actions workflows.
-- CycloneDX SBOM generation (`sbom.json`) for full transitive dependency tracking.

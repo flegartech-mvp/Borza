@@ -1,6 +1,7 @@
 import hashlib
 from datetime import UTC, datetime
 from math import isfinite
+from urllib.parse import urlsplit
 
 import httpx
 
@@ -125,6 +126,14 @@ class FinnhubNewsProvider(NewsProvider):
             source=_text(payload.get("source")) or "Finnhub",
             image_url=normalized_http_url(payload.get("image")) or None,
             published_at=published_at,
+            source_domain=urlsplit(url).hostname,
+            source_type="editorial",
+            canonical_url=url,
+            original_url=url,
+            categories=[_text(payload.get("category"))] if _text(payload.get("category")) else [],
+            trust_score=60,
+            relevance_score=55,
+            relevance_reason="Supplemental market-news provider result",
             language=_text(payload.get("language")).lower() or None,
             source_country=normalized_source_country(payload.get("country")),
         )

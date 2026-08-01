@@ -76,7 +76,18 @@ describe("public deployment environment", () => {
     expect(policy).toContain(
       "connect-src 'self' https://api.example.com wss://stream.example.com",
     );
+    expect(policy).not.toContain("'unsafe-eval'");
     expect(policy).not.toMatch(/localhost|127\.0\.0\.1|0\.0\.0\.0/);
+  });
+
+  it("allows React development diagnostics only in development CSP", () => {
+    const configuration = resolvePublicEndpointConfiguration({});
+    expect(createContentSecurityPolicy(configuration, true)).toContain(
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+    );
+    expect(createContentSecurityPolicy(configuration)).not.toContain(
+      "'unsafe-eval'",
+    );
   });
 
   it("keeps explicit local defaults available outside strict builds", () => {

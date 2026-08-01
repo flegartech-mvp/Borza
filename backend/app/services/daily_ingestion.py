@@ -6,6 +6,7 @@ from datetime import UTC, datetime, timedelta
 from app.database import SessionLocal
 from app.models.ingestion import IngestionJob, IngestionRun
 from app.providers.base import sanitized_provider_error
+from app.providers.composite import CompositeNewsProvider
 from app.providers.gdelt import GdeltNewsProvider
 from app.services.ingestion_lock import LeaseLock, LeaseLostError
 from app.services.provider_factory import build_news_provider, effective_provider_name
@@ -212,7 +213,7 @@ async def ingest_daily(
             sentiment_service,
             publisher=publisher,
         )
-        if isinstance(provider, GdeltNewsProvider):
+        if isinstance(provider, (GdeltNewsProvider, CompositeNewsProvider)):
             fetched = await provider.fetch_market_news(
                 start_datetime=start,
                 end_datetime=end,

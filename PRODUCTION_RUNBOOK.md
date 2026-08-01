@@ -1,143 +1,127 @@
-# Borza Production Deployment Runbook
+# Borza Production Runbook
 
-This guide covers operational setup, local environment startup, database migrations, service lifecycle management, and monitoring for the Borza platform.
+This is the canonical deployment model. The frontend and backend are separate deployments.
 
----
+## Service Placement
 
-## Architecture Overview
+| Service   | Host                              | Start command                                                  | Health check                      |
+| --------- | --------------------------------- | -------------------------------------------------------------- | --------------------------------- |
+| Frontend  | Vercel, root `frontend/`          | managed Next.js build/start                                    | `/`                               |
+| API       | Render container, root `backend/` | `uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 2` | `/ready`                          |
+| Worker    | Render background worker          | `python -m app.workers.ingestion_worker`                       | operational heartbeat in database |
+| Scheduler | Render background worker          | `python -m app.scheduler`                                      | operational heartbeat in database |
+| Migration | Render pre-deploy job             | `alembic upgrade head`                                         | command exits successfully        |
+| Database  | Supabase or PostgreSQL            | managed service                                                | checked by `/ready`               |
+| Realtime  | Render Valkey                     | managed service                                                | checked by `/ready` when enabled  |
 
-Borza consists of 6 primary services:
-1. **Frontend**: Next.js 16 (React 19) application (`frontend/`).
-2. **Backend API**: FastAPI application (`backend/app/main.py`).
-3. **Database**: PostgreSQL 16 relational store with Alembic schema management.
-4. **Cache & Event Bus**: Valkey (Redis-compatible) event bus and distributed rate limiter.
-5. **Ingestion Worker**: Background Python worker (`backend/app/workers/ingestion_worker.py`).
-6. **Ingestion Scheduler**: Background cron scheduler (`backend/app/scheduler.py`).
+`render.yaml` defines the API, worker, scheduler, and Valkey services. Vercel deploys only `frontend/`. There is no Python runtime or ingestion cron under `frontend/`.
 
----
+## Required Configuration
 
-## 1. Environment Configuration
+API:
 
-Copy `.env.example` to `.env` in the root directory:
+- `ENVIRONMENT=production`
+- `DATABASE_URL`
+- `MIGRATION_DATABASE_URL`
+- `EVENT_BUS_URL`
+- `REALTIME_ENABLED=true`
+- `CORS_ORIGINS=https://<frontend-host>`
+- `ALLOWED_HOSTS=<api-host>`
+- `CRON_SECRET`
+
+Worker:
+
+- `ENVIRONMENT=production`
+- `DATABASE_URL`
+- `EVENT_BUS_URL`
+- `REALTIME_ENABLED=true`
+- `NEWS_PROVIDER=composite`
+- `COMPOSITE_PROVIDERS=rss,gdelt`
+- optional `OPENNEWS_TOKEN` or `FINNHUB_API_KEY` only when the matching provider is enabled
+
+Scheduler:
+
+- `ENVIRONMENT=production`
+- `DATABASE_URL`
+- `NEWS_PROVIDER=composite`
+- `COMPOSITE_PROVIDERS=rss,gdelt`
+
+Frontend build:
+
+- `NEXT_PUBLIC_API_URL=https://<api-host>`
+- `NEXT_PUBLIC_WS_URL=wss://<api-host>/ws/news` when realtime is enabled
+
+## Release Order
+
+1. Stop or suspend the scheduler and ingestion worker for schema-changing releases.
+2. Deploy backend code without routing traffic to the new API instances.
+3. Run `alembic upgrade head` once using `MIGRATION_DATABASE_URL`.
+4. Start the API and verify `/live` then `/ready`.
+5. Start the worker and scheduler.
+6. Verify `/api/health/operational` and an ingestion run.
+7. Deploy the frontend with the public API and WebSocket URLs.
+8. Exercise the News Explorer search, official-only filter, source link, and mobile filters.
+
+Do not run migrations independently from every API replica.
+
+## Migration Commands
 
 ```bash
-cp .env.example .env
+cd backend
+alembic upgrade head
+alembic current
+alembic check
 ```
 
-### Essential Environment Variables
+Use a direct or session-pooler URL for `MIGRATION_DATABASE_URL`. The runtime can use a compatible pooler URL through `DATABASE_URL`.
+
+## News Enablement
+
+The no-key production baseline is:
 
 ```env
-# Database Configuration
-DATABASE_URL=postgresql+psycopg://postgres:secretpassword@localhost:5432/marketpulse
-MIGRATION_DATABASE_URL=postgresql+psycopg://postgres:secretpassword@localhost:5432/marketpulse
-POSTGRES_PASSWORD=secretpassword
-
-# Cache & Event Bus
-EVENT_BUS_URL=redis://localhost:6379/0
-
-# Runtime Environment
-ENVIRONMENT=production
+NEWS_PROVIDER=composite
+COMPOSITE_PROVIDERS=rss,gdelt
 DEMO_MODE=false
-NEWS_PROVIDER=gdelt
-
-# Security & CORS
-ALLOWED_HOSTS=localhost,127.0.0.1,backend
-CORS_ORIGINS=http://localhost:3000
-
-# Public Frontend URLs
-NEXT_PUBLIC_API_URL=http://localhost:8000
-NEXT_PUBLIC_WS_URL=ws://localhost:8000/ws/news
 ```
 
----
+This runs the verified official RSS registry and GDELT together. A failed provider produces a partial run while successful provider records continue through normalization and ingestion.
 
-## 2. Docker Compose Deployment (Recommended)
+To add OpenNews:
 
-### Start Services
-
-```bash
-docker compose up -d
+```env
+COMPOSITE_PROVIDERS=rss,gdelt,opennews
+OPENNEWS_TOKEN=<server-side token>
 ```
 
-### Check Service Status & Logs
+Never add `OPENNEWS_TOKEN` to Vercel frontend variables or a browser-visible name.
+
+## Health And Operations
 
 ```bash
-# Check running containers
+curl -fsS https://<api-host>/live
+curl -fsS https://<api-host>/ready
+curl -fsS https://<api-host>/api/health/operational
+```
+
+- `/live` proves the API process is serving.
+- `/ready` checks database schema/connectivity and configured realtime dependencies.
+- `/api/health/operational` reports worker/scheduler freshness and queue state.
+- `/api/ingestion-status` exposes sanitized public freshness metadata used by the frontend.
+
+Review ingestion runs for provider-specific request, accepted, duplicate, malformed, retry, warning, and failure counts. A `partial` result is actionable but does not make successful articles unavailable.
+
+## Local Production Shape
+
+```powershell
+Copy-Item .env.example .env
+docker compose config
+docker compose up --build
 docker compose ps
-
-# Inspect API logs
-docker compose logs -f backend
-
-# Inspect Worker logs
-docker compose logs -f worker
 ```
 
----
+Expected ports are frontend `3000`, API `8000`, PostgreSQL `5432`, and internal Valkey `6379`.
 
-## 3. Database Schema Migrations
+## Rollback
 
-Schema migrations are managed by Alembic.
-
-### Running Migrations Manually
-
-```bash
-cd backend
-python -m alembic upgrade head
-```
-
-### Checking Migration Status
-
-```bash
-python -m alembic current
-python -m alembic check
-```
-
----
-
-## 4. Operational Health & Diagnostics
-
-### Healthcheck Endpoints
-
-- **Process Liveness**: `GET /live` -> Returns `{"status": "alive"}`
-- **Dependency Readiness**: `GET /ready` -> Checks database connectivity and WebSocket state. Returns `200 OK` or `503 Service Unavailable`.
-- **Operational Health (SLAs)**: `GET /api/health/operational` -> Validates worker freshness, scheduler freshness, and job queue staleness.
-
-### Example Health Check Query
-
-```bash
-curl -s http://localhost:8000/api/health/operational | jq .
-```
-
-Expected Response:
-```json
-{
-  "status": "healthy",
-  "worker_fresh": true,
-  "scheduler_fresh": true,
-  "last_ingestion_age_seconds": 120.4,
-  "oldest_queued_job_age_seconds": null,
-  "failed_jobs_count": 0,
-  "worker_status": "ready",
-  "scheduler_status": "ready",
-  "timestamp": "2026-08-01T11:45:00Z"
-}
-```
-
----
-
-## 5. Troubleshooting & Maintenance
-
-### Clearing Worker Leases & Stale Heartbeats
-
-If a worker crashes unexpectedly, stale heartbeats are automatically pruned by the retention policy (`cleanup_stale_heartbeats`). To trigger cleanup manually:
-
-```bash
-cd backend
-python -c "from app.database import SessionLocal; from app.services.ingestion_queue import cleanup_stale_heartbeats; db = SessionLocal(); print(cleanup_stale_heartbeats(db)); db.close()"
-```
-
-### Resetting News Ingestion Queue
-
-```bash
-python -m app.cli.healthcheck
-```
+Roll back application containers first. Database downgrades are not automatic; inspect the specific Alembic revision and data compatibility before running `alembic downgrade`. Never reset or recreate the production database as a rollback technique.

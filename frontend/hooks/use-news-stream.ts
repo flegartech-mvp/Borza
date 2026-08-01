@@ -1,10 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import type { Filters } from "@/lib/filters";
 import {
   apiProblemFrom,
-  DASHBOARD_WINDOW_HOURS,
   getAnalysis,
   getIngestionStatus,
   getNewsPage,
@@ -70,7 +70,8 @@ function matchesFilters(article: Article, filters: Filters): boolean {
   const published = Date.parse(article.published_at);
   return (
     Number.isFinite(published) &&
-    published >= Date.now() - DASHBOARD_WINDOW_HOURS * 60 * 60 * 1000 &&
+    published >=
+      Date.now() - Number.parseInt(filters.window_hours, 10) * 60 * 60 * 1000 &&
     (!filters.sentiment || article.sentiment === filters.sentiment) &&
     (!filters.ticker ||
       article.tickers.some(
@@ -80,6 +81,20 @@ function matchesFilters(article: Article, filters: Filters): boolean {
     (!filters.minimum_impact ||
       (article.impact_score_base ?? article.impact_score) >=
         Number.parseInt(filters.minimum_impact, 10)) &&
+    (!filters.minimum_relevance ||
+      (article.relevance_score ?? article.impact_score) >=
+        Number.parseInt(filters.minimum_relevance, 10)) &&
+    (!filters.category ||
+      (article.categories ?? []).includes(filters.category)) &&
+    (!filters.source || article.source === filters.source) &&
+    (!filters.source_type || article.source_type === filters.source_type) &&
+    (!filters.region || article.region?.toLowerCase() === filters.region) &&
+    (!filters.language ||
+      article.language?.toLowerCase() === filters.language) &&
+    (!filters.official_only ||
+      ["official", "regulator", "exchange"].includes(
+        article.source_type ?? "editorial",
+      )) &&
     (!search ||
       article.title.toLowerCase().includes(search) ||
       article.description.toLowerCase().includes(search))
@@ -87,6 +102,7 @@ function matchesFilters(article: Article, filters: Filters): boolean {
 }
 
 export function useNewsStream(filters: Filters) {
+  const queryClient = useQueryClient();
   const [feedState, setFeedState] =
     useState<EndpointState<NewsPage>>(initialEndpointState);
   const [analysisState, setAnalysisState] =
@@ -125,12 +141,33 @@ export function useNewsStream(filters: Filters) {
     setStatsState(beginRequest);
     setFreshnessState(beginRequest);
 
+    const requestedFilters = { ...filtersRef.current };
+    const filterKey = JSON.stringify(requestedFilters);
     const [feedResult, analysisResult, statsResult, freshnessResult] =
       await Promise.allSettled([
-        getNewsPage(filtersRef.current, 0, { signal: controller.signal }),
-        getAnalysis(filtersRef.current, { signal: controller.signal }),
-        getStats(filtersRef.current, { signal: controller.signal }),
-        getIngestionStatus({ signal: controller.signal }),
+        queryClient.fetchQuery({
+          queryKey: ["news", "page", filterKey, 0],
+          staleTime: 0,
+          queryFn: () =>
+            getNewsPage(requestedFilters, 0, { signal: controller.signal }),
+        }),
+        queryClient.fetchQuery({
+          queryKey: ["news", "analysis", filterKey],
+          staleTime: 0,
+          queryFn: () =>
+            getAnalysis(requestedFilters, { signal: controller.signal }),
+        }),
+        queryClient.fetchQuery({
+          queryKey: ["news", "stats", filterKey],
+          staleTime: 0,
+          queryFn: () =>
+            getStats(requestedFilters, { signal: controller.signal }),
+        }),
+        queryClient.fetchQuery({
+          queryKey: ["news", "ingestion-status"],
+          staleTime: 0,
+          queryFn: () => getIngestionStatus({ signal: controller.signal }),
+        }),
       ]);
 
     if (currentRequest !== requestId.current) return;
@@ -190,7 +227,7 @@ export function useNewsStream(filters: Filters) {
     }
 
     refreshController.current = null;
-  }, []);
+  }, [queryClient]);
 
   const loadMore = useCallback(async () => {
     const feed = feedState.data;
@@ -203,8 +240,17 @@ export function useNewsStream(filters: Filters) {
     setPaginationError(null);
     try {
       const cursorOrOffset = feed.next_cursor ?? feed.items.length;
-      const page = await getNewsPage(filtersRef.current, cursorOrOffset, {
-        signal: controller.signal,
+      const page = await queryClient.fetchQuery({
+        queryKey: [
+          "news",
+          "page",
+          JSON.stringify(filtersRef.current),
+          cursorOrOffset,
+        ],
+        queryFn: () =>
+          getNewsPage(filtersRef.current, cursorOrOffset, {
+            signal: controller.signal,
+          }),
       });
       if (requestedFilters !== JSON.stringify(filtersRef.current)) return;
       setFeedState((current) => {
@@ -239,7 +285,7 @@ export function useNewsStream(filters: Filters) {
     } finally {
       if (!controller.signal.aborted) setLoadingMore(false);
     }
-  }, [feedState.data, loadingMore]);
+  }, [feedState.data, loadingMore, queryClient]);
 
   useEffect(() => {
     const timeout = setTimeout(() => void refresh(), filters.search ? 280 : 0);

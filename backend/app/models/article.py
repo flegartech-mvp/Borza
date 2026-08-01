@@ -53,6 +53,8 @@ class Article(Base):
         Index("ix_articles_published_at", "published_at"),
         Index("ix_articles_sentiment", "sentiment"),
         Index("ix_articles_impact_score", "impact_score"),
+        Index("ix_articles_source_type_published_at", "source_type", "published_at"),
+        Index("ix_articles_relevance_published_at", "relevance_score", "published_at"),
         Index("ix_articles_published_at_id", "published_at", "id"),
         Index("ix_articles_title_fingerprint_published_at", "title_fingerprint", "published_at"),
     )
@@ -67,6 +69,11 @@ class Article(Base):
     article_url: Mapped[str] = mapped_column(String(2000), nullable=False)
     normalized_url: Mapped[str] = mapped_column(String(2000), nullable=False, index=True)
     source: Mapped[str] = mapped_column(String(120), nullable=False)
+    source_id: Mapped[str | None] = mapped_column(String(80))
+    source_domain: Mapped[str | None] = mapped_column(String(255), index=True)
+    source_type: Mapped[str] = mapped_column(String(20), nullable=False, default="editorial")
+    canonical_url: Mapped[str | None] = mapped_column(String(2000))
+    original_url: Mapped[str | None] = mapped_column(String(2000))
     source_country: Mapped[str | None] = mapped_column(String(8))
     language: Mapped[str | None] = mapped_column(String(32))
     image_url: Mapped[str | None] = mapped_column(String(2000))
@@ -92,6 +99,25 @@ class Article(Base):
     geography_confidence: Mapped[str | None] = mapped_column(String(16))
     geography_reason: Mapped[str | None] = mapped_column(String(64))
     geography_is_inferred: Mapped[bool | None] = mapped_column(Boolean)
+    latitude: Mapped[float | None] = mapped_column(Float)
+    longitude: Mapped[float | None] = mapped_column(Float)
+    categories: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
+    organizations: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
+    companies: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
+    asset_classes: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
+    trust_score: Mapped[int] = mapped_column(Integer, nullable=False, default=50)
+    relevance_score: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    relevance_reason: Mapped[str | None] = mapped_column(String(500))
+    duplicate_group_id: Mapped[str | None] = mapped_column(String(64), index=True)
+    duplicate_count: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    alternative_sources: Mapped[list[dict[str, str]]] = mapped_column(
+        JSON, nullable=False, default=list
+    )
+    extraction_status: Mapped[str] = mapped_column(
+        String(24), nullable=False, default="provider_metadata"
+    )
+    is_stale: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    is_demo: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     sentiment_source: Mapped[str | None] = mapped_column(String(64))
     content_hash: Mapped[str] = mapped_column(String(64), nullable=False)
     title_fingerprint: Mapped[str | None] = mapped_column(String(255))

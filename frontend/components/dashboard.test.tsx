@@ -47,6 +47,47 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("Dashboard client filter validation", () => {
+  it("surfaces degraded providers and stale feed metadata independently", () => {
+    vi.mocked(useNewsStream).mockReturnValue({
+      feedState: {
+        data: {
+          items: [],
+          total: 0,
+          limit: 12,
+          offset: 0,
+          has_more: false,
+          window_hours: 24,
+          effective_window_hours: 24,
+          window_start: "2026-07-29T00:00:00Z",
+          window_end: "2026-07-30T00:00:00Z",
+          timestamp_field: "published_at",
+          partial_results: true,
+          data_freshness: "stale",
+        },
+        phase: "ready",
+        error: null,
+        lastSuccessAt: Date.now(),
+      },
+      analysisState: emptyEndpoint,
+      statsState: emptyEndpoint,
+      freshnessState: { ...emptyEndpoint, phase: "idle" },
+      status: "polling",
+      refresh: vi.fn(),
+      loadingMore: false,
+      paginationError: null,
+      loadMore: vi.fn(),
+    });
+
+    render(<Dashboard />);
+
+    expect(
+      screen.getByText(/Some configured news providers were degraded/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/older than the freshness target/),
+    ).toBeInTheDocument();
+  });
+
   it("keeps invalid edits out of committed URL state and supports clearing and recovery", async () => {
     render(
       <Dashboard

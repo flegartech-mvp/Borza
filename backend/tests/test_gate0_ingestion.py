@@ -94,16 +94,16 @@ def test_schema_gate_rejects_unversioned_database_with_exact_repair_command(tmp_
 
     assert str(raised.value) == (
         "Database schema is not at the required Alembic head "
-        "(current: unversioned; required: 0010). "
+        "(current: unversioned; required: 0011). "
         f"Repair it with: {ALEMBIC_UPGRADE_COMMAND}"
     )
     assert ALEMBIC_UPGRADE_COMMAND == "cd backend && python -m alembic upgrade head"
 
 
 def test_schema_state_requires_exact_head_set():
-    assert SchemaState(("0010",), ("0010",)).is_current
-    assert not SchemaState(("0009",), ("0010",)).is_current
-    assert not SchemaState(("0010", "branch"), ("0010",)).is_current
+    assert SchemaState(("0011",), ("0011",)).is_current
+    assert not SchemaState(("0010",), ("0011",)).is_current
+    assert not SchemaState(("0011", "branch"), ("0011",)).is_current
 
 
 def test_queue_enqueue_is_idempotent_and_claim_is_owner_token_guarded(db_factory):

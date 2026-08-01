@@ -18,6 +18,7 @@ describe("URL filter schema", () => {
       }),
     ).toEqual({
       filters: {
+        ...DEFAULT_FILTERS,
         search: "chip makers",
         sentiment: "positive",
         ticker: "BRK.B",
