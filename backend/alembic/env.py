@@ -19,7 +19,9 @@ from app.models.ingestion import (  # noqa: F401
 )
 
 config = context.config
-config.set_main_option("sqlalchemy.url", get_settings().alembic_database_url)
+raw_url = get_settings().alembic_database_url
+# Escape % signs for configparser interpolation
+config.set_main_option("sqlalchemy.url", raw_url.replace("%", "%%"))
 target_metadata = Base.metadata
 
 
