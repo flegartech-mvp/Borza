@@ -124,8 +124,6 @@ def test_cursor_pagination_ordering_and_filters():
         assert bad_cursor.status_code in (400, 422)
 
 
-
-
 def test_operational_health_freshness_thresholds():
     with TestClient(app) as client:
         # Liveness check /ready should remain 200
@@ -138,4 +136,3 @@ def test_operational_health_freshness_thresholds():
         data = ops.json()
         assert "ingestion_worker_fresh" in data
         assert "scheduler_fresh" in data
-

@@ -827,8 +827,6 @@ def cleanup_stale_heartbeats(
     current = now or datetime.now(UTC)
     cutoff = current - timedelta(hours=max(0.1, retention_hours))
     with session_factory() as db:
-        result = db.execute(
-            delete(ServiceHeartbeat).where(ServiceHeartbeat.heartbeat_at < cutoff)
-        )
+        result = db.execute(delete(ServiceHeartbeat).where(ServiceHeartbeat.heartbeat_at < cutoff))
         db.commit()
         return result.rowcount

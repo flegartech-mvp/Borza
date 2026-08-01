@@ -159,7 +159,9 @@ def operational_health(response: Response) -> OperationalHealthRead:
                 oldest_queued_job_age_seconds = (now - oq_at).total_seconds()
 
             failed_jobs_count = (
-                db.scalar(select(func.count(IngestionJob.id)).where(IngestionJob.status == "failed"))
+                db.scalar(
+                    select(func.count(IngestionJob.id)).where(IngestionJob.status == "failed")
+                )
                 or 0
             )
 
@@ -169,7 +171,9 @@ def operational_health(response: Response) -> OperationalHealthRead:
 
     is_healthy = worker_fresh and scheduler_fresh
     health_status: Literal["healthy", "degraded", "unhealthy"] = (
-        "healthy" if is_healthy else ("degraded" if worker_fresh or scheduler_fresh else "unhealthy")
+        "healthy"
+        if is_healthy
+        else ("degraded" if worker_fresh or scheduler_fresh else "unhealthy")
     )
 
     if not is_healthy:

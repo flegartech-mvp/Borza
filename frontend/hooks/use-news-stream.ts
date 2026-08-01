@@ -258,12 +258,18 @@ export function useNewsStream(filters: Filters) {
       if (reconciliation) clearInterval(reconciliation);
       const jitteredDelay = Math.round(delay * (0.8 + Math.random() * 0.4));
       reconciliation = setInterval(async () => {
-        if (typeof document !== "undefined" && document.visibilityState === "hidden") {
+        if (
+          typeof document !== "undefined" &&
+          document.visibilityState === "hidden"
+        ) {
           return;
         }
         try {
           const rev = await getNewsRevision(filtersRef.current);
-          if (lastRevisionRef.current && rev.revision === lastRevisionRef.current) {
+          if (
+            lastRevisionRef.current &&
+            rev.revision === lastRevisionRef.current
+          ) {
             return;
           }
           lastRevisionRef.current = rev.revision;

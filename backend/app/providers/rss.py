@@ -60,15 +60,15 @@ def validate_safe_url(url: str, allowlist_domains: set[str] | None = None) -> st
     """Enforce strict SSRF rules on external feed URLs."""
     if not url or not isinstance(url, str):
         raise SSRFVulnerabilityError("URL must be a non-empty string")
-    
+
     parsed = urlparse(url.strip())
     if parsed.scheme.lower() not in {"http", "https"}:
         raise SSRFVulnerabilityError(f"Disallowed URL scheme: {parsed.scheme}")
-        
+
     hostname = parsed.hostname
     if not hostname:
         raise SSRFVulnerabilityError("URL missing hostname")
-        
+
     hostname_lower = hostname.lower()
     if hostname_lower in {"localhost", "127.0.0.1", "::1", "metadata.google.internal"}:
         raise SSRFVulnerabilityError("Localhost or metadata domain explicitly blocked")
@@ -82,9 +82,7 @@ def validate_safe_url(url: str, allowlist_domains: set[str] | None = None) -> st
         for _, _, _, _, sockaddr in addr_info:
             ip_str = sockaddr[0]
             if not is_safe_ip(ip_str):
-                raise SSRFVulnerabilityError(
-                    f"URL resolves to disallowed IP address: {ip_str}"
-                )
+                raise SSRFVulnerabilityError(f"URL resolves to disallowed IP address: {ip_str}")
     except socket.gaierror as exc:
         raise SSRFVulnerabilityError(f"Failed to resolve host {hostname}") from exc
 
@@ -162,7 +160,10 @@ class RSSNewsProvider(NewsProvider):
             self._client = httpx.AsyncClient(
                 timeout=httpx.Timeout(self.request_timeout_seconds),
                 limits=httpx.Limits(max_keepalive_connections=5, max_connections=10),
-                headers={"User-Agent": self.user_agent, "Accept": "application/xml, text/xml, application/atom+xml"},
+                headers={
+                    "User-Agent": self.user_agent,
+                    "Accept": "application/xml, text/xml, application/atom+xml",
+                },
                 transport=self.transport,
                 follow_redirects=False,  # Enforce manual redirect SSRF verification
             )
@@ -188,15 +189,19 @@ class RSSNewsProvider(NewsProvider):
                 continue
             request_count += 1
             try:
-                safe_url = validate_safe_url(feed.feed_url, allowlist_domains=self.allowlist_domains)
+                safe_url = validate_safe_url(
+                    feed.feed_url, allowlist_domains=self.allowlist_domains
+                )
                 response = await client.get(safe_url)
-                
+
                 # Check for redirects manually to protect against open redirects
                 if response.status_code in (301, 302, 303, 307, 308):
                     redirect_target = response.headers.get("Location")
                     if not redirect_target:
                         raise RSSProviderError("Redirect response missing Location header")
-                    safe_url = validate_safe_url(redirect_target, allowlist_domains=self.allowlist_domains)
+                    safe_url = validate_safe_url(
+                        redirect_target, allowlist_domains=self.allowlist_domains
+                    )
                     response = await client.get(safe_url)
 
                 response.raise_for_status()
@@ -220,7 +225,9 @@ class RSSNewsProvider(NewsProvider):
             raw_record_count=len(records),
         )
 
-    def parse_feed_xml(self, xml_content: str, feed_config: RSSFeedConfig) -> list[NormalizedArticle]:
+    def parse_feed_xml(
+        self, xml_content: str, feed_config: RSSFeedConfig
+    ) -> list[NormalizedArticle]:
         articles: list[NormalizedArticle] = []
         try:
             root = ET.fromstring(xml_content)
@@ -241,12 +248,11 @@ class RSSNewsProvider(NewsProvider):
 
         return articles
 
-
     def _parse_rss_item(self, item: ET.Element, feed: RSSFeedConfig) -> NormalizedArticle | None:
         title = (item.findtext("title") or "").strip()
         link = (item.findtext("link") or "").strip()
         pub_date_raw = item.findtext("pubDate") or item.findtext("dc:date") or ""
-        
+
         if not title or not link:
             return None
 
@@ -257,7 +263,9 @@ class RSSNewsProvider(NewsProvider):
         published_at = self._parse_datetime(pub_date_raw) or datetime.now(UTC)
         description = (item.findtext("description") or item.findtext("summary") or "").strip()
 
-        provider_article_id = hashlib.sha256(f"{article_url}:{published_at.isoformat()}".encode()).hexdigest()
+        provider_article_id = hashlib.sha256(
+            f"{article_url}:{published_at.isoformat()}".encode()
+        ).hexdigest()
 
         return NormalizedArticle(
             external_id=f"rss:{provider_article_id}",
@@ -279,19 +287,26 @@ class RSSNewsProvider(NewsProvider):
 
     def _parse_atom_entry(self, entry: ET.Element, feed: RSSFeedConfig) -> NormalizedArticle | None:
         children = {elem.tag.split("}")[-1].lower(): elem for elem in entry}
-        title = (children.get("title").text if children.get("title") is not None and children.get("title").text else "").strip()
-        
+        title = (
+            children.get("title").text
+            if children.get("title") is not None and children.get("title").text
+            else ""
+        ).strip()
+
         link_elem = children.get("link")
         link = ""
         if link_elem is not None:
             link = link_elem.attrib.get("href") or (link_elem.text or "").strip()
-            
-        pub_elem = children.get("published") if children.get("published") is not None else children.get("updated")
+
+        pub_elem = (
+            children.get("published")
+            if children.get("published") is not None
+            else children.get("updated")
+        )
         pub_date_raw = (pub_elem.text if pub_elem is not None and pub_elem.text else "").strip()
 
         if not title or not link:
             return None
-
 
         article_url = normalized_http_url(link)
         if not article_url:
@@ -300,7 +315,9 @@ class RSSNewsProvider(NewsProvider):
         published_at = self._parse_datetime(pub_date_raw) or datetime.now(UTC)
         description = (entry.findtext("summary") or entry.findtext("content") or "").strip()
 
-        provider_article_id = hashlib.sha256(f"{article_url}:{published_at.isoformat()}".encode()).hexdigest()
+        provider_article_id = hashlib.sha256(
+            f"{article_url}:{published_at.isoformat()}".encode()
+        ).hexdigest()
 
         return NormalizedArticle(
             external_id=f"rss:{provider_article_id}",
@@ -329,7 +346,9 @@ class RSSNewsProvider(NewsProvider):
         except Exception:
             try:
                 parsed = datetime.fromisoformat(raw_str.strip().replace("Z", "+00:00"))
-                return parsed.replace(tzinfo=UTC) if parsed.tzinfo is None else parsed.astimezone(UTC)
+                return (
+                    parsed.replace(tzinfo=UTC) if parsed.tzinfo is None else parsed.astimezone(UTC)
+                )
             except Exception:
                 return None
 

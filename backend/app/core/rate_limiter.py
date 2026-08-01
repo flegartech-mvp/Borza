@@ -46,7 +46,12 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         app,
         limiter: RateLimiter | None = None,
         trust_proxy: bool = False,
-        path_prefixes: tuple[str, ...] = ("/api/news", "/api/news-page", "/api/analysis", "/api/stats"),
+        path_prefixes: tuple[str, ...] = (
+            "/api/news",
+            "/api/news-page",
+            "/api/analysis",
+            "/api/stats",
+        ),
     ):
         super().__init__(app)
         self.limiter = limiter or RateLimiter(requests_per_minute=120)

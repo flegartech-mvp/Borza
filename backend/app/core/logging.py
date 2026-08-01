@@ -5,7 +5,9 @@ import re
 import sys
 from datetime import UTC, datetime
 
-request_id_var: contextvars.ContextVar[str | None] = contextvars.ContextVar("request_id", default=None)
+request_id_var: contextvars.ContextVar[str | None] = contextvars.ContextVar(
+    "request_id", default=None
+)
 
 SENSITIVE_PATTERNS = [
     re.compile(r"(bearer\s+)[a-zA-Z0-9_\-\.~+\/]+=*", re.IGNORECASE),

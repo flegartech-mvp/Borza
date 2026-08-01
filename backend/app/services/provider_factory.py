@@ -75,9 +75,9 @@ def build_news_provider(settings, *, provider_name: str | None = None):
         )
     if selected == "rss":
         from app.providers.rss import RSSNewsProvider
+
         return RSSNewsProvider()
     if selected == "finnhub":
-
         if not settings.finnhub_api_key:
             return UnavailableNewsProvider(
                 "finnhub",

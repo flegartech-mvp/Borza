@@ -154,7 +154,6 @@ class OperationalHealthRead(BaseModel):
         return self.worker_fresh
 
 
-
 class AnalysisDatasetRead(BaseModel):
     articles: list[ArticleRead]
     total_matching: int

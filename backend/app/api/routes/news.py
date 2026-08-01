@@ -59,6 +59,7 @@ def decode_cursor(cursor: str) -> tuple[datetime, int]:
     except Exception as exc:
         raise HTTPException(status_code=422, detail="Invalid pagination cursor format") from exc
 
+
 GDELT_ATTRIBUTION = {
     "label": "Data source: GDELT Project",
     "url": "https://www.gdeltproject.org/",

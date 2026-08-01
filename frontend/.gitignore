@@ -1,5 +1,21 @@
-.vercel
-.env*
+# Next.js build output
+.next/
+out/
+build/
+dist/
 
-.vercel
+# Dependencies
+node_modules/
+
+# Environment files
 .env*
+!.env.example
+
+# Vercel
+.vercel/
+
+# Testing & Coverage
+coverage/
+playwright-report/
+test-results/
+.nyc_output/
