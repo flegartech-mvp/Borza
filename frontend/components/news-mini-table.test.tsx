@@ -54,10 +54,10 @@ describe("NewsMiniTable", () => {
       />,
     );
 
-    expect(screen.getByText(/Showing 12 of 30 matching stories/)).toBeTruthy();
+    expect(screen.getByText(/12 von 30 passenden Meldungen/)).toBeTruthy();
     expect(screen.getAllByRole("listitem")).toHaveLength(12);
     await user.click(
-      screen.getByRole("button", { name: "Load next 12 stories" }),
+      screen.getByRole("button", { name: "Nächste 12 Meldungen laden" }),
     );
     expect(onLoadMore).toHaveBeenCalledOnce();
   });
@@ -85,7 +85,7 @@ describe("NewsMiniTable", () => {
       />,
     );
     await waitFor(() =>
-      expect(screen.getByText(/Showing 4 geography matches/)).toBeTruthy(),
+      expect(screen.getByText(/4 regionale Treffer/)).toBeTruthy(),
     );
     expect(screen.getByText("Europe")).toBeTruthy();
   });
@@ -110,7 +110,7 @@ describe("NewsMiniTable", () => {
     const empty = render(
       <NewsMiniTable articles={[]} selectionLabel="Slovenia" />,
     );
-    expect(screen.getByText("No stories match Slovenia")).toBeTruthy();
+    expect(screen.getByText("Keine Meldungen für Slovenia")).toBeTruthy();
     empty.unmount();
 
     render(
@@ -120,6 +120,6 @@ describe("NewsMiniTable", () => {
       />,
     );
     expect(screen.getByText("Demo")).toBeTruthy();
-    expect(screen.queryByRole("link", { name: /open source/i })).toBeNull();
+    expect(screen.queryByRole("link", { name: /Originalquelle/i })).toBeNull();
   });
 });

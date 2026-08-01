@@ -35,15 +35,18 @@ Review date: 2026-07-30
   unbounded queue
   (`backend/app/api/websocket.py` and
   `backend/app/events/bus.py` and `frontend/lib/news-stream-utils.ts`).
-- Provider tokens remain server-side. Public ingestion status excludes internal
+- Provider tokens remain server-side. Marketaux query tokens are redacted from
+  durable HTTP errors, and its base URL must use HTTPS in deployed environments.
+  Public ingestion status excludes internal
   error detail, and readiness responses never include database URLs or
   exception messages.
 - Provider records cross a strict persistence boundary for field types, sizes,
   URLs, timestamps, tickers, and sentiment metadata. OpenNews bearer tokens are
   limited to the token68 character set and are explicitly removed from durable
-  provider errors. A queued OpenNews or Finnhub job whose credential was
+  provider errors. A queued Marketaux, OpenNews, or Finnhub job whose credential was
   removed fails under its original provider identity instead of silently
-  executing Demo or GDELT data.
+  executing Demo or GDELT data. Keyed providers without credentials are skipped
+  inside the composite so verified RSS can continue independently.
 - Scheduler and external-cron jobs share one active-job database invariant per
   provider/job type. Concurrent requests atomically union their desired time
   windows; a widened running attempt creates one continuation, and stale

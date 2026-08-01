@@ -11,8 +11,8 @@ const options: ReadonlyArray<{
   icon: LucideIcon;
 }> = [
   { value: "system", label: "System", icon: Monitor },
-  { value: "light", label: "Light", icon: Sun },
-  { value: "dark", label: "Dark", icon: Moon },
+  { value: "light", label: "Hell", icon: Sun },
+  { value: "dark", label: "Dunkel", icon: Moon },
 ];
 
 export function ThemeSwitcher() {
@@ -20,8 +20,8 @@ export function ThemeSwitcher() {
   const { themePreference, setThemePreference } = usePreferences();
 
   return (
-    <fieldset aria-label="Theme preference">
-      <legend className="sr-only">Theme preference</legend>
+    <fieldset aria-label="Darstellung">
+      <legend className="sr-only">Darstellung</legend>
       <div className="inline-grid grid-cols-3 gap-1 rounded-lg border border-[var(--line)] bg-[var(--panel-soft)] p-1">
         {options.map(({ value, label, icon: Icon }) => (
           <label key={value} className="cursor-pointer">

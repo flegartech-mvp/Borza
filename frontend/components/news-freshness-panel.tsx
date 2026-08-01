@@ -37,24 +37,24 @@ export function NewsFreshnessPanel({
           ? "border-[var(--warning-line)] bg-[var(--warning-soft)]"
           : "border-[var(--line)] bg-[var(--panel)]"
       }`}
-      aria-label="News freshness"
+      aria-label="Nachrichtenaktualität"
       role={degraded ? "status" : undefined}
     >
       {state.phase === "loading" && !ingestion ? (
-        <span>Loading news freshness…</span>
+        <span>Nachrichtenaktualität wird geladen…</span>
       ) : (
         <>
           <p>
             <span className="font-semibold">
               {degraded
-                ? "Degraded news freshness."
-                : "News ingestion is current."}
+                ? "Nachrichtenaktualität eingeschränkt."
+                : "Nachrichtenabruf ist aktuell."}
             </span>{" "}
-            Last successful run:{" "}
+            Letzter erfolgreicher Lauf:{" "}
             {ingestion?.last_successful_at
               ? new Date(ingestion.last_successful_at).toLocaleString()
-              : "not available"}
-            . Provider: {ingestion?.provider ?? "unknown"}. Status:{" "}
+              : "nicht verfügbar"}
+            . Anbieter: {ingestion?.provider ?? "unbekannt"}. Status:{" "}
             {state.error ? state.error.message : ingestion?.status}
             {ingestion?.worker_status
               ? `. Worker: ${ingestion.worker_status}`
@@ -65,55 +65,55 @@ export function NewsFreshnessPanel({
             <dl className="mt-3 grid grid-cols-2 gap-x-5 gap-y-2 border-t border-[var(--line)] pt-3 sm:grid-cols-4 lg:grid-cols-7">
               <div>
                 <dt className="text-[10px] uppercase tracking-wide text-[var(--muted)]">
-                  Job
+                  Auftrag
                 </dt>
                 <dd className="mt-0.5 font-mono">
-                  {ingestion.job_id ? `#${ingestion.job_id}` : "None"}
+                  {ingestion.job_id ? `#${ingestion.job_id}` : "Keiner"}
                 </dd>
               </div>
               <div>
                 <dt className="text-[10px] uppercase tracking-wide text-[var(--muted)]">
-                  Queue
+                  Warteschlange
                 </dt>
                 <dd className="mt-0.5 font-mono">
-                  {ingestion.queue_status ?? "unknown"}
+                  {ingestion.queue_status ?? "unbekannt"}
                 </dd>
               </div>
               <div>
                 <dt className="text-[10px] uppercase tracking-wide text-[var(--muted)]">
-                  Requests
+                  Anfragen
                 </dt>
                 <dd className="mt-0.5 font-mono">
-                  {ingestion.request_count ?? "unknown"}
+                  {ingestion.request_count ?? "unbekannt"}
                 </dd>
               </div>
               <div>
                 <dt className="text-[10px] uppercase tracking-wide text-[var(--muted)]">
-                  Successful windows
+                  Erfolgreiche Fenster
                 </dt>
                 <dd className="mt-0.5 font-mono">
-                  {ingestion.successful_windows ?? "unknown"}
+                  {ingestion.successful_windows ?? "unbekannt"}
                 </dd>
               </div>
               <div>
                 <dt className="text-[10px] uppercase tracking-wide text-[var(--muted)]">
-                  Failed windows
+                  Fehlgeschlagene Fenster
                 </dt>
                 <dd className="mt-0.5 font-mono">
-                  {ingestion.failed_windows ?? "unknown"}
+                  {ingestion.failed_windows ?? "unbekannt"}
                 </dd>
               </div>
               <div>
                 <dt className="text-[10px] uppercase tracking-wide text-[var(--muted)]">
-                  Warnings
+                  Warnungen
                 </dt>
                 <dd className="mt-0.5 font-mono">
-                  {ingestion.warning_count ?? "unknown"}
+                  {ingestion.warning_count ?? "unbekannt"}
                 </dd>
               </div>
               <div>
                 <dt className="text-[10px] uppercase tracking-wide text-[var(--muted)]">
-                  Inserted
+                  Eingefügt
                 </dt>
                 <dd className="mt-0.5 font-mono">
                   {ingestion.records_inserted}

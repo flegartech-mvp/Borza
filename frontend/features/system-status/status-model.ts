@@ -18,7 +18,7 @@ export function summarizeSystemStatus(
       tone: "offline",
       label: "Offline",
       detail:
-        "The browser is offline. Previously loaded data may still be visible.",
+        "Der Browser ist offline. Zuvor geladene Daten können weiterhin sichtbar sein.",
       demo: ingestion?.provider === "demo",
     };
   }
@@ -26,8 +26,8 @@ export function summarizeSystemStatus(
   if (options.failed) {
     return {
       tone: "offline",
-      label: "Status unavailable",
-      detail: "Borza could not confirm ingestion freshness.",
+      label: "Status nicht verfügbar",
+      detail: "Borza konnte die Aktualität des Datenabrufs nicht bestätigen.",
       demo: ingestion?.provider === "demo",
     };
   }
@@ -35,8 +35,8 @@ export function summarizeSystemStatus(
   if (!ingestion) {
     return {
       tone: "loading",
-      label: "Checking data",
-      detail: "Confirming provider and ingestion freshness.",
+      label: "Daten werden geprüft",
+      detail: "Anbieter und Aktualität des Datenabrufs werden geprüft.",
       demo: false,
     };
   }
@@ -50,23 +50,23 @@ export function summarizeSystemStatus(
   if (degraded) {
     return {
       tone: "degraded",
-      label: demo ? "Demo · degraded" : "Data degraded",
+      label: demo ? "Demo · eingeschränkt" : "Daten eingeschränkt",
       detail:
         ingestion.status === "partial"
-          ? "The latest ingestion completed with partial provider coverage."
+          ? "Der letzte Abruf wurde mit partieller Anbieterabdeckung abgeschlossen."
           : ingestion.status === "never_run"
-            ? "No successful ingestion has been recorded."
-            : `Latest ingestion status: ${ingestion.status}.`,
+            ? "Es wurde noch kein erfolgreicher Abruf aufgezeichnet."
+            : `Letzter Abrufstatus: ${ingestion.status}.`,
       demo,
     };
   }
 
   return {
     tone: "current",
-    label: demo ? "Demo · current" : "Data current",
+    label: demo ? "Demo · aktuell" : "Daten aktuell",
     detail: demo
-      ? "The current workspace uses labeled simulated stories."
-      : "The latest ingestion completed successfully.",
+      ? "Der aktuelle Arbeitsbereich nutzt gekennzeichnete simulierte Meldungen."
+      : "Der letzte Datenabruf wurde erfolgreich abgeschlossen.",
     demo,
   };
 }

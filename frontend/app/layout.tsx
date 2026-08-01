@@ -14,9 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Borza | Financial news, explained",
+  title: "Borza | Deutsche Marktnachrichten, strukturiert",
   description:
-    "Beginner-friendly financial news with method-aware article tone and transparent attention scoring.",
+    "Borza verwandelt deutsche und europäische Finanznachrichten in strukturierte Marktsignale und verständliches Finanzwissen.",
 };
 
 export default function RootLayout({
@@ -24,7 +24,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html
-      lang="en"
+      lang="de"
       className={`${geistSans.variable} ${geistMono.variable}`}
       suppressHydrationWarning
     >

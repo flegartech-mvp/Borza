@@ -71,7 +71,10 @@ def test_health_and_news_routes():
         all_news = client.get("/api/news")
         assert all_news.json() and all(item["is_demo"] for item in all_news.json())
         attribution = client.get("/api/news-attribution")
-        assert attribution.json()["url"] == "https://www.gdeltproject.org/"
+        assert attribution.json() == {
+            "label": "Discovery source: Marketaux",
+            "url": "https://www.marketaux.com/",
+        }
         premium_download = client.get("/api/premium/download-placeholder")
         assert premium_download.status_code == 404
         with client.websocket_connect("/ws/news") as websocket:

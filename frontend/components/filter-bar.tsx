@@ -28,12 +28,12 @@ export function FilterBar({ filters, onChange, onReset }: FilterBarProps) {
 
   return (
     <section
-      aria-label="News filters"
+      aria-label="Nachrichtenfilter"
       className="mt-4 border border-[var(--line)] bg-[var(--panel-soft)] p-3"
     >
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(240px,1.5fr)_repeat(4,minmax(128px,0.8fr))_auto] xl:items-end">
         <label>
-          <Label>Search</Label>
+          <Label>Suche</Label>
           <span className="relative block">
             <Search
               aria-hidden="true"
@@ -44,7 +44,7 @@ export function FilterBar({ filters, onChange, onReset }: FilterBarProps) {
               type="search"
               value={filters.search}
               onChange={(event) => update("search", event.target.value)}
-              placeholder="Companies, institutions, or topics"
+              placeholder="Unternehmen, Institutionen oder Themen"
               maxLength={200}
               className={`${field} pl-9`}
             />
@@ -58,60 +58,63 @@ export function FilterBar({ filters, onChange, onReset }: FilterBarProps) {
             onChange={(event) => update("region", event.target.value)}
             className={field}
           >
-            <option value="">All regions</option>
-            <option value="europe">Europe</option>
-            <option value="north_america">North America</option>
-            <option value="asia">Asia</option>
+            <option value="">Alle Regionen</option>
+            <option value="europe">Europa</option>
+            <option value="north_america">Nordamerika</option>
+            <option value="asia">Asien</option>
             <option value="global">Global</option>
-            <option value="other">Other</option>
+            <option value="other">Weitere</option>
           </select>
         </label>
 
         <label>
-          <Label>Category</Label>
+          <Label>Kategorie</Label>
           <select
             value={filters.category}
             onChange={(event) => update("category", event.target.value)}
             className={field}
           >
-            <option value="">All categories</option>
-            <option value="slovenian_economy">Slovenian economy</option>
-            <option value="european_markets">European markets</option>
-            <option value="central_banks">Central banks</option>
+            <option value="">Alle Kategorien</option>
+            <option value="german_markets">Deutsche Märkte</option>
+            <option value="german_macro">Deutsche Konjunktur</option>
+            <option value="german_companies">Deutsche Unternehmen</option>
+            <option value="european_markets">Europäische Märkte</option>
+            <option value="central_banks">Zentralbanken</option>
+            <option value="slovenian_economy">Slowenische Wirtschaft</option>
             <option value="inflation">Inflation</option>
-            <option value="interest_rates">Interest rates</option>
-            <option value="stocks">Equities</option>
-            <option value="bonds">Bonds</option>
-            <option value="forex">Currencies</option>
-            <option value="commodities">Commodities</option>
-            <option value="banking">Banking</option>
-            <option value="regulation">Regulation</option>
+            <option value="interest_rates">Zinsen</option>
+            <option value="stocks">Aktien</option>
+            <option value="bonds">Anleihen</option>
+            <option value="forex">Währungen</option>
+            <option value="commodities">Rohstoffe</option>
+            <option value="banking">Banken</option>
+            <option value="regulation">Regulierung</option>
           </select>
         </label>
 
         <label>
-          <Label>Published</Label>
+          <Label>Veröffentlicht</Label>
           <select
             value={filters.window_hours}
             onChange={(event) => update("window_hours", event.target.value)}
             className={field}
           >
-            <option value="24">Past 24 hours</option>
-            <option value="48">Past 48 hours</option>
-            <option value="168">Past 7 days</option>
+            <option value="24">Letzte 24 Stunden</option>
+            <option value="48">Letzte 48 Stunden</option>
+            <option value="168">Letzte 7 Tage</option>
           </select>
         </label>
 
         <label>
-          <Label>Order</Label>
+          <Label>Sortierung</Label>
           <select
             value={filters.sort}
             onChange={(event) => update("sort", event.target.value)}
             className={field}
           >
-            <option value="newest">Newest</option>
-            <option value="relevance">Relevance</option>
-            <option value="most_covered">Most covered</option>
+            <option value="newest">Neueste zuerst</option>
+            <option value="relevance">Relevanz</option>
+            <option value="most_covered">Meiste Quellen</option>
           </select>
         </label>
 
@@ -119,10 +122,10 @@ export function FilterBar({ filters, onChange, onReset }: FilterBarProps) {
           type="button"
           onClick={onReset}
           className="flex items-center justify-center gap-2 rounded-[var(--radius-sm)] border border-[var(--line)] bg-[var(--panel)] px-3 py-2 text-xs font-medium text-[var(--muted)] hover:border-[var(--line-strong)] hover:text-[var(--foreground)]"
-          title="Reset all news filters"
+          title="Alle Nachrichtenfilter zurücksetzen"
         >
           <RotateCcw aria-hidden="true" size={14} />
-          Reset
+          Zurücksetzen
         </button>
       </div>
 
@@ -136,53 +139,53 @@ export function FilterBar({ filters, onChange, onReset }: FilterBarProps) {
             }
             className="size-4 accent-[var(--accent)]"
           />
-          Official sources only
+          Nur offizielle Quellen
         </label>
 
         <details className="group w-full sm:w-auto">
           <summary className="flex min-h-10 cursor-pointer list-none items-center gap-2 rounded-[var(--radius-sm)] border border-[var(--line)] bg-[var(--panel)] px-3 text-xs font-medium text-[var(--muted)] hover:text-[var(--foreground)]">
             <SlidersHorizontal aria-hidden="true" size={14} />
-            More filters
+            Weitere Filter
           </summary>
           <div className="mt-3 grid gap-3 border-t border-[var(--line)] pt-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
             <label>
-              <Label>Source name</Label>
+              <Label>Quellenname</Label>
               <input
                 value={filters.source}
                 onChange={(event) => update("source", event.target.value)}
-                placeholder="ECB or publisher"
+                placeholder="EZB oder Herausgeber"
                 maxLength={120}
                 className={field}
               />
             </label>
             <label>
-              <Label>Source type</Label>
+              <Label>Quellentyp</Label>
               <select
                 value={filters.source_type}
                 onChange={(event) => update("source_type", event.target.value)}
                 className={field}
               >
-                <option value="">All source types</option>
-                <option value="official">Official</option>
-                <option value="regulator">Regulator</option>
-                <option value="exchange">Exchange</option>
-                <option value="editorial">Editorial</option>
-                <option value="discovery">Discovery</option>
+                <option value="">Alle Quellentypen</option>
+                <option value="official">Offiziell</option>
+                <option value="regulator">Aufsicht</option>
+                <option value="exchange">Börse</option>
+                <option value="editorial">Redaktionell</option>
+                <option value="discovery">Entdeckung</option>
               </select>
             </label>
             <label>
-              <Label>Language</Label>
+              <Label>Sprache</Label>
               <select
                 value={filters.language}
                 onChange={(event) => update("language", event.target.value)}
                 className={field}
               >
-                <option value="">All languages</option>
-                <option value="sl">Slovenian</option>
-                <option value="en">English</option>
-                <option value="de">German</option>
-                <option value="fr">French</option>
-                <option value="it">Italian</option>
+                <option value="">Alle Sprachen</option>
+                <option value="de">Deutsch</option>
+                <option value="sl">Slowenisch</option>
+                <option value="en">Englisch</option>
+                <option value="fr">Französisch</option>
+                <option value="it">Italienisch</option>
               </select>
             </label>
             <label>
@@ -198,20 +201,20 @@ export function FilterBar({ filters, onChange, onReset }: FilterBarProps) {
               />
             </label>
             <label>
-              <Label>Article tone</Label>
+              <Label>Artikelton</Label>
               <select
                 value={filters.sentiment}
                 onChange={(event) => update("sentiment", event.target.value)}
                 className={field}
               >
-                <option value="">All tones</option>
-                <option value="positive">Positive</option>
-                <option value="negative">Negative</option>
+                <option value="">Alle Tonlagen</option>
+                <option value="positive">Positiv</option>
+                <option value="negative">Negativ</option>
                 <option value="neutral">Neutral</option>
               </select>
             </label>
             <label>
-              <Label>Minimum relevance</Label>
+              <Label>Mindest-Relevanz</Label>
               <input
                 type="number"
                 min="0"
@@ -226,7 +229,7 @@ export function FilterBar({ filters, onChange, onReset }: FilterBarProps) {
               />
             </label>
             <label>
-              <Label>Minimum base attention</Label>
+              <Label>Mindest-Aufmerksamkeit</Label>
               <input
                 type="number"
                 min="0"

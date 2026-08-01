@@ -10,9 +10,29 @@
 
 ## Product direction
 
-Build Borza as a beginner-friendly financial news and market-intelligence platform. Preserve the existing Next.js, FastAPI, SQLAlchemy/Alembic, and PostgreSQL/SQLite stack unless a change is justified.
+Borza is a German-first European market-intelligence platform for three connected audiences:
 
-Prioritize understandable market context, source links, clear demo/delayed-data labeling, accessible controls, and explicit loading, empty, and error states.
+1. German retail investors and active traders.
+2. European day traders who need rapid, structured market catalysts.
+3. Slovenian economics and finance students, especially students in Maribor and Ljubljana.
+
+The primary commercial market is Germany and the wider DACH and European trading market. The student product is a separate learning and acquisition layer that connects current German and European financial news with economics, finance, banking, investing, and business-German studies.
+
+Use this thesis consistently:
+
+> Borza turns German and European market news into structured trading catalysts and understandable financial knowledge.
+
+The primary experience is **Borza Markets**: a German-first, information-dense workspace focused on DAX, MDAX, SDAX, TecDAX, Xetra, Frankfurt, German and major European companies, ECB and Bundesbank policy, BaFin regulation, Destatis macro releases, earnings, and intraday catalysts. Preserve original language and source links. Never present article tone or relevance as a certain price prediction.
+
+The secondary experience is **Borza Learn**: a clearly separated German, Slovenian, and English learning layer using the same market events. It may connect events to economics, finance, banking, investing, and business-German concepts, but must not imply university affiliation or endorsement.
+
+Official German and European primary sources outrank discovery and editorial aggregators. Prioritize verified feeds from Deutsche Bundesbank, BaFin, Destatis, Deutsche Börse, Börse Frankfurt, ECB, ESMA, European Commission releases, and permitted company investor-relations sources. Marketaux is the primary keyed discovery provider. GDELT remains an optional low-frequency research fallback, and no discovery-provider failure may block healthy official feeds.
+
+Treat EQS News as a high-value licensing target. Do not scrape, republish, or commercially redistribute EQS content until stable technical access and redistribution terms are verified. A permitted integration should initially preserve headlines, metadata, and original links rather than full release text.
+
+Build toward catalysts, companies, calendars, watchlists, alerts, event timelines, velocity, source counts, saved filters, and market briefings. Do not expose navigation, pricing, checkout, or controls for capabilities that are not genuinely operational.
+
+Preserve the existing Next.js, FastAPI, SQLAlchemy/Alembic, and PostgreSQL/SQLite stack unless a change is justified. Prioritize source credibility, duplicate grouping, time since publication, transparent uncertainty, accessible compact controls, and explicit loading, empty, partial, stale, and error states.
 
 ## OpenNews integration
 

@@ -3,27 +3,27 @@ import { LearningSection } from "@/components/learning-section";
 import { SectionHeader, Surface } from "@/components/ui";
 
 export const metadata: Metadata = {
-  title: "Learn | Borza",
+  title: "Lernen | Borza",
   description:
-    "Understand Borza's article-tone, attention, source, demo-data, and freshness language.",
+    "Finanznachrichten mit wirtschaftlichen Konzepten, Quellen und methodischen Hinweisen verstehen.",
 };
 
 const methods = [
   {
-    title: "Article tone",
-    body: "A label for the language used in a story. It describes text, not expected price direction.",
+    title: "Artikelton",
+    body: "Ein Label für die Sprache einer Meldung. Es beschreibt den Text, nicht die erwartete Kursrichtung.",
   },
   {
-    title: "Editorial attention",
-    body: "A decaying heuristic for prioritizing coverage. It is not a return forecast or investment signal.",
+    title: "Redaktionelle Aufmerksamkeit",
+    body: "Eine zeitlich abnehmende Heuristik zur Priorisierung von Meldungen. Sie ist weder Renditeprognose noch Handelssignal.",
   },
   {
-    title: "Source quality",
-    body: "Every story retains its provider and publication source so you can inspect the original reporting.",
+    title: "Quellenqualität",
+    body: "Jede Meldung behält Anbieter und Veröffentlichungsquelle, damit die Originalquelle prüfbar bleibt.",
   },
   {
-    title: "Demo and freshness",
-    body: "Simulated, stale, partial, and disconnected states are labeled because interpretation depends on data provenance.",
+    title: "Demo und Aktualität",
+    body: "Simulierte, veraltete, partielle und getrennte Zustände sind gekennzeichnet, weil die Einordnung von der Datenherkunft abhängt.",
   },
 ] as const;
 
@@ -31,9 +31,9 @@ export default function LearnPage() {
   return (
     <>
       <SectionHeader
-        eyebrow="Learning workspace"
-        title="Read financial news with context"
-        description="Borza explains the methods and caveats behind its interface so beginners can build judgment without mistaking metadata for advice."
+        eyebrow="Borza Learn"
+        title="Finanznachrichten mit Kontext verstehen"
+        description="Borza erklärt Methoden, wirtschaftliche Begriffe und Einschränkungen, ohne Metadaten als Anlageberatung darzustellen."
       />
       <div className="mt-5 grid gap-3 md:grid-cols-2">
         {methods.map((method) => (

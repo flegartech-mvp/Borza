@@ -62,7 +62,7 @@ export function WorkspaceHeader() {
           <button
             ref={triggerRef}
             type="button"
-            aria-label="Open workspace menu"
+            aria-label="Arbeitsbereich-Menü öffnen"
             aria-haspopup="dialog"
             aria-expanded={menuOpen}
             onClick={() => {
@@ -81,7 +81,7 @@ export function WorkspaceHeader() {
 
       <dialog
         ref={dialogRef}
-        aria-label="Workspace menu"
+        aria-label="Arbeitsbereich-Menü"
         onCancel={(event) => {
           event.preventDefault();
           closeMenu();
@@ -93,7 +93,7 @@ export function WorkspaceHeader() {
           <button
             ref={closeButtonRef}
             type="button"
-            aria-label="Close workspace menu"
+            aria-label="Arbeitsbereich-Menü schließen"
             onClick={closeMenu}
             className="grid size-10 place-items-center rounded-[var(--radius-sm)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           >
@@ -102,7 +102,7 @@ export function WorkspaceHeader() {
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-3 py-4">
-          <nav aria-label="Workspace menu navigation" className="space-y-1">
+          <nav aria-label="Arbeitsbereich-Menünavigation" className="space-y-1">
             {PRIMARY_NAVIGATION.map((item) => {
               const active = isNavigationItemActive(pathname, item.href);
               return (
@@ -126,9 +126,9 @@ export function WorkspaceHeader() {
 
           <div className="my-4 h-px bg-[var(--border-subtle)]" />
           <p className="mb-2 px-3 text-xs font-medium text-[var(--text-tertiary)]">
-            Not available in this release
+            In dieser Version nicht verfügbar
           </p>
-          <nav aria-label="Preview workspaces" className="space-y-1">
+          <nav aria-label="Vorschau-Arbeitsbereiche" className="space-y-1">
             {FUTURE_NAVIGATION.map((item) => (
               <Link
                 key={item.href}
@@ -144,7 +144,7 @@ export function WorkspaceHeader() {
                 <NavigationIcon name={item.icon} />
                 <span className="min-w-0 flex-1">{item.label}</span>
                 <span className="rounded-full border border-[var(--border-subtle)] px-2 py-0.5 text-[11px] text-[var(--text-tertiary)]">
-                  Preview
+                  Vorschau
                 </span>
               </Link>
             ))}
@@ -154,13 +154,13 @@ export function WorkspaceHeader() {
           <div className="space-y-4 px-3">
             <div>
               <p className="mb-2 text-xs font-medium text-[var(--text-tertiary)]">
-                Experience
+                Ansicht
               </p>
               <ExperienceSwitcher />
             </div>
             <div>
               <p className="mb-2 text-xs font-medium text-[var(--text-tertiary)]">
-                Appearance
+                Darstellung
               </p>
               <ThemeSwitcher />
             </div>

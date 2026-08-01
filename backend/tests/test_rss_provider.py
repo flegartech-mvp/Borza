@@ -6,6 +6,7 @@ import pytest
 
 from app.providers.base import validate_normalized_article
 from app.providers.rss import (
+    DEFAULT_OFFICIAL_FEEDS,
     RSSFeedConfig,
     RSSNewsProvider,
     SSRFVulnerabilityError,
@@ -70,6 +71,23 @@ def test_ssrf_ip_and_url_validation():
 
     with pytest.raises(SSRFVulnerabilityError, match="Disallowed URL scheme"):
         validate_safe_url("gopher://localhost:70/1")
+
+
+def test_default_feeds_prioritize_verified_german_and_european_sources():
+    source_ids = [feed.source_id for feed in DEFAULT_OFFICIAL_FEEDS]
+
+    assert source_ids[:5] == [
+        "bundesbank-general",
+        "destatis-latest",
+        "deutsche-boerse-press",
+        "xetra-frankfurt-newsboard",
+        "deutsche-boerse-circulars",
+    ]
+    assert "ecb-press" in source_ids
+    assert "gov-si-finance" in source_ids
+    assert "sec-press" not in source_ids
+    assert all(feed.trust_tier == 100 for feed in DEFAULT_OFFICIAL_FEEDS)
+    assert all(feed.relevance_score >= 90 for feed in DEFAULT_OFFICIAL_FEEDS[:6])
 
 
 def test_rss_and_atom_parsing():

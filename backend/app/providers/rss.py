@@ -104,11 +104,72 @@ class RSSFeedConfig:
     language: str = "en"
     category: str = "macro"
     trust_tier: int = 90
+    relevance_score: int = 70
     refresh_interval_seconds: int = 1800
     enabled: bool = True
 
 
 DEFAULT_OFFICIAL_FEEDS: list[RSSFeedConfig] = [
+    RSSFeedConfig(
+        display_name="Deutsche Bundesbank",
+        feed_url="https://www.bundesbank.de/service/rss/de/633290/feed.rss",
+        source_id="bundesbank-general",
+        source_type="official",
+        country="DE",
+        region="europe",
+        language="de",
+        category="central_banks",
+        trust_tier=100,
+        relevance_score=95,
+    ),
+    RSSFeedConfig(
+        display_name="Statistisches Bundesamt (Destatis)",
+        feed_url="https://www.destatis.de/SiteGlobals/Functions/RSSFeed/DE/RSSNewsfeed/Aktuell.xml",
+        source_id="destatis-latest",
+        source_type="official",
+        country="DE",
+        region="europe",
+        language="de",
+        category="german_macro",
+        trust_tier=100,
+        relevance_score=95,
+    ),
+    RSSFeedConfig(
+        display_name="Deutsche Börse Press Releases",
+        feed_url="https://www.cashmarket.deutsche-boerse.com/cash-en/4332546!listFeed",
+        source_id="deutsche-boerse-press",
+        source_type="exchange",
+        country="DE",
+        region="europe",
+        language="en",
+        category="german_markets",
+        trust_tier=100,
+        relevance_score=95,
+    ),
+    RSSFeedConfig(
+        display_name="Xetra & Frankfurt Newsboard",
+        feed_url="https://www.cashmarket.deutsche-boerse.com/cash-en/4332542!listFeed",
+        source_id="xetra-frankfurt-newsboard",
+        source_type="exchange",
+        country="DE",
+        region="europe",
+        language="en",
+        category="german_markets",
+        trust_tier=100,
+        relevance_score=90,
+    ),
+    RSSFeedConfig(
+        display_name="Deutsche Börse Circulars",
+        feed_url="https://www.cashmarket.deutsche-boerse.com/cash-en/4332540!listFeed",
+        source_id="deutsche-boerse-circulars",
+        source_type="exchange",
+        country="DE",
+        region="europe",
+        language="en",
+        category="german_markets",
+        trust_tier=100,
+        relevance_score=90,
+    ),
     RSSFeedConfig(
         display_name="European Central Bank Press Releases",
         feed_url="https://www.ecb.europa.eu/rss/press.html",
@@ -119,17 +180,7 @@ DEFAULT_OFFICIAL_FEEDS: list[RSSFeedConfig] = [
         language="en",
         category="central_banks",
         trust_tier=100,
-    ),
-    RSSFeedConfig(
-        display_name="SEC News & Press Releases",
-        feed_url="https://www.sec.gov/news/pressreleases.rss",
-        source_id="sec-press",
-        source_type="regulator",
-        country="US",
-        region="north_america",
-        language="en",
-        category="regulation",
-        trust_tier=100,
+        relevance_score=90,
     ),
     RSSFeedConfig(
         display_name="Ministrstvo za finance Republike Slovenije",
@@ -141,6 +192,7 @@ DEFAULT_OFFICIAL_FEEDS: list[RSSFeedConfig] = [
         language="sl",
         category="slovenian_economy",
         trust_tier=100,
+        relevance_score=75,
     ),
 ]
 
@@ -336,7 +388,7 @@ class RSSNewsProvider(NewsProvider):
             categories=[feed.category],
             organizations=[feed.display_name],
             trust_score=feed.trust_tier,
-            relevance_score=80 if feed.country in {"SI", "EU"} else 70,
+            relevance_score=feed.relevance_score,
             relevance_reason="Verified first-party financial publication",
         )
 
@@ -398,7 +450,7 @@ class RSSNewsProvider(NewsProvider):
             categories=[feed.category],
             organizations=[feed.display_name],
             trust_score=feed.trust_tier,
-            relevance_score=80 if feed.country in {"SI", "EU"} else 70,
+            relevance_score=feed.relevance_score,
             relevance_reason="Verified first-party financial publication",
         )
 

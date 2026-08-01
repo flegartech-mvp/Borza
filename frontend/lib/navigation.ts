@@ -13,25 +13,25 @@ export type WorkspaceNavigationItem = {
 export const PRIMARY_NAVIGATION: readonly WorkspaceNavigationItem[] = [
   {
     href: "/",
-    label: "Overview",
-    shortLabel: "Overview",
-    description: "Current market-news context",
+    label: "Märkte",
+    shortLabel: "Märkte",
+    description: "Deutsche und europäische Marktlage",
     icon: "overview",
     availability: "current",
   },
   {
     href: "/news",
-    label: "News Explorer",
-    shortLabel: "News",
-    description: "Search and filter source stories",
+    label: "Katalysatoren",
+    shortLabel: "Signale",
+    description: "Ereignisse, Quellen und Relevanz",
     icon: "news",
     availability: "current",
   },
   {
     href: "/learn",
-    label: "Learn",
-    shortLabel: "Learn",
-    description: "Understand Borza methods",
+    label: "Lernen",
+    shortLabel: "Lernen",
+    description: "Finanzwissen zu realen Marktbewegungen",
     icon: "learn",
     availability: "current",
   },
@@ -56,7 +56,7 @@ export function pageMetadata(pathname: string): {
     isNavigationItemActive(pathname, entry.href),
   );
   return {
-    title: item?.label ?? "Workspace",
-    context: item?.description ?? "Financial news and market intelligence",
+    title: item?.label ?? "Arbeitsbereich",
+    context: item?.description ?? "Finanznachrichten und Marktinformationen",
   };
 }

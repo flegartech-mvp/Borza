@@ -136,16 +136,16 @@ describe("PreferencesProvider", () => {
     render(<PreferenceHarness />);
 
     const themeGroup = screen.getByRole("group", {
-      name: "Theme preference",
+      name: "Darstellung",
     });
     const experienceGroup = screen.getByRole("group", {
-      name: "Experience mode",
+      name: "Ansichtsmodus",
     });
     expect(themeGroup).toBeInTheDocument();
     expect(experienceGroup).toBeInTheDocument();
 
-    const dark = await screen.findByRole("radio", { name: "Dark" });
-    const expert = screen.getByRole("radio", { name: "Expert" });
+    const dark = await screen.findByRole("radio", { name: "Dunkel" });
+    const expert = screen.getByRole("radio", { name: "Kompakt" });
     await user.click(dark);
     expert.focus();
     await user.keyboard(" ");
@@ -178,7 +178,7 @@ describe("PreferencesProvider", () => {
       );
     });
     expect(screen.getByRole("radio", { name: "System" })).toBeChecked();
-    expect(screen.getByRole("radio", { name: "Beginner" })).toBeChecked();
+    expect(screen.getByRole("radio", { name: "Standard" })).toBeChecked();
     expect(screen.queryByRole("radio", { name: "Student" })).toBeNull();
   });
 });

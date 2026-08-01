@@ -32,13 +32,13 @@ describe("SystemStatusControl", () => {
 
     await waitFor(() =>
       expect(
-        screen.getByText("Demo · current", { selector: "span" }),
+        screen.getByText("Demo · aktuell", { selector: "span" }),
       ).toBeInTheDocument(),
     );
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
 
-    await user.click(screen.getByText("Demo · current", { selector: "span" }));
-    expect(screen.getByText("Last successful ingestion")).toBeInTheDocument();
+    await user.click(screen.getByText("Demo · aktuell", { selector: "span" }));
+    expect(screen.getByText("Letzter erfolgreicher Abruf")).toBeInTheDocument();
     expect(screen.getByText("demo", { selector: "dd" })).toBeInTheDocument();
   });
 });

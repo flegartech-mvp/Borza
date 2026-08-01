@@ -6,6 +6,7 @@ from app.providers.demo import DemoNewsProvider
 from app.providers.fallback import FallbackNewsProvider
 from app.providers.finnhub import FinnhubNewsProvider
 from app.providers.gdelt import GdeltNewsProvider
+from app.providers.marketaux import MarketauxNewsProvider
 from app.providers.opennews import OpenNewsProvider
 from app.providers.rss import RSSNewsProvider
 
@@ -60,13 +61,30 @@ def build_news_provider(settings, *, provider_name: str | None = None):
             default_lookback_hours=settings.gdelt_default_lookback_hours,
             query_groups=settings.gdelt_query_group_list,
         )
+    if selected == "marketaux":
+        if not settings.marketaux_api_token:
+            return UnavailableNewsProvider(
+                "marketaux",
+                "The queued Marketaux job cannot run because MARKETAUX_API_TOKEN is unavailable.",
+            )
+        return MarketauxNewsProvider(
+            settings.marketaux_api_token,
+            base_url=settings.marketaux_base_url,
+            request_timeout_seconds=settings.marketaux_request_timeout_seconds,
+            countries=settings.marketaux_countries,
+            languages=settings.marketaux_languages,
+            article_limit=settings.marketaux_article_limit,
+            default_lookback_hours=settings.marketaux_default_lookback_hours,
+        )
     if selected == "composite":
         providers: list[NewsProvider] = []
-        for name in settings.composite_provider_list:
+        for name in settings.active_composite_provider_list:
             if name == "rss":
                 providers.append(RSSNewsProvider())
             elif name == "gdelt":
                 providers.append(build_news_provider(settings, provider_name="gdelt"))
+            elif name == "marketaux":
+                providers.append(build_news_provider(settings, provider_name="marketaux"))
             elif name == "opennews" and settings.opennews_token:
                 providers.append(
                     OpenNewsProvider(

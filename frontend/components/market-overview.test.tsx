@@ -32,17 +32,19 @@ describe("MarketOverview", () => {
     render(<MarketOverview stats={stats} loading={false} />);
 
     expect(
-      screen.getByText(/1500 matching stored stories/),
+      screen.getByText(/1500 passende gespeicherte Meldungen/),
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        /Average attention uses the newest 1000 matching stories/,
+        /durchschnittliche Aufmerksamkeit nutzt die neuesten 1000 passenden Meldungen/,
       ),
     ).toBeInTheDocument();
-    expect(screen.queryByText(/1000 stored stories/)).not.toBeInTheDocument();
-    expect(screen.getByText(/Rolling 168-hour scope/)).toBeInTheDocument();
     expect(
-      screen.queryByText(/Rolling 999-hour scope/),
+      screen.queryByText(/1000 gespeicherte Meldungen/),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText(/Zeitraum von 168 Stunden/)).toBeInTheDocument();
+    expect(
+      screen.queryByText(/Zeitraum von 999 Stunden/),
     ).not.toBeInTheDocument();
   });
 });

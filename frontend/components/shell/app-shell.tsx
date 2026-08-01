@@ -10,7 +10,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         href="#workspace-content"
         className="fixed left-3 top-3 z-50 -translate-y-24 rounded-[var(--radius-sm)] bg-[var(--brand)] px-4 py-2 font-semibold text-[var(--brand-contrast)] transition-transform focus:translate-y-0"
       >
-        Skip to workspace content
+        Zum Arbeitsbereich springen
       </a>
       <SidebarNav />
       <div className="min-w-0 flex-1">
@@ -22,9 +22,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         >
           {children}
           <footer className="mt-10 border-t border-[var(--border-subtle)] py-6 text-center text-xs leading-5 text-[var(--text-tertiary)]">
-            Borza provides informational analysis, not financial advice. Article
-            tone, inferred geography, and attention scores may be inaccurate and
-            do not predict price movement.
+            Borza bietet Informationsanalysen, keine Anlageberatung. Artikelton,
+            abgeleitete Geografie und Aufmerksamkeitswerte können ungenau sein
+            und sagen keine Kursbewegung voraus.
           </footer>
         </main>
       </div>

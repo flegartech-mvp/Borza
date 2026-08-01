@@ -17,18 +17,37 @@ from app.version import __version__
 logger = logging.getLogger(__name__)
 
 
-def enqueue_scheduled_job(instance_id: str) -> None:
+def scheduled_provider_intervals(settings) -> list[tuple[str, int]]:
+    provider_name = effective_provider_name(settings)
+    if provider_name != "composite":
+        return [
+            (
+                provider_name,
+                max(settings.provider_fetch_interval_seconds(provider_name), 15),
+            )
+        ]
+    return [
+        (provider, settings.provider_fetch_interval_seconds(provider))
+        for provider in settings.active_composite_provider_list
+    ]
+
+
+def enqueue_scheduled_job(
+    instance_id: str,
+    provider_name: str | None = None,
+    interval_seconds: int | None = None,
+) -> None:
     settings = get_settings()
     end = datetime.now(UTC)
     start = end - timedelta(hours=settings.daily_ingest_lookback_hours)
-    interval = max(settings.news_fetch_interval_seconds, 15)
+    interval = max(interval_seconds or settings.news_fetch_interval_seconds, 15)
     bucket = int(end.timestamp()) // interval
-    provider_name = effective_provider_name(settings)
+    selected_provider = provider_name or effective_provider_name(settings)
     job = enqueue_ingestion_job(
-        provider=provider_name,
+        provider=selected_provider,
         job_type="daily",
         trigger_kind="scheduled",
-        idempotency_key=f"{provider_name}:daily:scheduled:{bucket}",
+        idempotency_key=f"{selected_provider}:daily:scheduled:{bucket}",
         requested_from=start,
         requested_to=end,
         max_attempts=settings.ingestion_job_max_attempts,
@@ -56,16 +75,17 @@ def main() -> None:
     ensure_schema_at_head()
     instance_id = default_worker_id()
     scheduler = BlockingScheduler(timezone="UTC")
-    scheduler.add_job(
-        enqueue_scheduled_job,
-        "interval",
-        args=[instance_id],
-        seconds=max(settings.news_fetch_interval_seconds, 15),
-        id="enqueue-news-ingestion",
-        max_instances=1,
-        coalesce=True,
-        next_run_time=datetime.now(UTC),
-    )
+    for provider_name, interval_seconds in scheduled_provider_intervals(settings):
+        scheduler.add_job(
+            enqueue_scheduled_job,
+            "interval",
+            args=[instance_id, provider_name, interval_seconds],
+            seconds=interval_seconds,
+            id=f"enqueue-news-ingestion-{provider_name}",
+            max_instances=1,
+            coalesce=True,
+            next_run_time=datetime.now(UTC),
+        )
     scheduler.add_job(
         record_service_heartbeat,
         "interval",

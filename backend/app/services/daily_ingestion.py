@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from contextlib import suppress
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime, timedelta
 
@@ -8,6 +9,7 @@ from app.models.ingestion import IngestionJob, IngestionRun
 from app.providers.base import sanitized_provider_error
 from app.providers.composite import CompositeNewsProvider
 from app.providers.gdelt import GdeltNewsProvider
+from app.providers.marketaux import MarketauxNewsProvider
 from app.services.ingestion_lock import LeaseLock, LeaseLostError
 from app.services.provider_factory import build_news_provider, effective_provider_name
 from app.services.sentiment import SentimentService
@@ -213,18 +215,27 @@ async def ingest_daily(
             sentiment_service,
             publisher=publisher,
         )
-        if isinstance(provider, (GdeltNewsProvider, CompositeNewsProvider)):
-            fetched = await provider.fetch_market_news(
-                start_datetime=start,
-                end_datetime=end,
-                max_requests=settings.daily_ingest_max_requests,
-                max_articles=settings.daily_ingest_max_articles,
-                ownership_check=lease.checkpoint if lease else None,
-            )
-        else:
-            fetched = await provider.fetch_market_news()
-            if lease:
-                lease.checkpoint()
+        try:
+            if isinstance(
+                provider,
+                (GdeltNewsProvider, MarketauxNewsProvider, CompositeNewsProvider),
+            ):
+                fetched = await provider.fetch_market_news(
+                    start_datetime=start,
+                    end_datetime=end,
+                    max_requests=settings.daily_ingest_max_requests,
+                    max_articles=settings.daily_ingest_max_articles,
+                    ownership_check=lease.checkpoint if lease else None,
+                )
+            else:
+                fetched = await provider.fetch_market_news()
+                if lease:
+                    lease.checkpoint()
+        finally:
+            close = getattr(provider, "aclose", None)
+            if close is not None:
+                with suppress(Exception):
+                    await close()
         result.received = fetched.raw_record_count or len(fetched.records)
         result.malformed = fetched.malformed_record_count
         result.request_count = fetched.request_count

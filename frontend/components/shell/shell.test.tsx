@@ -96,14 +96,14 @@ describe("workspace shell", () => {
     renderShell();
 
     const primaryNavigation = screen.getByRole("navigation", {
-      name: "Primary navigation",
+      name: "Hauptnavigation",
     });
     expect(primaryNavigation).toBeInTheDocument();
     expect(
-      screen.getByRole("navigation", { name: "Mobile primary navigation" }),
+      screen.getByRole("navigation", { name: "Mobile Hauptnavigation" }),
     ).toBeInTheDocument();
     expect(
-      screen.getAllByRole("link", { name: "News Explorer" })[0],
+      screen.getAllByRole("link", { name: "Katalysatoren" })[0],
     ).toHaveAttribute("aria-current", "page");
 
     for (const item of PRIMARY_NAVIGATION) {
@@ -114,7 +114,7 @@ describe("workspace shell", () => {
       ).toBeGreaterThan(0);
     }
     expect(
-      screen.getByRole("link", { name: "Skip to workspace content" }),
+      screen.getByRole("link", { name: "Zum Arbeitsbereich springen" }),
     ).toHaveAttribute("href", "#workspace-content");
   });
 
@@ -122,13 +122,15 @@ describe("workspace shell", () => {
     const user = userEvent.setup();
     renderShell();
     const trigger = screen.getByRole("button", {
-      name: "Open workspace menu",
+      name: "Arbeitsbereich-Menü öffnen",
     });
 
     await user.click(trigger);
-    const dialog = screen.getByRole("dialog", { name: "Workspace menu" });
+    const dialog = screen.getByRole("dialog", {
+      name: "Arbeitsbereich-Menü",
+    });
     const close = screen.getByRole("button", {
-      name: "Close workspace menu",
+      name: "Arbeitsbereich-Menü schließen",
     });
     expect(dialog).toHaveAttribute("open");
     expect(close).toHaveFocus();

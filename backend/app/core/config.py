@@ -55,11 +55,23 @@ class Settings(BaseSettings):
     database_pool_recycle_seconds: int = Field(900, ge=60, le=3600)
     cron_secret: str | None = None
     finnhub_api_key: str | None = None
+    marketaux_api_token: str | None = Field(default=None, max_length=512)
+    marketaux_base_url: str = "https://api.marketaux.com/v1/news/all"
+    marketaux_request_timeout_seconds: float = Field(15, ge=1, le=60)
+    marketaux_countries: str = "de,at,ch,eu"
+    marketaux_languages: str = "de,en"
+    marketaux_article_limit: int = Field(3, ge=1, le=100)
+    marketaux_default_lookback_hours: int = Field(24, ge=1, le=168)
+    marketaux_fetch_interval_seconds: int = Field(1200, ge=300, le=86_400)
+    rss_fetch_interval_seconds: int = Field(600, ge=60, le=86_400)
+    gdelt_fetch_interval_seconds: int = Field(7200, ge=900, le=86_400)
     opennews_token: str | None = Field(default=None, max_length=512)
     opennews_api_base: str = "https://ai.6551.io"
     opennews_fetch_limit: int = Field(50, ge=1, le=100)
-    news_provider: Literal["composite", "demo", "finnhub", "opennews", "gdelt", "rss"] = "composite"
-    composite_providers: str = "rss,gdelt"
+    news_provider: Literal[
+        "composite", "demo", "finnhub", "marketaux", "opennews", "gdelt", "rss"
+    ] = "composite"
+    composite_providers: str = "rss,marketaux"
     demo_mode: bool = False
     news_fetch_interval_seconds: int = Field(60, ge=15, le=86_400)
     gdelt_base_url: str = "https://api.gdeltproject.org/api/v2/doc/doc"
@@ -68,7 +80,7 @@ class Settings(BaseSettings):
     gdelt_request_delay_seconds: float = Field(5, ge=0, le=30)
     gdelt_max_records: int = Field(250, ge=1, le=250)
     gdelt_default_lookback_hours: int = Field(48, ge=1, le=168)
-    gdelt_query_groups: str = "markets,macro,companies,assets"
+    gdelt_query_groups: str = "german_markets,german_macro,german_companies,european_markets"
     frontend_url: str = "http://localhost:3000"
     cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
     allowed_hosts: str = "localhost,127.0.0.1,testserver"
@@ -109,7 +121,19 @@ class Settings(BaseSettings):
             raise ValueError("OPENNEWS_TOKEN must use the Bearer token68 character set")
         return normalized
 
-    @field_validator("opennews_api_base", "gdelt_base_url")
+    @field_validator("marketaux_api_token")
+    @classmethod
+    def validate_marketaux_api_token(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        normalized = value.strip()
+        if not normalized:
+            return None
+        if any(ord(character) < 33 or ord(character) > 126 for character in normalized):
+            raise ValueError("MARKETAUX_API_TOKEN must contain only visible ASCII characters")
+        return normalized
+
+    @field_validator("opennews_api_base", "marketaux_base_url", "gdelt_base_url")
     @classmethod
     def validate_provider_url(cls, value: str) -> str:
         parsed = urlparse(value.strip())
@@ -143,6 +167,8 @@ class Settings(BaseSettings):
         deployed = self.environment in DEPLOYED_ENVIRONMENTS
         if deployed and urlparse(self.opennews_api_base).scheme != "https":
             raise ValueError("OPENNEWS_API_BASE must use HTTPS in deployed environments")
+        if deployed and urlparse(self.marketaux_base_url).scheme != "https":
+            raise ValueError("MARKETAUX_BASE_URL must use HTTPS in deployed environments")
         if not self.database_url:
             if deployed:
                 raise ValueError("DATABASE_URL is required in deployed environments")
@@ -201,13 +227,31 @@ class Settings(BaseSettings):
 
     @property
     def composite_provider_list(self) -> list[str]:
-        supported = {"rss", "gdelt", "opennews", "finnhub"}
+        supported = {"rss", "marketaux", "gdelt", "opennews", "finnhub"}
         providers: list[str] = []
         for raw_provider in self.composite_providers.split(","):
             provider = raw_provider.strip().lower()
             if provider and provider in supported and provider not in providers:
                 providers.append(provider)
-        return providers or ["rss", "gdelt"]
+        return providers or ["rss", "marketaux"]
+
+    @property
+    def active_composite_provider_list(self) -> list[str]:
+        providers = [
+            provider
+            for provider in self.composite_provider_list
+            if provider != "marketaux" or self.marketaux_api_token
+            if provider != "opennews" or self.opennews_token
+            if provider != "finnhub" or self.finnhub_api_key
+        ]
+        return providers or ["rss"]
+
+    def provider_fetch_interval_seconds(self, provider: str) -> int:
+        return {
+            "rss": self.rss_fetch_interval_seconds,
+            "marketaux": self.marketaux_fetch_interval_seconds,
+            "gdelt": self.gdelt_fetch_interval_seconds,
+        }.get(provider, self.news_fetch_interval_seconds)
 
     @property
     def event_bus_channel(self) -> str:

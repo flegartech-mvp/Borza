@@ -81,10 +81,10 @@ describe("Dashboard client filter validation", () => {
     render(<Dashboard />);
 
     expect(
-      screen.getByText(/Some configured news providers were degraded/),
+      screen.getByText(/Einige konfigurierte Nachrichtenanbieter/),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/older than the freshness target/),
+      screen.getByText(/außerhalb des Aktualitätsziels/),
     ).toBeInTheDocument();
   });
 
@@ -104,7 +104,7 @@ describe("Dashboard client filter validation", () => {
 
     expect(ticker).toHaveValue("aapl!");
     expect(
-      screen.getByRole("alert", { name: "Invalid filters" }),
+      screen.getByRole("alert", { name: "Ungültige Filter" }),
     ).toHaveTextContent("Ticker was ignored");
     expect(vi.mocked(useNewsStream).mock.lastCall?.[0]).toMatchObject({
       search: "rates",
@@ -120,7 +120,7 @@ describe("Dashboard client filter validation", () => {
 
     fireEvent.change(ticker, { target: { value: "" } });
     expect(
-      screen.queryByRole("alert", { name: "Invalid filters" }),
+      screen.queryByRole("alert", { name: "Ungültige Filter" }),
     ).not.toBeInTheDocument();
 
     fireEvent.change(ticker, { target: { value: "$msft" } });
@@ -144,12 +144,12 @@ describe("Dashboard client filter validation", () => {
       />,
     );
 
-    const minimumImpact = screen.getByLabelText("Minimum base attention");
+    const minimumImpact = screen.getByLabelText("Mindest-Aufmerksamkeit");
     fireEvent.change(minimumImpact, { target: { value: "101" } });
 
     expect(minimumImpact).toHaveValue(101);
     expect(
-      screen.getByRole("alert", { name: "Invalid filters" }),
+      screen.getByRole("alert", { name: "Ungültige Filter" }),
     ).toHaveTextContent("Enter a whole number from 0 to 100");
     expect(vi.mocked(useNewsStream).mock.lastCall?.[0]).toMatchObject({
       urgency: "high",
@@ -210,7 +210,7 @@ describe("Overview endpoint isolation", () => {
       screen.getAllByText("Live analysis remains independently available"),
     ).not.toHaveLength(0);
     expect(
-      screen.queryByRole("region", { name: "Demo data notice" }),
+      screen.queryByRole("region", { name: "Hinweis zu Demodaten" }),
     ).not.toBeInTheDocument();
   });
 
@@ -246,7 +246,7 @@ describe("Overview endpoint isolation", () => {
     render(<OverviewWorkspace />);
 
     expect(
-      screen.getByRole("region", { name: "Demo data notice" }),
-    ).toHaveTextContent("Simulated fallback stories");
+      screen.getByRole("region", { name: "Hinweis zu Demodaten" }),
+    ).toHaveTextContent("Simulierte Ersatzmeldungen");
   });
 });

@@ -32,14 +32,14 @@ const statusIcons = {
 } as const;
 
 function dateLabel(value: string | null): string {
-  if (!value) return "Not available";
+  if (!value) return "Nicht verfügbar";
   const parsed = Date.parse(value);
   return Number.isFinite(parsed)
-    ? new Intl.DateTimeFormat(undefined, {
+    ? new Intl.DateTimeFormat("de-DE", {
         dateStyle: "medium",
         timeStyle: "short",
       }).format(parsed)
-    : "Not available";
+    : "Nicht verfügbar";
 }
 
 export function SystemStatusControl({
@@ -117,8 +117,8 @@ export function SystemStatusControl({
           </div>
           <button
             type="button"
-            aria-label="Refresh data status"
-            title="Refresh data status"
+            aria-label="Datenstatus aktualisieren"
+            title="Datenstatus aktualisieren"
             onClick={() => void refresh()}
             disabled={refreshing}
             className="grid size-10 shrink-0 place-items-center rounded-[var(--radius-sm)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]"
@@ -133,33 +133,33 @@ export function SystemStatusControl({
         {ingestion ? (
           <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-[var(--border-subtle)] pt-4 text-xs">
             <div>
-              <dt className="text-[var(--text-tertiary)]">Provider</dt>
+              <dt className="text-[var(--text-tertiary)]">Anbieter</dt>
               <dd className="mt-1 font-medium capitalize">
-                {ingestion.provider ?? "Unknown"}
+                {ingestion.provider ?? "Unbekannt"}
               </dd>
             </div>
             <div>
               <dt className="text-[var(--text-tertiary)]">Worker</dt>
               <dd className="mt-1 font-medium capitalize">
-                {ingestion.worker_status ?? "Unknown"}
+                {ingestion.worker_status ?? "Unbekannt"}
               </dd>
             </div>
             <div className="col-span-2">
               <dt className="text-[var(--text-tertiary)]">
-                Last successful ingestion
+                Letzter erfolgreicher Abruf
               </dt>
               <dd className="mt-1 font-medium">
                 {dateLabel(ingestion.last_successful_at)}
               </dd>
             </div>
             <div>
-              <dt className="text-[var(--text-tertiary)]">Coverage</dt>
+              <dt className="text-[var(--text-tertiary)]">Abdeckung</dt>
               <dd className="mt-1 font-medium capitalize">
                 {ingestion.status}
               </dd>
             </div>
             <div>
-              <dt className="text-[var(--text-tertiary)]">Inserted</dt>
+              <dt className="text-[var(--text-tertiary)]">Eingefügt</dt>
               <dd className="mt-1 font-mono font-medium tabular-nums">
                 {ingestion.records_inserted}
               </dd>

@@ -1,13 +1,13 @@
 # Borza
 
-Borza is a European and Slovenian financial-news intelligence dashboard for students and beginning investors. It combines verified first-party publications with broad GDELT discovery, explains why an item is relevant, preserves original-source links, and labels demo or degraded data honestly.
+Borza is a German-first European market-intelligence platform for active investors and traders, with a separate learning layer for Slovenian and European finance students. It turns German and European market news into structured catalysts and understandable financial knowledge while preserving original-source links and labeling demo, stale, or degraded data honestly.
 
 Borza is informational software, not financial advice. Article tone and relevance scores are transparent editorial heuristics and do not predict market prices.
 
 ## Architecture
 
 ```text
-ECB / GOV.SI / SEC RSS + GDELT + optional providers
+German / European official RSS + Marketaux + optional GDELT
                          |
                  composite ingestion
                          |
@@ -40,7 +40,7 @@ docker compose up --build
 
 Open `http://localhost:3000`. API docs are available at `http://localhost:8000/docs` in local development.
 
-The default `composite` provider uses official RSS feeds and GDELT without requiring a paid key. Set `DEMO_MODE=true` only when an explicitly simulated feed is wanted.
+The default `composite` provider always uses official RSS feeds and adds Marketaux when `MARKETAUX_API_TOKEN` is configured. Without the token, official RSS remains healthy and no demo or GDELT data is silently substituted. Set `DEMO_MODE=true` only when an explicitly simulated feed is wanted.
 
 ## Run Without Docker
 
@@ -81,26 +81,36 @@ For local development without Valkey, set `REALTIME_ENABLED=false`; the frontend
 
 Operational by default:
 
+- Deutsche Bundesbank general feed: official, Germany, German.
+- Destatis current releases: official statistics, Germany, German.
+- Deutsche Börse press releases: exchange, Germany, English.
+- Xetra and Frankfurt Newsboard: exchange operations, Germany, English.
+- Deutsche Börse circulars: exchange notices, Germany, English.
 - European Central Bank press feed: official, Europe, English.
 - Slovenian Ministry of Finance GOV.SI feed: official, Slovenia, Slovenian.
-- US Securities and Exchange Commission press feed: regulator, United States, English.
-- GDELT DOC 2.0: broad discovery only, with bounded finance query groups and visible attribution.
 
 Optional:
 
+- Marketaux with `MARKETAUX_API_TOKEN`: primary broad discovery for DACH/EU entities, German and English articles, ticker metadata, entity sentiment, and similar-story hints.
+- GDELT DOC 2.0: low-frequency global research fallback with bounded finance query groups and visible attribution.
 - OpenNews with `OPENNEWS_TOKEN`.
 - Finnhub with `FINNHUB_API_KEY`.
 
-Banka Slovenije, ESMA, and Ljubljana Stock Exchange/SEOnet remain candidates, but Borza does not scrape them or ship a dead feed URL. Add them only after a stable, permitted publication feed or API is verified.
+EQS News is a high-value company-disclosure target, but Borza does not scrape or redistribute it until technical access and commercial licensing terms are verified. BaFin, ESMA, European Commission releases, Banka Slovenije, and permitted company investor-relations feeds also remain candidates. Borza does not ship guessed or dead endpoints.
+
+See `docs/product-direction.md` for the Borza Markets and Borza Learn boundaries and the honest delivery order for catalysts, companies, calendars, watchlists, alerts, and multilingual learning.
 
 Configure the provider set with:
 
 ```env
 NEWS_PROVIDER=composite
-COMPOSITE_PROVIDERS=rss,gdelt
+COMPOSITE_PROVIDERS=rss,marketaux
+MARKETAUX_API_TOKEN=replace-with-a-server-side-token
 ```
 
-Allowed standalone values are `composite`, `rss`, `gdelt`, `opennews`, `finnhub`, and `demo`. Missing OpenNews credentials retain the required labeled demo fallback; failures from one composite provider do not discard successful results from others.
+Allowed standalone values are `composite`, `rss`, `marketaux`, `gdelt`, `opennews`, `finnhub`, and `demo`. A missing Marketaux token disables it inside the composite while official RSS continues; a persisted standalone Marketaux job fails explicitly if its token was removed. Failures from one composite provider do not discard successful results from others.
+
+The persistent scheduler uses provider-specific defaults: RSS every 10 minutes, Marketaux every 20 minutes, and optional GDELT every 2 hours. The Marketaux default is three articles per request so the free-plan limit is not accidentally exceeded; changing plan or cadence is an operator decision.
 
 ## Environment
 
@@ -111,7 +121,11 @@ Copy `.env.example` and change values for the target environment.
 | `DATABASE_URL`           | API, worker, scheduler | SQLAlchemy PostgreSQL URL; local file-backed SQLite is development-only. |
 | `MIGRATION_DATABASE_URL` | migration job          | Direct/session PostgreSQL URL for Alembic when runtime uses a pooler.    |
 | `NEWS_PROVIDER`          | worker, scheduler      | Canonical provider mode; defaults to `composite`.                        |
-| `COMPOSITE_PROVIDERS`    | worker                 | Ordered provider set; defaults to `rss,gdelt`.                           |
+| `COMPOSITE_PROVIDERS`    | worker, scheduler      | Ordered provider set; defaults to `rss,marketaux`.                        |
+| `MARKETAUX_API_TOKEN`    | API, worker, scheduler | Optional server-side Marketaux token; never expose it through the client. |
+| `MARKETAUX_FETCH_INTERVAL_SECONDS` | scheduler | Marketaux cadence; defaults to 1,200 seconds.                             |
+| `RSS_FETCH_INTERVAL_SECONDS` | scheduler           | Official RSS cadence; defaults to 600 seconds.                            |
+| `GDELT_FETCH_INTERVAL_SECONDS` | scheduler         | Optional GDELT cadence; defaults to 7,200 seconds.                        |
 | `OPENNEWS_TOKEN`         | worker                 | Optional server-side OpenNews bearer token.                              |
 | `FINNHUB_API_KEY`        | worker                 | Optional server-side Finnhub key.                                        |
 | `CRON_SECRET`            | API                    | Bearer secret for operator ingestion endpoints.                          |
@@ -192,7 +206,9 @@ Set `NEXT_PUBLIC_API_URL` and optional `NEXT_PUBLIC_WS_URL` in Vercel. Set backe
 
 ## Known Limitations
 
-- GDELT is a discovery source; publisher quality varies and should be judged through source metadata.
+- Marketaux and optional GDELT results are discovery metadata; publisher quality still varies and must be judged through source labels and original links.
+- Marketaux free-plan coverage is intentionally quota-bounded to three articles per 20-minute request. It is useful for development, not equivalent to a licensed real-time professional feed.
+- EQS, dpa-AFX, and exchange market-data redistribution are not implemented or licensed.
 - Official-source coverage is limited to verified feeds in the registry.
 - Full article text is not republished; cards use provider/feed summaries and original links.
 - Relevance, tone, and inferred geography are explainable heuristics, not validated market-impact predictions.

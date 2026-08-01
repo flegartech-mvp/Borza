@@ -3,32 +3,33 @@ import { BookOpen } from "lucide-react";
 const concepts = [
   {
     term: "GDP",
-    description: "The total value of goods and services an economy produces.",
+    description:
+      "Der Gesamtwert aller Waren und Dienstleistungen einer Volkswirtschaft.",
   },
   {
     term: "Inflation",
     description:
-      "The rate at which the general price of goods and services rises.",
+      "Die Rate, mit der das allgemeine Preisniveau für Waren und Dienstleistungen steigt.",
   },
   {
-    term: "Interest rate",
+    term: "Zinssatz",
     description:
-      "The cost of borrowing money, often influenced by central banks.",
+      "Die Kosten für geliehenes Geld, häufig beeinflusst durch Zentralbanken.",
   },
   {
-    term: "Sector",
+    term: "Sektor",
     description:
-      "A group of companies with similar business activity, such as technology.",
+      "Eine Gruppe von Unternehmen mit ähnlicher Geschäftstätigkeit, etwa Technologie.",
   },
   {
     term: "Ticker",
     description:
-      "A short market code that identifies a publicly traded company or asset.",
+      "Ein kurzes Börsenkürzel für ein notiertes Unternehmen oder einen Vermögenswert.",
   },
   {
-    term: "Article tone",
+    term: "Artikelton",
     description:
-      "Whether language in a story appears positive, negative, or neutral; it is not a price forecast.",
+      "Ob die Sprache einer Meldung positiv, negativ oder neutral wirkt; keine Kursprognose.",
   },
 ] as const;
 
@@ -49,11 +50,11 @@ export function LearningSection() {
           id="learning-title"
           className="mt-5 text-2xl font-semibold tracking-tight"
         >
-          Essential market language
+          Wichtige Begriffe des Marktes
         </h2>
         <p className="mt-3 max-w-md text-sm leading-6 text-[var(--muted)]">
-          Short definitions for terms used throughout Borza’s news and macro
-          panels.
+          Kurze Definitionen für Begriffe aus Borzas Nachrichten- und
+          Konjunkturbereichen.
         </p>
       </div>
       <dl className="grid sm:grid-cols-2">

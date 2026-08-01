@@ -10,7 +10,7 @@ export function BrandMark({
   return (
     <Link
       href="/"
-      aria-label="Borza overview"
+      aria-label="Borza Märkte"
       className={`inline-flex min-w-0 items-center gap-3 rounded-[var(--radius-sm)] ${className}`}
     >
       <span
@@ -25,7 +25,7 @@ export function BrandMark({
             BORZA
           </span>
           <span className="mt-0.5 block truncate text-xs text-[var(--text-tertiary)]">
-            Financial intelligence
+            Marktinformationen
           </span>
         </span>
       )}

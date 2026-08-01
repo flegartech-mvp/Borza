@@ -170,6 +170,9 @@ def test_controlled_finance_query_groups_and_request_parameters():
     assert len(FINANCE_QUERY_GROUPS) >= 20
     assert {
         "markets",
+        "german_markets",
+        "german_macro",
+        "german_companies",
         "macro",
         "companies",
         "assets",
@@ -183,6 +186,8 @@ def test_controlled_finance_query_groups_and_request_parameters():
     query = build_finance_query("macro", source_language="en", source_country="si")
 
     assert "inflation" in query and "sourcelang:en" in query and "sourcecountry:SI" in query
+    german_query = build_finance_query("german_markets")
+    assert "DAX" in german_query and "Xetra" in german_query
     slovenian_query = build_finance_query("slovenian_economy")
     assert '"slovenian economy"' in slovenian_query
     assert "surs" in slovenian_query

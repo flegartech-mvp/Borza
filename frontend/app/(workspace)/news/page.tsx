@@ -3,9 +3,9 @@ import { NewsWorkspace } from "@/features/workspace/data-workspaces";
 import { parseFilterSearchParams } from "@/lib/filters";
 
 export const metadata: Metadata = {
-  title: "News Explorer | Borza",
+  title: "Katalysatoren | Borza",
   description:
-    "Search and filter source-backed financial news with transparent contextual metadata.",
+    "Deutsche und europäische Finanznachrichten nach Quelle, Relevanz, Markt und Ticker filtern.",
 };
 
 export default async function NewsPage({

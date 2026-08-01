@@ -10,8 +10,8 @@ const options: ReadonlyArray<{
   label: string;
   icon: LucideIcon;
 }> = [
-  { value: "beginner", label: "Beginner", icon: BookOpen },
-  { value: "expert", label: "Expert", icon: Gauge },
+  { value: "beginner", label: "Standard", icon: BookOpen },
+  { value: "expert", label: "Kompakt", icon: Gauge },
 ];
 
 export function ExperienceSwitcher() {
@@ -19,8 +19,8 @@ export function ExperienceSwitcher() {
   const { experienceMode, setExperienceMode } = usePreferences();
 
   return (
-    <fieldset aria-label="Experience mode">
-      <legend className="sr-only">Experience mode</legend>
+    <fieldset aria-label="Ansichtsmodus">
+      <legend className="sr-only">Ansichtsmodus</legend>
       <div className="inline-grid grid-cols-2 gap-1 rounded-lg border border-[var(--line)] bg-[var(--panel-soft)] p-1">
         {options.map(({ value, label, icon: Icon }) => (
           <label key={value} className="cursor-pointer">

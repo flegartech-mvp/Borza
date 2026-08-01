@@ -43,7 +43,7 @@ const WorldNewsMap = dynamic(
         role="status"
       >
         <p className="text-sm text-[var(--text-secondary)]">
-          Loading interactive map…
+          Interaktive Karte wird geladen…
         </p>
       </div>
     ),
@@ -172,7 +172,7 @@ function DataModeNotice({
   if (!fallback && !apiDemo) return null;
   return (
     <section
-      aria-label="Demo data notice"
+      aria-label="Hinweis zu Demodaten"
       className="mb-4 flex items-start gap-3 rounded-[var(--radius-sm)] border border-[color-mix(in_srgb,var(--warning)_38%,var(--border-subtle))] bg-[var(--warning-soft)] px-4 py-3 text-sm"
     >
       <AlertTriangle
@@ -182,12 +182,12 @@ function DataModeNotice({
       />
       <div>
         <p className="font-semibold text-[var(--text-primary)]">
-          {fallback ? "Simulated fallback stories" : "Demo data"}
+          {fallback ? "Simulierte Ersatzmeldungen" : "Demodaten"}
         </p>
         <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
           {fallback
-            ? "The API feed is unavailable. These labeled stories are local examples, not live reports."
-            : "The current provider is returning simulated stories. They are not live market reports."}
+            ? "Der API-Feed ist nicht verfügbar. Diese gekennzeichneten Meldungen sind lokale Beispiele, keine Live-Berichte."
+            : "Der aktuelle Anbieter liefert simulierte Meldungen. Es handelt sich nicht um Live-Marktberichte."}
         </p>
       </div>
     </section>
@@ -208,8 +208,8 @@ function InlineEndpointNotice({
     >
       {message}{" "}
       {retained
-        ? "The last successful data remains visible."
-        : "This panel is temporarily unavailable."}
+        ? "Die letzten erfolgreich geladenen Daten bleiben sichtbar."
+        : "Dieser Bereich ist vorübergehend nicht verfügbar."}
     </p>
   );
 }
@@ -220,9 +220,9 @@ export function OverviewWorkspace() {
   return (
     <>
       <PageIntro
-        eyebrow="Rolling 24-hour context"
-        title="Understand the market-news picture"
-        description="A concise view of coverage, article tone, editorial attention, and the stories carrying the most context."
+        eyebrow="Deutsche und europäische Märkte"
+        title="Was den Markt gerade bewegt"
+        description="Ein kompakter Überblick über Quellenabdeckung, Artikelton, redaktionelle Aufmerksamkeit und relevante Meldungen."
         actions={
           <button
             type="button"
@@ -230,7 +230,7 @@ export function OverviewWorkspace() {
             className="inline-flex min-h-10 items-center gap-2 rounded-[var(--radius-sm)] border border-[var(--border-subtle)] bg-[var(--surface-1)] px-3 text-sm font-medium text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]"
           >
             <RefreshCw aria-hidden="true" size={15} />
-            Refresh
+            Aktualisieren
           </button>
         }
       />
@@ -273,7 +273,7 @@ export function OverviewWorkspace() {
             <div
               className="min-h-[430px] animate-pulse bg-[var(--surface-2)]"
               role="status"
-              aria-label="Loading priority news"
+              aria-label="Wichtige Nachrichten werden geladen"
             />
           ) : (
             <RegionNewsPanel
@@ -285,25 +285,25 @@ export function OverviewWorkspace() {
 
         <aside className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-1)] p-5">
           <p className="text-xs font-semibold text-[var(--brand)]">
-            Continue exploring
+            Weiter analysieren
           </p>
-          <h3 className="mt-2 text-lg font-semibold">Choose the right lens</h3>
+          <h3 className="mt-2 text-lg font-semibold">Die passende Ansicht</h3>
           <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
-            The same source data is organized into focused workspaces instead of
-            one long report.
+            Dieselben Quelldaten werden in klar getrennten Arbeitsbereichen
+            aufbereitet.
           </p>
           <div className="mt-5 space-y-2">
             {[
               {
                 href: "/news",
-                label: "Open News Explorer",
-                detail: "Search, filter, and inspect source stories",
+                label: "Katalysatoren öffnen",
+                detail: "Meldungen nach Quelle, Markt und Ticker filtern",
                 icon: Newspaper,
               },
               {
                 href: "/learn",
-                label: "Learn the methods",
-                detail: "Understand tone, attention, and freshness",
+                label: "Borza Learn öffnen",
+                detail: "Ton, Aufmerksamkeit und Aktualität verstehen",
                 icon: BookOpenText,
               },
             ].map(({ href, label, detail, icon: Icon }) => (
@@ -363,14 +363,14 @@ export function NewsWorkspace({
   return (
     <>
       <PageIntro
-        eyebrow="Source-backed reporting"
-        title="News Explorer"
-        description="Search and filter the current rolling news window. Tone and attention remain contextual metadata, not trading signals."
+        eyebrow="Quellenbasierte Marktereignisse"
+        title="Katalysatoren"
+        description="Durchsuche und filtere aktuelle Meldungen. Ton und Aufmerksamkeit bleiben Kontextdaten, keine Handelssignale."
         actions={
           <span className="inline-flex min-h-10 items-center rounded-full border border-[var(--border-subtle)] bg-[var(--surface-1)] px-3 font-mono text-xs text-[var(--text-secondary)]">
             {data.feed
-              ? `${data.feed.total} matching ${data.feed.total === 1 ? "story" : "stories"}`
-              : "Loading results"}
+              ? `${data.feed.total} passende ${data.feed.total === 1 ? "Meldung" : "Meldungen"}`
+              : "Ergebnisse werden geladen"}
           </span>
         }
       />
@@ -387,14 +387,14 @@ export function NewsWorkspace({
 
       {data.feed?.partial_results ? (
         <InlineEndpointNotice
-          message="Some configured news providers were degraded during the latest ingestion run."
+          message="Einige konfigurierte Nachrichtenanbieter waren beim letzten Abruf eingeschränkt."
           retained
         />
       ) : null}
 
       {data.feed?.data_freshness === "stale" ? (
         <InlineEndpointNotice
-          message="The newest successful ingestion is older than the freshness target."
+          message="Der letzte erfolgreiche Abruf liegt außerhalb des Aktualitätsziels."
           retained
         />
       ) : null}
@@ -409,9 +409,9 @@ export function NewsWorkspace({
         <section
           className="mt-3 rounded-[var(--radius-sm)] border border-[color-mix(in_srgb,var(--warning)_38%,var(--border-subtle))] bg-[var(--warning-soft)] px-4 py-3"
           role="alert"
-          aria-label="Invalid filters"
+          aria-label="Ungültige Filter"
         >
-          <p className="text-sm font-semibold">Review these filters</p>
+          <p className="text-sm font-semibold">Diese Filter prüfen</p>
           <ul className="mt-1 list-disc space-y-1 pl-5 text-xs leading-5 text-[var(--text-secondary)]">
             {data.filterIssues.map((issue) => (
               <li key={`${issue.field}-${issue.code}`}>{issue.message}</li>
@@ -422,7 +422,7 @@ export function NewsWorkspace({
             onClick={data.dismissFilterIssues}
             className="mt-2 text-xs font-semibold underline underline-offset-2"
           >
-            Dismiss
+            Ausblenden
           </button>
         </section>
       ) : null}
@@ -444,8 +444,8 @@ export function NewsWorkspace({
               </p>
               <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
                 {data.feed
-                  ? "The last successful feed remains visible."
-                  : "Review the filters or endpoint configuration, then retry."}
+                  ? "Der letzte erfolgreiche Feed bleibt sichtbar."
+                  : "Filter oder Endpunktkonfiguration prüfen und erneut versuchen."}
               </p>
               <button
                 type="button"
@@ -453,7 +453,7 @@ export function NewsWorkspace({
                 className="mt-3 inline-flex items-center gap-2 rounded-[var(--radius-sm)] bg-[var(--brand)] px-3 text-xs font-semibold text-[var(--brand-contrast)]"
               >
                 <RefreshCw aria-hidden="true" size={14} />
-                Retry feed
+                Feed erneut laden
               </button>
             </div>
           </div>
@@ -485,7 +485,7 @@ export function NewsWorkspace({
 
       {data.paginationError ? (
         <p className="mt-2 text-xs text-[var(--negative)]" role="alert">
-          {data.paginationError.message} The existing feed remains visible.
+          {data.paginationError.message} Der vorhandene Feed bleibt sichtbar.
         </p>
       ) : null}
     </>

@@ -24,7 +24,19 @@ function geographyLabel(article: Article): {
 function articleMeta(article: Article): string {
   return (
     article.sector ??
-    (article.tickers.slice(0, 4).join(" / ") || "No sector or ticker")
+    (article.tickers.slice(0, 4).join(" / ") || "Kein Sektor oder Ticker")
+  );
+}
+
+function scopeLabel(selectionLabel: string): string {
+  return selectionLabel === "Global" ? "Gesamtmarkt" : selectionLabel;
+}
+
+function toneLabel(sentiment: string): string {
+  return (
+    { positive: "positiv", negative: "negativ", neutral: "neutral" }[
+      sentiment
+    ] ?? sentiment
   );
 }
 
@@ -37,10 +49,10 @@ function SourceLink({ article }: { article: Article }) {
       href={sourceUrl}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label={`Open source for ${article.title}`}
+      aria-label={`Originalquelle für ${article.title} öffnen`}
       className="inline-flex items-center gap-1 text-[var(--accent)] hover:underline"
     >
-      Original <ArrowUpRight aria-hidden="true" size={13} />
+      Quelle <ArrowUpRight aria-hidden="true" size={13} />
     </a>
   );
 }
@@ -59,8 +71,14 @@ function SourceType({ article }: { article: Article }) {
     >
       {official ? <ShieldCheck aria-hidden="true" size={11} /> : null}
       {article.source_type === "discovery"
-        ? "Discovered"
-        : article.source_type || "Editorial"}
+        ? "Entdeckt"
+        : article.source_type === "official"
+          ? "Offiziell"
+          : article.source_type === "regulator"
+            ? "Aufsicht"
+            : article.source_type === "exchange"
+              ? "Börse"
+              : article.source_type || "Redaktionell"}
     </span>
   );
 }
@@ -120,7 +138,9 @@ function NewsMiniTableResults({
         role="status"
         aria-live="polite"
       >
-        <p className="text-sm text-[var(--muted)]">Loading filtered stories…</p>
+        <p className="text-sm text-[var(--muted)]">
+          Gefilterte Meldungen werden geladen…
+        </p>
       </div>
     );
   }
@@ -135,12 +155,12 @@ function NewsMiniTableResults({
             size={24}
           />
           <h3 className="mt-3 text-sm font-semibold">
-            No stories match {selectionLabel}
+            Keine Meldungen für {scopeLabel(selectionLabel)}
           </h3>
           <p className="mt-1 text-xs text-[var(--muted)]">
             {hasMore
-              ? "No match is present in the loaded page. Load another server page or select another geography."
-              : "Reset the filters or select another geography."}
+              ? "Auf der geladenen Seite gibt es keinen Treffer. Lade eine weitere Seite oder wähle eine andere Region."
+              : "Setze die Filter zurück oder wähle eine andere Region."}
           </p>
           {hasMore && onLoadMore ? (
             <button
@@ -149,7 +169,7 @@ function NewsMiniTableResults({
               disabled={loadingMore}
               className="mt-4 rounded-sm bg-[var(--accent)] px-3 py-2 text-xs font-semibold text-[var(--accent-contrast)]"
             >
-              {loadingMore ? "Loading more…" : "Load another page"}
+              {loadingMore ? "Weitere werden geladen…" : "Weitere Seite laden"}
             </button>
           ) : null}
         </div>
@@ -161,21 +181,23 @@ function NewsMiniTableResults({
   const visibleArticles = articles;
 
   return (
-    <section aria-label={`${selectionLabel} news results`}>
+    <section
+      aria-label={`Nachrichtenergebnisse für ${scopeLabel(selectionLabel)}`}
+    >
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-xs">
         <p className="text-[var(--muted)]">
           <span className="font-medium text-[var(--foreground)]">
-            {selectionLabel}
+            {scopeLabel(selectionLabel)}
           </span>
           <span aria-hidden="true"> · </span>
           {selectionLabel === "Global"
-            ? `Showing ${shownCount} of ${total} matching stories`
-            : `Showing ${shownCount} geography matches from loaded pages (${total} server-filtered stories total)`}
-          {" · "}rolling 24-hour publication window
+            ? `${shownCount} von ${total} passenden Meldungen`
+            : `${shownCount} regionale Treffer auf geladenen Seiten (${total} serverseitig gefilterte Meldungen insgesamt)`}
+          {" · "}rollierendes 24-Stunden-Fenster
         </p>
         {isDemo ? (
           <span className="rounded-sm border border-[var(--warning-line)] bg-[var(--warning-soft)] px-2 py-1 text-[10px] font-medium text-[var(--warning)]">
-            Demo data
+            Demodaten
           </span>
         ) : null}
       </div>
@@ -187,9 +209,10 @@ function NewsMiniTableResults({
         >
           <table className="w-full min-w-[760px] table-fixed border-collapse text-left">
             <caption className="sr-only">
-              Server-paginated financial news for {selectionLabel}, including
-              publication time, headline, inferred or explicit geography, source
-              type, publication time, region, relevance, and original link.
+              Serverseitig paginierte Finanznachrichten für{" "}
+              {scopeLabel(selectionLabel)}
+              mit Veröffentlichungszeit, Überschrift, Region, Quellentyp,
+              Relevanz und Originallink.
             </caption>
             <colgroup>
               <col className="w-24" />
@@ -202,22 +225,22 @@ function NewsMiniTableResults({
             <thead>
               <tr className="bg-[var(--panel-soft)] text-[11px] text-[var(--muted)]">
                 <th scope="col" className="px-4 py-3 font-medium">
-                  Published
+                  Veröffentlicht
                 </th>
                 <th scope="col" className="px-4 py-3 font-medium">
-                  Headline
+                  Meldung
                 </th>
                 <th scope="col" className="px-4 py-3 font-medium">
-                  Market
+                  Markt
                 </th>
                 <th scope="col" className="px-4 py-3 font-medium">
-                  Article tone
+                  Artikelton
                 </th>
                 <th scope="col" className="px-4 py-3 text-right font-medium">
-                  Attention
+                  Relevanz
                 </th>
                 <th scope="col" className="px-4 py-3 text-right font-medium">
-                  Source
+                  Quelle
                 </th>
               </tr>
             </thead>
@@ -238,7 +261,7 @@ function NewsMiniTableResults({
                       </p>
                       <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-[var(--muted)]">
                         {article.description ||
-                          "No publisher summary available."}
+                          "Keine Zusammenfassung des Herausgebers verfügbar."}
                       </p>
                       <div className="mt-2 flex flex-wrap items-center gap-1.5">
                         <SourceType article={article} />
@@ -252,7 +275,7 @@ function NewsMiniTableResults({
                         ))}
                         {(article.duplicate_source_count ?? 1) > 1 ? (
                           <span className="text-[10px] text-[var(--muted)]">
-                            {article.duplicate_source_count} sources
+                            {article.duplicate_source_count} Quellen
                           </span>
                         ) : null}
                       </div>
@@ -261,19 +284,19 @@ function NewsMiniTableResults({
                       <span className="break-words">{geography.label}</span>
                       {geography.inferred ? (
                         <span className="ml-1 whitespace-nowrap text-[10px] text-[var(--accent)]">
-                          Inferred
+                          Abgeleitet
                         </span>
                       ) : null}
                     </td>
                     <td
                       className="px-4 py-3 text-xs capitalize"
-                      title={`Method: ${article.tone_method ?? "fallback"}`}
+                      title={`Methode: ${article.tone_method ?? "fallback"}`}
                     >
-                      {article.sentiment}
+                      {toneLabel(article.sentiment)}
                     </td>
                     <td
                       className="px-4 py-3 text-right font-mono text-xs"
-                      title="Editorial-attention heuristic; not a price forecast"
+                      title="Redaktionelle Relevanzheuristik; keine Kursprognose"
                     >
                       {article.relevance_score ?? article.impact_score}
                     </td>
@@ -305,7 +328,8 @@ function NewsMiniTableResults({
                     {article.title}
                   </h3>
                   <p className="mt-2 line-clamp-3 text-xs leading-5 text-[var(--muted)]">
-                    {article.description || "No publisher summary available."}
+                    {article.description ||
+                      "Keine Zusammenfassung des Herausgebers verfügbar."}
                   </p>
                   <div className="mt-3 flex flex-wrap items-center gap-1.5">
                     <SourceType article={article} />
@@ -320,27 +344,27 @@ function NewsMiniTableResults({
                   </div>
                   <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-xs">
                     <div className="min-w-0">
-                      <dt className="text-[10px] text-[var(--muted)]">
-                        Market
-                      </dt>
+                      <dt className="text-[10px] text-[var(--muted)]">Markt</dt>
                       <dd className="mt-1 break-words">
                         {geography.label}
                         {geography.inferred ? (
                           <span className="ml-1 rounded-sm bg-[var(--accent-soft)] px-1 py-0.5 text-[10px] text-[var(--accent)]">
-                            Inferred
+                            Abgeleitet
                           </span>
                         ) : null}
                       </dd>
                     </div>
                     <div>
                       <dt className="text-[10px] text-[var(--muted)]">
-                        Article tone
+                        Artikelton
                       </dt>
-                      <dd className="mt-1 capitalize">{article.sentiment}</dd>
+                      <dd className="mt-1 capitalize">
+                        {toneLabel(article.sentiment)}
+                      </dd>
                     </div>
                     <div>
                       <dt className="text-[10px] text-[var(--muted)]">
-                        Relevance
+                        Relevanz
                       </dt>
                       <dd className="mt-1 font-mono">
                         {article.relevance_score ?? article.impact_score}
@@ -348,7 +372,7 @@ function NewsMiniTableResults({
                     </div>
                     <div className="min-w-0">
                       <dt className="text-[10px] text-[var(--muted)]">
-                        Sector / ticker
+                        Sektor / Ticker
                       </dt>
                       <dd className="mt-1 break-words font-mono text-[11px]">
                         {articleMeta(article)}
@@ -374,8 +398,8 @@ function NewsMiniTableResults({
             className="rounded-sm bg-[var(--accent)] px-3 py-2 text-xs font-semibold text-[var(--accent-contrast)] active:translate-y-px"
           >
             {loadingMore
-              ? "Loading more…"
-              : `Load next ${Math.min(12, total - shownCount)} stories`}
+              ? "Weitere werden geladen…"
+              : `Nächste ${Math.min(12, total - shownCount)} Meldungen laden`}
           </button>
         ) : (
           <span />

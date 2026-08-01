@@ -7,58 +7,62 @@ type MarketOverviewProps = {
 };
 
 function percentage(value: number, total: number): string {
-  return total ? `${Math.round((value / total) * 100)}%` : "Unavailable";
+  return total ? `${Math.round((value / total) * 100)}%` : "Nicht verfügbar";
 }
 
 export function MarketOverview({ stats, loading }: MarketOverviewProps) {
   const total = stats?.article_count ?? 0;
   const boundedImpactNote =
     stats && stats.sample_size < stats.article_count
-      ? ` Average attention uses the newest ${stats.sample_size} matching stories.`
+      ? ` Die durchschnittliche Aufmerksamkeit nutzt die neuesten ${stats.sample_size} passenden Meldungen.`
       : "";
   const items = [
     {
-      label: "Stories in scope",
-      value: loading ? "Loading" : total.toString(),
+      label: "Meldungen im Zeitraum",
+      value: loading ? "Lädt" : total.toString(),
       icon: Activity,
       tone: "text-[var(--foreground)]",
     },
     {
-      label: "Positive tone",
+      label: "Positiver Ton",
       value: loading
-        ? "Loading"
+        ? "Lädt"
         : percentage(stats?.sentiment_distribution.positive ?? 0, total),
       icon: TrendingUp,
       tone: "text-[var(--positive)]",
     },
     {
-      label: "Negative tone",
+      label: "Negativer Ton",
       value: loading
-        ? "Loading"
+        ? "Lädt"
         : percentage(stats?.sentiment_distribution.negative ?? 0, total),
       icon: TrendingDown,
       tone: "text-[var(--negative)]",
     },
     {
-      label: "Avg. attention",
+      label: "Ø Aufmerksamkeit",
       value: loading
-        ? "Loading"
+        ? "Lädt"
         : stats
           ? `${stats.average_impact.toFixed(0)} / 100`
-          : "Unavailable",
+          : "Nicht verfügbar",
       icon: Gauge,
       tone: "text-[var(--accent)]",
     },
     {
-      label: "Most mentioned",
-      value: loading ? "Loading" : (stats?.top_ticker ?? "No ticker"),
+      label: "Meistgenannt",
+      value: loading ? "Lädt" : (stats?.top_ticker ?? "Kein Ticker"),
       icon: Activity,
       tone: "text-[var(--foreground)]",
     },
   ] as const;
 
   return (
-    <section id="markets" aria-label="Current news summary" className="mt-3">
+    <section
+      id="markets"
+      aria-label="Aktuelle Nachrichtenübersicht"
+      className="mt-3"
+    >
       <div className="grid grid-cols-2 border border-[var(--line)] bg-[var(--panel)] md:grid-cols-5">
         {items.map(({ label, value, icon: Icon, tone }, index) => (
           <article
@@ -80,12 +84,14 @@ export function MarketOverview({ stats, loading }: MarketOverviewProps) {
         ))}
       </div>
       <p className="mt-2 text-[11px] leading-5 text-[var(--muted)]">
-        Rolling {stats?.effective_window_hours ?? 24}-hour scope by publication
-        time
-        {stats ? ` (${stats.article_count} matching stored stories)` : ""}.
-        {boundedImpactNote} Tone labels may use different documented methods by
-        source; attention is a decaying editorial heuristic, not a price
-        forecast.
+        Rollierender Zeitraum von {stats?.effective_window_hours ?? 24} Stunden
+        nach Veröffentlichungszeit
+        {stats
+          ? ` (${stats.article_count} passende gespeicherte Meldungen)`
+          : ""}
+        .{boundedImpactNote} Tonlabels können je Quelle unterschiedliche
+        dokumentierte Methoden verwenden; Aufmerksamkeit ist eine zeitlich
+        abnehmende redaktionelle Heuristik, keine Kursprognose.
       </p>
     </section>
   );

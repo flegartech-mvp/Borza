@@ -2,7 +2,7 @@
 
 ## Product Boundary
 
-Borza is a financial-news intelligence dashboard. Its primary workflow is discovering, filtering, understanding, and opening source-backed financial news. Study, paper trading, brokerage, live trading, and premium artifact delivery are outside the primary runtime.
+Borza is a German-first European market-intelligence platform. Borza Markets is the primary commercial experience; Borza Learn is a separate learning layer over the same source-backed events. Brokerage, live trading, fake pricing, university integrations, and premium artifact delivery are outside the primary runtime.
 
 ## Runtime Boundary
 
@@ -25,11 +25,14 @@ One provider failure produces a partial run. It does not roll back records from 
 
 ## Provider Roles
 
-- RSS registry: verified first-party or regulatory publications with source ID, type, region, language, trust tier, polling interval, and category.
-- GDELT DOC 2.0: broad discovery and metadata, never treated as primary truth.
+- RSS registry: verified first-party, statistical, regulatory, or exchange publications with source ID, type, region, original language, trust tier, market relevance, polling interval, and category. German and European sources are the default priority.
+- Marketaux: primary keyed DACH/EU discovery with entity, ticker, entity-sentiment, and similar-story metadata; never treated as primary truth.
+- GDELT DOC 2.0: optional low-frequency global research fallback, never a release-blocking dependency.
 - OpenNews: optional authenticated supplemental provider with the required labeled demo fallback behavior.
 - Finnhub: optional keyed supplemental provider.
 - Demo: explicit simulated data only.
+
+The persistent scheduler separates provider cadence instead of running the whole composite on one timer: verified RSS defaults to 10 minutes, Marketaux to 20 minutes, and optional GDELT to two hours. Manual operator jobs may still execute the configured composite once.
 
 ## Article Model
 
@@ -43,7 +46,9 @@ Fields are nullable where providers cannot supply reliable data. Missing geograp
 
 The Next.js frontend uses TanStack Query for request caching/retry orchestration, URL parameters for shareable filters, and WebSocket events plus REST reconciliation when realtime is available. Polling is the fallback.
 
-The map remains a secondary experimental route. Primary navigation is Overview, News Explorer, and Learn.
+The map remains a secondary experimental route. Current navigation exposes only implemented Markets, catalyst-feed, and Learn destinations. Companies, calendars, watchlists, alerts, and multilingual explanations remain roadmap capabilities until their data and workflows are operational.
+
+See `docs/product-direction.md` for the product hierarchy and language strategy.
 
 ## Deployment
 

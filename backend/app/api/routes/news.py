@@ -11,6 +11,7 @@ from app.core.config import get_settings
 from app.database import get_db
 from app.models.article import Article, ArticleTicker
 from app.models.ingestion import IngestionJob, IngestionRun, ServiceHeartbeat
+from app.providers.marketaux import MARKETAUX_ATTRIBUTION
 from app.schemas.article import (
     AnalysisDatasetRead,
     ArticleRead,
@@ -60,10 +61,6 @@ def decode_cursor(cursor: str) -> tuple[datetime, int]:
         raise HTTPException(status_code=422, detail="Invalid pagination cursor format") from exc
 
 
-GDELT_ATTRIBUTION = {
-    "label": "Data source: GDELT Project",
-    "url": "https://www.gdeltproject.org/",
-}
 MAX_EFFECTIVE_WINDOW_HOURS = 168
 STATS_IMPACT_SAMPLE_LIMIT = 1_000
 
@@ -226,9 +223,9 @@ def _filters(
 
 @router.get("/news-attribution")
 def news_attribution() -> dict[str, str]:
-    """Public provider attribution metadata; GDELT does not endorse Borza."""
+    """Public attribution for Borza's primary discovery provider."""
 
-    return GDELT_ATTRIBUTION
+    return MARKETAUX_ATTRIBUTION
 
 
 @router.get("/ingestion-status", response_model=PublicIngestionStatusRead)

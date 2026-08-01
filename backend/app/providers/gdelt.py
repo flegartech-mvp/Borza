@@ -39,6 +39,36 @@ GDELT_ATTRIBUTION = {
 GDELT_PAYLOAD_VERSION = "doc-2.0-artlist"
 
 FINANCE_QUERY_GROUPS: dict[str, tuple[str, ...]] = {
+    "german_markets": (
+        "DAX",
+        "MDAX",
+        "SDAX",
+        "TecDAX",
+        "Xetra",
+        "Frankfurt Stock Exchange",
+        "German stocks",
+        "deutsche Aktien",
+    ),
+    "german_macro": (
+        "German economy",
+        "German inflation",
+        "German GDP",
+        "Bundesbank",
+        "Destatis",
+        "deutsche Wirtschaft",
+        "Industrieproduktion Deutschland",
+        "Arbeitsmarkt Deutschland",
+    ),
+    "german_companies": (
+        "DAX earnings",
+        "DAX guidance",
+        "Siemens earnings",
+        "SAP earnings",
+        "Deutsche Bank earnings",
+        "Volkswagen earnings",
+        "Allianz earnings",
+        "BASF earnings",
+    ),
     "markets": ("stock", "stocks", "shares", "equities", "market", "markets", "index", "indices"),
     "european_markets": (
         "european markets",

@@ -172,25 +172,25 @@ test("opens the news workspace and shows normalized news", async ({ page }) => {
   await mockApi(page);
   await page.goto("/news");
   await expect(
-    page.getByRole("heading", { name: "News Explorer", level: 1 }),
+    page.getByRole("heading", { name: "Katalysatoren", level: 1 }),
   ).toBeVisible();
   await expect(
     page.getByText("ECB keeps interest rates unchanged"),
   ).toBeVisible();
   await expect(
-    page.getByText("official", { exact: false }).first(),
+    page.getByText("Offiziell", { exact: false }).first(),
   ).toBeVisible();
 });
 
 test("searches, filters, and handles an empty result", async ({ page }) => {
   await mockApi(page);
   await page.goto("/news");
-  await page.getByRole("searchbox", { name: "Search" }).fill("rates");
+  await page.getByRole("searchbox", { name: "Suche" }).fill("rates");
   await expect(page).toHaveURL(/search=rates/);
   await page.getByLabel("Region").selectOption("europe");
   await expect(page).toHaveURL(/region=europe/);
-  await page.getByRole("searchbox", { name: "Search" }).fill("no-match");
-  await expect(page.getByText(/No stories match Global/)).toBeVisible();
+  await page.getByRole("searchbox", { name: "Suche" }).fill("no-match");
+  await expect(page.getByText(/Keine Meldungen für Gesamtmarkt/)).toBeVisible();
 });
 
 test("opens the original publisher article", async ({ page }) => {
@@ -198,7 +198,7 @@ test("opens the original publisher article", async ({ page }) => {
   await page.goto("/news");
   const popupPromise = page.waitForEvent("popup");
   await page
-    .getByRole("link", { name: /Open source/ })
+    .getByRole("link", { name: /Originalquelle/ })
     .first()
     .click();
   const popup = await popupPromise;
@@ -210,15 +210,15 @@ test("shows an explicit fallback when the API is unavailable", async ({
 }) => {
   await mockApi(page, { unavailable: true });
   await page.goto("/news");
-  await expect(page.getByText("Simulated fallback stories")).toBeVisible();
-  await expect(page.getByText(/not live reports/)).toBeVisible();
+  await expect(page.getByText("Simulierte Ersatzmeldungen")).toBeVisible();
+  await expect(page.getByText(/keine Live-Berichte/)).toBeVisible();
 });
 
 test("labels provider demo content", async ({ page }) => {
   await mockApi(page, { demo: true });
   await page.goto("/news");
   await expect(
-    page.getByText("Demo data", { exact: true }).first(),
+    page.getByText("Demodaten", { exact: true }).first(),
   ).toBeVisible();
 });
 
@@ -232,7 +232,7 @@ test("refreshes the overview with newly available data", async ({ page }) => {
     }),
   ).toBeVisible();
   api.markRefreshed();
-  await page.getByRole("button", { name: "Refresh" }).click();
+  await page.getByRole("button", { name: "Aktualisieren" }).click();
   await expect(
     page.getByRole("heading", {
       name: "ECB update appears after refresh",
@@ -248,9 +248,9 @@ test("keeps navigation and filters usable on a phone", async ({
   await mockApi(page);
   await page.goto("/news");
   await expect(
-    page.getByRole("navigation", { name: "Mobile primary navigation" }),
+    page.getByRole("navigation", { name: "Mobile Hauptnavigation" }),
   ).toBeVisible();
-  await expect(page.getByRole("searchbox", { name: "Search" })).toBeVisible();
+  await expect(page.getByRole("searchbox", { name: "Suche" })).toBeVisible();
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth,

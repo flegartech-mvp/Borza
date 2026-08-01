@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { OverviewWorkspace } from "@/features/workspace/data-workspaces";
 
 export const metadata: Metadata = {
-  title: "Overview | Borza",
+  title: "Märkte | Borza",
   description:
-    "A source-labeled overview of current financial news, tone, attention, and market context.",
+    "Quellenbasierter Überblick über deutsche und europäische Marktnachrichten, Relevanz und Kontext.",
 };
 
 export default function OverviewPage() {

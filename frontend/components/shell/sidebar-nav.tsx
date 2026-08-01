@@ -58,7 +58,7 @@ export function SidebarNav() {
           ? "w-[var(--sidebar-collapsed-width)]"
           : "w-[var(--sidebar-width)]"
       }`}
-      aria-label="Workspace sidebar"
+      aria-label="Arbeitsbereich-Seitenleiste"
     >
       <div className="flex min-h-[var(--topbar-height)] items-center border-b border-[var(--border-subtle)] px-4">
         <BrandMark compact={collapsed} />
@@ -68,13 +68,13 @@ export function SidebarNav() {
         {collapsed ? null : (
           <div className="mb-4">
             <p className="mb-2 px-1 text-xs font-medium text-[var(--text-tertiary)]">
-              Experience
+              Ansicht
             </p>
             <ExperienceSwitcher />
           </div>
         )}
 
-        <nav aria-label="Primary navigation" className="space-y-1">
+        <nav aria-label="Hauptnavigation" className="space-y-1">
           {PRIMARY_NAVIGATION.map((item) => {
             const active = isNavigationItemActive(pathname, item.href);
             return (
@@ -101,13 +101,13 @@ export function SidebarNav() {
         <div className="my-4 h-px bg-[var(--border-subtle)]" />
 
         {collapsed ? (
-          <p className="sr-only">Future workspaces</p>
+          <p className="sr-only">Zukünftige Arbeitsbereiche</p>
         ) : (
           <p className="mb-2 px-3 text-xs font-medium text-[var(--text-tertiary)]">
-            Future workspaces
+            Zukünftige Arbeitsbereiche
           </p>
         )}
-        <nav aria-label="Preview workspaces" className="space-y-1">
+        <nav aria-label="Vorschau-Arbeitsbereiche" className="space-y-1">
           {FUTURE_NAVIGATION.map((item) => {
             const active = isNavigationItemActive(pathname, item.href);
             return (
@@ -115,7 +115,7 @@ export function SidebarNav() {
                 key={item.href}
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                title={collapsed ? `${item.label} · Preview` : undefined}
+                title={collapsed ? `${item.label} · Vorschau` : undefined}
                 className={`flex min-h-11 items-center rounded-[var(--radius-sm)] border px-3 text-sm transition-colors ${
                   collapsed ? "justify-center" : "gap-3"
                 } ${
@@ -129,7 +129,7 @@ export function SidebarNav() {
                   <>
                     <span className="min-w-0 flex-1">{item.label}</span>
                     <span className="rounded-full border border-[var(--border-subtle)] px-2 py-0.5 text-[11px]">
-                      Preview
+                      Vorschau
                     </span>
                   </>
                 )}
@@ -147,14 +147,15 @@ export function SidebarNav() {
             <ServerCog aria-hidden="true" size={17} className="shrink-0" />
             {collapsed ? null : (
               <p className="mt-2 text-xs leading-5">
-                Self-hosted workspace. Data states remain source-labeled.
+                Selbst gehosteter Arbeitsbereich. Datenzustände bleiben nach
+                Quelle gekennzeichnet.
               </p>
             )}
           </div>
           {collapsed ? null : (
             <div className="mt-3">
               <p className="mb-2 px-1 text-xs font-medium text-[var(--text-tertiary)]">
-                Appearance
+                Darstellung
               </p>
               <ThemeSwitcher />
             </div>
@@ -166,8 +167,12 @@ export function SidebarNav() {
         <button
           type="button"
           onClick={() => updateCollapsed(!collapsed)}
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-label={
+            collapsed ? "Seitenleiste ausklappen" : "Seitenleiste einklappen"
+          }
+          title={
+            collapsed ? "Seitenleiste ausklappen" : "Seitenleiste einklappen"
+          }
           className={`flex min-h-10 w-full items-center rounded-[var(--radius-sm)] text-sm text-[var(--text-secondary)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)] ${
             collapsed ? "justify-center" : "gap-3 px-3"
           }`}
@@ -177,7 +182,7 @@ export function SidebarNav() {
           ) : (
             <>
               <ChevronLeft aria-hidden="true" size={17} />
-              Collapse sidebar
+              Seitenleiste einklappen
             </>
           )}
         </button>

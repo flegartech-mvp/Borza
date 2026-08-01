@@ -16,7 +16,7 @@ describe("summarizeSystemStatus", () => {
   it("reports current live data", () => {
     expect(
       summarizeSystemStatus(complete, { failed: false, online: true }),
-    ).toMatchObject({ tone: "current", label: "Data current", demo: false });
+    ).toMatchObject({ tone: "current", label: "Daten aktuell", demo: false });
   });
 
   it("keeps demo mode explicit", () => {
@@ -25,7 +25,7 @@ describe("summarizeSystemStatus", () => {
         { ...complete, provider: "demo" },
         { failed: false, online: true },
       ),
-    ).toMatchObject({ tone: "current", label: "Demo · current", demo: true });
+    ).toMatchObject({ tone: "current", label: "Demo · aktuell", demo: true });
   });
 
   it("distinguishes degraded and offline states", () => {
