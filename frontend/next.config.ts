@@ -23,6 +23,14 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{ source: "/(.*)", headers: securityHeaders }];
   },
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: "/api/index",
+      },
+    ];
+  },
 };
 
 export default nextConfig;
