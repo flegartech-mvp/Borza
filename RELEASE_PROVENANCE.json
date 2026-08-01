@@ -4,7 +4,7 @@
   "build_timestamp": "2026-07-31T21:50:00Z",
   "provenance": {
     "git_origin": "https://github.com/flegartech-mvp/Borza.git",
-    "git_commit": "HEAD",
+    "git_commit": "9656eef164ce4aaf99cdd61e4139afc41051312c",
     "lockfiles": {
       "frontend_package_lock": "frontend/package-lock.json",
       "backend_pyproject": "backend/pyproject.toml"

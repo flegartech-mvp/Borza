@@ -4,7 +4,7 @@
   "build_timestamp": "2026-08-01T11:45:00Z",
   "provenance": {
     "git_origin": "https://github.com/borza/borza.git",
-    "git_commit": "a29f59d30abaaaf4ecab0de7016f20ad6e1ed66f",
+    "git_commit": "9656eef164ce4aaf99cdd61e4139afc41051312c",
     "alembic_head": "0010_published_at_id_idx",
     "runtimes": {
       "python": "3.14.6",
