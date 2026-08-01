@@ -10,8 +10,12 @@ from app.core.config import get_settings
 from app.database import SessionLocal
 from app.models.ingestion import IngestionJob, IngestionRun
 from app.schemas.article import IngestionJobRead, IngestionRunRead
-from app.services.ingestion_queue import enqueue_ingestion_job
+from app.services.ingestion_queue import enqueue_ingestion_job, claim_next_job
 from app.services.provider_factory import effective_provider_name
+from app.workers.ingestion_worker import process_claimed_job
+from app.events.bus import NoopEventPublisher
+from app.services.sentiment import SentimentService
+import asyncio
 
 router = APIRouter(prefix="/api/cron", tags=["cron"])
 IDEMPOTENCY_KEY = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$")
@@ -82,13 +86,37 @@ def ingest_news_post(
     include_in_schema=False,
     status_code=status.HTTP_202_ACCEPTED,
 )
-def ingest_news_cron_compatibility(
+async def ingest_news_cron_compatibility(
     authorization: str | None = Header(default=None),
     idempotency_key: str | None = Header(default=None, alias="Idempotency-Key"),
 ):
     """Compatibility route for cron services that invoke GET."""
 
-    return _enqueue(authorization, idempotency_key, trigger_kind="cron")
+    result = _enqueue(authorization, idempotency_key, trigger_kind="cron")
+    
+    # In a serverless environment (Vercel), we must execute the job synchronously 
+    # since there is no persistent background worker.
+    settings = get_settings()
+    worker_id = "vercel-cron"
+    
+    # Claim the job we just enqueued (or another pending one)
+    job_to_run = await asyncio.to_thread(claim_next_job, worker_id)
+    if job_to_run:
+        publisher = NoopEventPublisher()
+        sentiment = SentimentService(settings.finbert_enabled)
+        await asyncio.to_thread(sentiment.load)
+        
+        # Process it synchronously
+        await process_claimed_job(
+            job_to_run,
+            settings,
+            worker_id=worker_id,
+            publisher=publisher,
+            sentiment=sentiment,
+        )
+        result["executed_job_id"] = job_to_run.id
+    
+    return result
 
 
 def _job_payload(job: IngestionJob) -> dict:
