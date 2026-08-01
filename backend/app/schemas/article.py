@@ -148,6 +148,12 @@ class OperationalHealthRead(BaseModel):
     scheduler_status: str
     timestamp: datetime
 
+    @computed_field
+    @property
+    def ingestion_worker_fresh(self) -> bool:
+        return self.worker_fresh
+
+
 
 class AnalysisDatasetRead(BaseModel):
     articles: list[ArticleRead]

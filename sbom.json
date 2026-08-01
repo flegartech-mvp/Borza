@@ -1,0 +1,134 @@
+{
+  "$schema": "http://cyclonedx.org/schema/bom-1.5.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "serialNumber": "urn:uuid:borza-production-sbom-01",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-08-01T09:46:55.668945+00:00",
+    "component": {
+      "type": "application",
+      "name": "Borza",
+      "version": "0.1.0-production",
+      "description": "Beginner-friendly financial news & market-intelligence platform"
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "alembic",
+      "purl": "pkg:pypi/alembic",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "apscheduler",
+      "purl": "pkg:pypi/apscheduler",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "fastapi",
+      "purl": "pkg:pypi/fastapi",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "httpx",
+      "purl": "pkg:pypi/httpx",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "psycopg[binary]",
+      "purl": "pkg:pypi/psycopg[binary]",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "pydantic-settings",
+      "purl": "pkg:pypi/pydantic-settings",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "rapidfuzz",
+      "purl": "pkg:pypi/rapidfuzz",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "redis",
+      "purl": "pkg:pypi/redis",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "sqlalchemy",
+      "purl": "pkg:pypi/sqlalchemy",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "uvicorn[standard]",
+      "purl": "pkg:pypi/uvicorn[standard]",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "@tailwindcss/postcss",
+      "version": "4.1.12",
+      "purl": "pkg:npm/@tailwindcss/postcss@4.1.12",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "d3-geo",
+      "version": "3.1.1",
+      "purl": "pkg:npm/d3-geo@3.1.1",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "lucide-react",
+      "version": "0.468.0",
+      "purl": "pkg:npm/lucide-react@0.468.0",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "next",
+      "version": "16.2.12",
+      "purl": "pkg:npm/next@16.2.12",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "react",
+      "version": "19.2.4",
+      "purl": "pkg:npm/react@19.2.4",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "react-dom",
+      "version": "19.2.4",
+      "purl": "pkg:npm/react-dom@19.2.4",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "topojson-client",
+      "version": "3.1.0",
+      "purl": "pkg:npm/topojson-client@3.1.0",
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "world-atlas",
+      "version": "2.0.2",
+      "purl": "pkg:npm/world-atlas@2.0.2",
+      "scope": "required"
+    }
+  ]
+}

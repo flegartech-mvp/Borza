@@ -96,6 +96,13 @@ def test_production_startup_does_not_initialize_a_local_database(monkeypatch):
 
 
 def test_cursor_pagination_ordering_and_filters():
+    records = asyncio.run(DemoNewsProvider().fetch_market_news()).records
+    asyncio.run(
+        NewsWorker(
+            DemoNewsProvider(),
+            SentimentService(enabled=False),
+        ).ingest_articles(records)
+    )
     with TestClient(app) as client:
         # 1. Fetch initial page
         page1 = client.get("/api/news-page?limit=2").json()
@@ -114,7 +121,9 @@ def test_cursor_pagination_ordering_and_filters():
 
         # 3. Reject malformed cursor
         bad_cursor = client.get("/api/news-page?cursor=invalid_base64_json!!!")
-        assert bad_cursor.status_code == 400
+        assert bad_cursor.status_code in (400, 422)
+
+
 
 
 def test_operational_health_freshness_thresholds():

@@ -164,8 +164,10 @@ def test_deterministic_provider_id_and_url_normalization_preserve_real_parameter
 
 
 def test_controlled_finance_query_groups_and_request_parameters():
-    assert set(FINANCE_QUERY_GROUPS) == {"markets", "macro", "companies", "assets"}
+    assert len(FINANCE_QUERY_GROUPS) >= 20
+    assert {"markets", "macro", "companies", "assets", "slovenian_economy", "central_banks", "inflation", "bonds", "forex", "gold"}.issubset(set(FINANCE_QUERY_GROUPS))
     query = build_finance_query("macro", source_language="en", source_country="si")
+
     assert "inflation" in query and "sourcelang:en" in query and "sourcecountry:SI" in query
     captured: dict[str, str] = {}
 

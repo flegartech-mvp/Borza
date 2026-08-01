@@ -73,7 +73,11 @@ def build_news_provider(settings, *, provider_name: str | None = None):
             DemoNewsProvider(),
             allow_demo_fallback=True,
         )
+    if selected == "rss":
+        from app.providers.rss import RSSNewsProvider
+        return RSSNewsProvider()
     if selected == "finnhub":
+
         if not settings.finnhub_api_key:
             return UnavailableNewsProvider(
                 "finnhub",

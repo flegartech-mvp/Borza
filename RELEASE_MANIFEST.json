@@ -1,0 +1,42 @@
+{
+  "project": "Borza",
+  "version": "0.1.0-production",
+  "build_timestamp": "2026-08-01T11:45:00Z",
+  "provenance": {
+    "git_origin": "https://github.com/borza/borza.git",
+    "git_commit": "a29f59d30abaaaf4ecab0de7016f20ad6e1ed66f",
+    "alembic_head": "0010_published_at_id_idx",
+    "runtimes": {
+      "python": "3.14.6",
+      "node": "v24.18.0",
+      "npm": "11.16.0"
+    },
+    "lockfiles": {
+      "frontend_package_lock": "frontend/package-lock.json",
+      "backend_pyproject": "backend/pyproject.toml"
+    }
+  },
+  "brz_requirements": {
+    "BRZ-001": {"status": "VERIFIED", "summary": "Client-driven refresh amplification removed. Local state coalescing and independent schedules."},
+    "BRZ-002": {"status": "VERIFIED", "summary": "Stable cursor pagination (published_at DESC, id DESC) with opaque validated base64 cursor."},
+    "BRZ-003": {"status": "VERIFIED", "summary": "Worker isolation boundaries preventing single-job errors from terminating the worker daemon."},
+    "BRZ-004": {"status": "VERIFIED", "summary": "Abuse and connection controls using Valkey-backed rate limiting with Retry-After header."},
+    "BRZ-005": {"status": "VERIFIED", "summary": "Operational health endpoint tracking worker freshness, scheduler freshness, and ingestion SLAs."},
+    "BRZ-006": {"status": "VERIFIED", "summary": "Honest frontend coverage accounting for all production components and hooks."},
+    "BRZ-007": {"status": "VERIFIED", "summary": "Playwright release-gate E2E test suite covering dashboard, navigation, accessibility, and offline fallback."},
+    "BRZ-008": {"status": "VERIFIED", "summary": "Deterministic fuzzy deduplication with canonical URL normalization and title-fingerprint indexing."},
+    "BRZ-009": {"status": "VERIFIED", "summary": "Heartbeat race condition eliminated using async task cancellation and clean shutdown boundaries."},
+    "BRZ-010": {"status": "VERIFIED", "summary": "Production-grade observability with structured JSON logging and sensitive credential redaction."},
+    "BRZ-011": {"status": "VERIFIED", "summary": "Supply chain reproducibility with locked dependencies, SBOM generation, and vulnerability audits."},
+    "BRZ-012": {"status": "VERIFIED", "summary": "Content Security Policy without unsafe-inline script-src using strict nonces and hashes."},
+    "BRZ-013": {"status": "VERIFIED", "summary": "Heartbeat and operational log retention policy with automated cleanup."},
+    "BRZ-014": {"status": "VERIFIED", "summary": "Incremental module decomposition splitting oversized orchestration files into clear domain modules."},
+    "BRZ-015": {"status": "VERIFIED", "summary": "Single reused GDELT HTTP client with connection pooling, backoff, and circuit breaker cooldown."},
+    "BRZ-016": {"status": "VERIFIED", "summary": "Unified release metadata across API diagnostic endpoints, worker/scheduler heartbeats, and UI."},
+    "BRZ-017": {"status": "OWNER_DECISION", "summary": "Software license choice flagged as explicit project owner decision per AGENTS.md rules."}
+  },
+  "license_notice": {
+    "status": "MISSING_LICENSE_OWNER_DECISION",
+    "notice": "No open-source software license file is present in the repository root. Selecting and committing an open-source software license (e.g., MIT, Apache-2.0) is flagged as an explicit project owner decision."
+  }
+}

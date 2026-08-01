@@ -37,32 +37,30 @@ GDELT_ATTRIBUTION = {
 }
 GDELT_PAYLOAD_VERSION = "doc-2.0-artlist"
 
-# Each group is requested separately. Keeping the queries narrow avoids one
-# all-purpose OR expression that repeatedly hits the ArticleList record ceiling.
 FINANCE_QUERY_GROUPS: dict[str, tuple[str, ...]] = {
     "markets": ("stock", "stocks", "shares", "equities", "market", "markets", "index", "indices"),
-    "macro": (
-        "inflation",
-        "interest rates",
-        "central bank",
-        "GDP",
-        "recession",
-        "economy",
-        "unemployment",
-        "monetary policy",
-        "fiscal policy",
-    ),
-    "companies": (
-        "earnings",
-        "revenue",
-        "profit",
-        "acquisition",
-        "merger",
-        "IPO",
-        "bankruptcy",
-        "layoffs",
-        "investment",
-    ),
+    "european_markets": ("european markets", "euro stoxx", "dax", "ftse", "cac 40", "european economy", "eurozone market"),
+    "slovenian_economy": ("slovenia", "slovenian economy", "ljubljana stock exchange", "ljse", "banka slovenije", "sstat"),
+    "central_banks": ("central bank", "federal reserve", "ecb", "european central bank", "bank of england", "bank of japan", "hawkish", "dovish"),
+    "interest_rates": ("interest rates", "rate hike", "rate cut", "monetary policy", "benchmark rate", "yield curve", "fed funds"),
+    "inflation": ("inflation", "cpi", "ppi", "consumer price index", "core inflation", "hyperinflation", "deflation", "price pressure"),
+    "employment": ("employment", "unemployment", "nonfarm payrolls", "job growth", "labor market", "wage growth", "initial claims"),
+    "gdp_recession": ("gdp", "gross domestic product", "recession", "economic growth", "contraction", "stagflation", "economic downturn"),
+    "stocks": ("earnings", "revenue", "profit", "dividend", "buyback", "quarterly results", "market cap", "guidance"),
+    "bonds": ("bonds", "sovereign debt", "treasury yield", "government bond", "debt ceiling", "sovereign rating", "yield spread"),
+    "forex": ("foreign exchange", "forex", "currency", "eur usd", "usd jpy", "exchange rate", "dollar index", "currency depreciation"),
+    "commodities": ("commodities", "wheat", "corn", "metals", "copper", "lithium", "agricultural prices", "raw materials"),
+    "oil_gas": ("oil", "crude oil", "brent", "wti", "natural gas", "opec", "petroleum", "energy prices", "pipeline"),
+    "gold": ("gold", "bullion", "precious metals", "silver", "safe haven asset", "gold spot"),
+    "crypto": ("bitcoin", "cryptocurrency", "crypto", "ethereum", "blockchain", "digital assets", "btc"),
+    "banking": ("banking", "commercial bank", "systemic risk", "bank failure", "capital adequacy", "credit liquidity", "deposits"),
+    "earnings": ("earnings report", "quarterly profit", "profit margin", "net income", "eps", "beat estimates", "revenue growth"),
+    "ma": ("merger", "acquisition", "buyout", "takeover", "m&a", "divestiture", "dealmaking"),
+    "regulation": ("regulation", "regulatory compliance", "sec", "antitrust", "financial authority", "sanction", "enforcement"),
+    "geopolitics": ("trade war", "tariffs", "sanctions", "geopolitical risk", "embargo", "supply chain disruption", "election market impact"),
+    # Legacy aliases
+    "macro": ("inflation", "interest rates", "central bank", "GDP", "recession", "economy", "unemployment"),
+    "companies": ("earnings", "revenue", "profit", "acquisition", "merger", "IPO", "bankruptcy"),
     "assets": ("bonds", "currency", "forex", "oil", "gas", "gold", "bitcoin", "cryptocurrency"),
 }
 
@@ -112,16 +110,42 @@ def build_finance_query(
     *,
     source_language: str | None = None,
     source_country: str | None = None,
+    include_terms: list[str] | None = None,
+    exclude_terms: list[str] | None = None,
+    domain_allowlist: list[str] | None = None,
+    domain_denylist: list[str] | None = None,
 ) -> str:
     terms = FINANCE_QUERY_GROUPS.get(group.lower())
     if not terms:
         raise ValueError(f"Unknown GDELT finance query group: {group}")
-    query = "(" + " OR ".join(f'"{term}"' if " " in term else term for term in terms) + ")"
+    
+    parts = ["(" + " OR ".join(f'"{term}"' if " " in term else term for term in terms) + ")"]
+    
+    if include_terms:
+        for term in include_terms:
+            parts.append(f'"{term}"' if " " in term else term)
+            
+    if exclude_terms:
+        for term in exclude_terms:
+            parts.append(f'-"{term}"' if " " in term else f"-{term}")
+            
+    if domain_allowlist:
+        allow_parts = [f"domain:{domain.strip()}" for domain in domain_allowlist if domain.strip()]
+        if allow_parts:
+            parts.append("(" + " OR ".join(allow_parts) + ")")
+            
+    if domain_denylist:
+        for domain in domain_denylist:
+            if domain.strip():
+                parts.append(f"-domain:{domain.strip()}")
+
     if source_language and source_language.strip():
-        query += f" sourcelang:{source_language.strip().lower()}"
+        parts.append(f"sourcelang:{source_language.strip().lower()}")
     if source_country and source_country.strip():
-        query += f" sourcecountry:{source_country.strip().upper()}"
-    return query
+        parts.append(f"sourcecountry:{source_country.strip().upper()}")
+        
+    return " ".join(parts)
+
 
 
 def is_controlled_finance_query(query: str) -> bool:
@@ -195,11 +219,17 @@ class GdeltNewsProvider(NewsProvider):
         self.sleep = sleep
         self.jitter = jitter
         self._last_request_at = 0.0
+        self.consecutive_failures = 0
+        self.max_consecutive_failures = 3
+        self.cooldown_seconds = 60.0
+        self.cooldown_until = 0.0
+        self.last_successful_ingestion_at: datetime | None = None
         self.user_agent = (
             "Borza/0.1.0 (+https://github.com/borza/borza; contact: contact@example.invalid)"
         )
         self._client = None
         self._owns_client = True
+
 
     async def get_client(self) -> httpx.AsyncClient:
         if self._client is None or self._client.is_closed:
@@ -416,6 +446,13 @@ class GdeltNewsProvider(NewsProvider):
         *,
         ownership_check: Callable[[], None] | None = None,
     ) -> tuple[Any, int]:
+        now_mono = time.monotonic()
+        if now_mono < self.cooldown_until:
+            raise GdeltProviderError(
+                f"GDELT provider circuit breaker active (cooldown until {self.cooldown_until:.1f})",
+                retry_count=0,
+            )
+
         retry_count = 0
         for attempt in range(self.max_retries + 1):
             if ownership_check:
@@ -431,8 +468,12 @@ class GdeltNewsProvider(NewsProvider):
                     raise _RetryableGdeltError(response)
                 response.raise_for_status()
                 try:
-                    return response.json(), retry_count
+                    res_json = response.json()
+                    self.consecutive_failures = 0
+                    self.last_successful_ingestion_at = datetime.now(UTC)
+                    return res_json, retry_count
                 except ValueError as exc:
+                    self._record_failure()
                     raise GdeltProviderError(
                         "GDELT returned malformed JSON",
                         retry_count=retry_count,
@@ -445,11 +486,13 @@ class GdeltNewsProvider(NewsProvider):
                 retry_after = 2**attempt
                 logger.warning("GDELT network attempt %s failed: %s", attempt + 1, exc)
             except httpx.HTTPStatusError as exc:
+                self._record_failure()
                 raise GdeltProviderError(
                     f"GDELT request rejected: {exc.response.status_code}",
                     retry_count=retry_count,
                 ) from exc
             if attempt == self.max_retries:
+                self._record_failure()
                 raise GdeltProviderError(
                     "GDELT retry budget exhausted",
                     retry_count=retry_count,
@@ -459,7 +502,18 @@ class GdeltNewsProvider(NewsProvider):
             await self.sleep(min(60, retry_after + max(0, jitter)))
             if ownership_check:
                 ownership_check()
+        self._record_failure()
         raise GdeltProviderError("GDELT request failed", retry_count=retry_count)
+
+    def _record_failure(self) -> None:
+        self.consecutive_failures += 1
+        if self.consecutive_failures >= self.max_consecutive_failures:
+            self.cooldown_until = time.monotonic() + self.cooldown_seconds
+            logger.warning(
+                "GDELT provider triggered circuit breaker cooldown for %s seconds",
+                self.cooldown_seconds,
+            )
+
 
     def normalize_article(self, payload: dict) -> NormalizedArticle | None:
         title = _text(payload.get("title"))
