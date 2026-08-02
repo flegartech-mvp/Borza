@@ -1,6 +1,26 @@
 name: CI
+
 on: [push, pull_request]
+
 jobs:
+  security:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Gitleaks repository history scan
+        run: >-
+          docker run --rm
+          --volume "$GITHUB_WORKSPACE:/repo:ro"
+          --env GIT_CONFIG_COUNT=1
+          --env GIT_CONFIG_KEY_0=safe.directory
+          --env GIT_CONFIG_VALUE_0=/repo
+          ghcr.io/gitleaks/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f
+          git --no-banner --redact /repo
+
   backend:
     runs-on: ubuntu-latest
     services:
@@ -17,62 +37,67 @@ jobs:
           --health-interval 5s
           --health-timeout 3s
           --health-retries 20
-      valkey:
-        image: valkey/valkey:8-alpine
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "valkey-cli ping"
-          --health-interval 5s
-          --health-timeout 3s
-          --health-retries 20
-    defaults: { run: { working-directory: backend } }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
-      - run: pip install -r requirements-dev.txt
-      - run: ruff format --check .
-      - run: ruff check .
-      - run: pytest --cov=app --cov-report=term-missing
+      - run: python scripts/validate_academy_content.py
+      - run: python -m unittest scripts.test_validate_academy_content
+      - working-directory: backend
+        run: pip install -r requirements-dev.txt
+      - working-directory: backend
+        run: ruff format --check .
+      - working-directory: backend
+        run: ruff check .
+      - working-directory: backend
+        run: mypy app
+      - working-directory: backend
+        env:
+          ENVIRONMENT: test
+          ACADEMY_ALLOW_DEMO_AUTH: "true"
+        run: pytest --cov=app --cov-report=term-missing
       - name: Premium package safety tests
         working-directory: premium/ai-trading-bot
         run: pytest tests -q
-      - run: alembic upgrade head
-      - name: PostgreSQL and Valkey integration tests
+      - name: Clean PostgreSQL migration and integration tests
+        working-directory: backend
         env:
-          ENVIRONMENT: production
+          ENVIRONMENT: test
           DATABASE_URL: postgresql+psycopg://borza_test:borza_test_only@localhost:5432/borza_test
           MIGRATION_DATABASE_URL: postgresql+psycopg://borza_test:borza_test_only@localhost:5432/borza_test
           POSTGRES_TEST_DATABASE_URL: postgresql+psycopg://borza_test:borza_test_only@localhost:5432/borza_test
-          EVENT_BUS_URL: redis://localhost:6379/0
-          VALKEY_TEST_URL: redis://localhost:6379/0
-          REALTIME_ENABLED: "true"
+          ACADEMY_ALLOW_DEMO_AUTH: "true"
           ALLOWED_HOSTS: testserver,localhost,127.0.0.1
           CORS_ORIGINS: http://testserver
-        run: pytest tests/integration -q
+        run: |
+          alembic upgrade head
+          alembic current
+          alembic check
+          pytest tests/integration -q
+
   frontend:
     runs-on: ubuntu-latest
     defaults: { run: { working-directory: frontend } }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 24, cache: npm, cache-dependency-path: frontend/package-lock.json }
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npm run format:check
       - run: npm run lint
       - run: npm run typecheck
       - run: npm run test:coverage
       - run: npx playwright install --with-deps chromium
-      - name: Browser user journeys
+      - name: Browser Academy journeys
         env:
           NEXT_PUBLIC_API_URL: https://api.example.invalid
-          NEXT_PUBLIC_WS_URL: ""
         run: npm run test:e2e
-      - name: Build with strict public endpoint validation
+      - name: Strict production build
         env:
           BORZA_STRICT_PUBLIC_ENV: "true"
           NEXT_PUBLIC_API_URL: https://api.example.invalid
-          NEXT_PUBLIC_WS_URL: wss://api.example.invalid/ws/news
         run: npm run build
       - run: npm audit --omit=dev

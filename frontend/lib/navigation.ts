@@ -1,62 +1,73 @@
-export type NavigationIcon =
-  "overview" | "news" | "map" | "learn" | "study" | "paper";
+import type { AcademyDictionary } from "@/i18n/dictionaries";
 
-export type WorkspaceNavigationItem = {
+export type NavigationIconName =
+  | "home"
+  | "learn"
+  | "practice"
+  | "simulator"
+  | "tools"
+  | "review"
+  | "journal"
+  | "profile"
+  | "glossary"
+  | "progress"
+  | "achievements"
+  | "settings";
+
+export type NavigationItem = {
+  id: NavigationIconName;
   href: string;
   label: string;
-  shortLabel: string;
-  description: string;
-  icon: NavigationIcon;
-  availability: "current" | "preview";
+  icon: NavigationIconName;
 };
 
-export const PRIMARY_NAVIGATION: readonly WorkspaceNavigationItem[] = [
-  {
-    href: "/",
-    label: "Märkte",
-    shortLabel: "Märkte",
-    description: "Deutsche und europäische Marktlage",
-    icon: "overview",
-    availability: "current",
-  },
-  {
-    href: "/news",
-    label: "Katalysatoren",
-    shortLabel: "Signale",
-    description: "Ereignisse, Quellen und Relevanz",
-    icon: "news",
-    availability: "current",
-  },
-  {
-    href: "/learn",
-    label: "Lernen",
-    shortLabel: "Lernen",
-    description: "Finanzwissen zu realen Marktbewegungen",
-    icon: "learn",
-    availability: "current",
-  },
+const primaryDefinitions = [
+  ["home", "/home"],
+  ["learn", "/learn"],
+  ["practice", "/practice"],
+  ["simulator", "/simulator"],
+  ["tools", "/tools"],
+  ["review", "/review"],
+  ["journal", "/journal"],
+  ["profile", "/profile"],
 ] as const;
 
-export const FUTURE_NAVIGATION: readonly WorkspaceNavigationItem[] = [];
+const secondaryDefinitions = [
+  ["glossary", "/glossary"],
+  ["progress", "/progress"],
+  ["achievements", "/achievements"],
+  ["settings", "/settings"],
+] as const;
 
-export function isNavigationItemActive(
-  pathname: string,
-  href: string,
-): boolean {
-  return href === "/"
-    ? pathname === "/"
-    : pathname === href || pathname.startsWith(`${href}/`);
+function items(
+  definitions: ReadonlyArray<readonly [NavigationIconName, string]>,
+  dictionary: AcademyDictionary,
+): NavigationItem[] {
+  return definitions.map(([id, href]) => ({ id, href, icon: id, label: dictionary.nav[id] }));
 }
 
-export function pageMetadata(pathname: string): {
-  title: string;
-  context: string;
-} {
-  const item = [...PRIMARY_NAVIGATION, ...FUTURE_NAVIGATION].find((entry) =>
+export function primaryNavigation(dictionary: AcademyDictionary): NavigationItem[] {
+  return items(primaryDefinitions, dictionary);
+}
+
+export function secondaryNavigation(dictionary: AcademyDictionary): NavigationItem[] {
+  return items(secondaryDefinitions, dictionary);
+}
+
+export function mobileNavigation(dictionary: AcademyDictionary): NavigationItem[] {
+  return primaryNavigation(dictionary).slice(0, 4);
+}
+
+export function isNavigationItemActive(pathname: string, href: string): boolean {
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+export function pageTitle(pathname: string, dictionary: AcademyDictionary): string {
+  const item = [...primaryNavigation(dictionary), ...secondaryNavigation(dictionary)].find((entry) =>
     isNavigationItemActive(pathname, entry.href),
   );
-  return {
-    title: item?.label ?? "Arbeitsbereich",
-    context: item?.description ?? "Finanznachrichten und Marktinformationen",
-  };
+  if (pathname.startsWith("/lesson/")) return dictionary.lesson.core;
+  if (pathname.startsWith("/quiz/")) return dictionary.quiz.title;
+  if (pathname.startsWith("/onboarding")) return dictionary.onboarding.title;
+  return item?.label ?? dictionary.brand.name;
 }

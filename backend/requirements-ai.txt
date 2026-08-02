@@ -1,4 +1,0 @@
-# Optional but required for live FinBERT inference in a deployed backend.
-# Keep this separate so the demo/test setup stays lightweight.
-transformers==4.57.6
-torch==2.10.0

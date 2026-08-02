@@ -1,17 +1,7 @@
-export type RuntimeUrlConfig = {
-  value: string | null;
-  issue: string | null;
-};
+export type RuntimeUrlConfig = { value: string | null; issue: string | null };
 
 function invalid(variable: string, expected: string): RuntimeUrlConfig {
-  return {
-    value: null,
-    issue: `${variable} is invalid. ${expected}`,
-  };
-}
-
-function withoutTrailingSlashes(value: string): string {
-  return value.replace(/\/+$/, "");
+  return { value: null, issue: `${variable} is invalid. ${expected}` };
 }
 
 export function resolveApiBaseUrl(
@@ -20,126 +10,45 @@ export function resolveApiBaseUrl(
 ): RuntimeUrlConfig {
   const value = rawValue?.trim();
   if (!value) {
-    return {
-      value: environment === "production" ? "" : "http://localhost:8000",
-      issue: null,
-    };
+    return { value: environment === "production" ? "" : "http://localhost:8000", issue: null };
   }
-
-  if (value.startsWith("/")) {
-    if (
-      value.startsWith("//") ||
-      value.includes("?") ||
-      value.includes("#") ||
-      value.includes("\\")
-    ) {
-      return invalid(
-        "NEXT_PUBLIC_API_URL",
-        "Use an HTTP(S) origin or a same-origin path without a query or fragment.",
-      );
+  if (value.startsWith("/") && !value.startsWith("//")) {
+    if (/[?#\\]/.test(value)) {
+      return invalid("NEXT_PUBLIC_API_URL", "Use a same-origin path without query, fragment, or backslash.");
     }
-    return { value: withoutTrailingSlashes(value), issue: null };
+    return { value: value.replace(/\/+$/, ""), issue: null };
   }
-
   try {
     const url = new URL(value);
-    if (
-      !["http:", "https:"].includes(url.protocol) ||
-      url.username ||
-      url.password ||
-      url.search ||
-      url.hash
-    ) {
-      return invalid(
-        "NEXT_PUBLIC_API_URL",
-        "Use a credential-free HTTP(S) URL without a query or fragment.",
-      );
+    if (!["http:", "https:"].includes(url.protocol) || url.username || url.password || url.search || url.hash) {
+      return invalid("NEXT_PUBLIC_API_URL", "Use a credential-free HTTP(S) URL without query or fragment.");
     }
-    return {
-      value: withoutTrailingSlashes(`${url.origin}${url.pathname}`),
-      issue: null,
-    };
+    return { value: `${url.origin}${url.pathname}`.replace(/\/+$/, ""), issue: null };
   } catch {
-    return invalid(
-      "NEXT_PUBLIC_API_URL",
-      "Use an absolute HTTP(S) URL or a same-origin path.",
-    );
+    return invalid("NEXT_PUBLIC_API_URL", "Use an absolute HTTP(S) URL or same-origin path.");
   }
 }
 
-export function resolveWebSocketUrl(
-  rawValue: string | undefined,
-): RuntimeUrlConfig {
-  const value = rawValue?.trim();
-  if (!value) return { value: null, issue: null };
-  try {
-    const url = new URL(value);
-    if (
-      !["ws:", "wss:"].includes(url.protocol) ||
-      url.username ||
-      url.password ||
-      url.search ||
-      url.hash
-    ) {
-      return invalid(
-        "NEXT_PUBLIC_WS_URL",
-        "Use a credential-free WS(S) URL without a query or fragment.",
-      );
-    }
-    return {
-      value: withoutTrailingSlashes(`${url.origin}${url.pathname}`),
-      issue: null,
-    };
-  } catch {
-    return invalid("NEXT_PUBLIC_WS_URL", "Use an absolute WS(S) URL.");
-  }
-}
-
-const apiConfig = resolveApiBaseUrl(
-  process.env.NEXT_PUBLIC_API_URL,
-  process.env.NODE_ENV,
-);
-const explicitWebSocketConfig = resolveWebSocketUrl(
-  process.env.NEXT_PUBLIC_WS_URL,
-);
+const apiConfig = resolveApiBaseUrl(process.env.NEXT_PUBLIC_API_URL, process.env.NODE_ENV);
 
 export function getApiConfig(): RuntimeUrlConfig {
   return apiConfig;
 }
 
-export function getWebSocketConfig(
-  browserLocation?: Pick<Location, "href">,
-): RuntimeUrlConfig {
-  if (explicitWebSocketConfig.issue || explicitWebSocketConfig.value) {
-    return explicitWebSocketConfig;
-  }
-  if (apiConfig.issue) {
-    return {
-      value: null,
-      issue:
-        "The WebSocket URL could not be derived because NEXT_PUBLIC_API_URL is invalid.",
-    };
-  }
-
-  const base =
-    apiConfig.value && /^https?:\/\//.test(apiConfig.value)
-      ? apiConfig.value
-      : browserLocation?.href;
-  if (!base) {
-    return {
-      value: null,
-      issue: "The WebSocket URL cannot be derived outside a browser.",
-    };
-  }
-
+export function getSupabasePublicConfig(): {
+  configured: boolean;
+  url: string | null;
+  publishableKey: string | null;
+} {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() || null;
+  const publishableKey =
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() || null;
+  if (!url || !publishableKey) return { configured: false, url, publishableKey };
   try {
-    const url = new URL("/ws/news", base);
-    url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
-    return { value: url.toString(), issue: null };
+    const parsed = new URL(url);
+    const valid = parsed.protocol === "https:" && !parsed.username && !parsed.password;
+    return { configured: valid, url: valid ? parsed.origin : null, publishableKey };
   } catch {
-    return {
-      value: null,
-      issue: "The WebSocket URL could not be derived from the API origin.",
-    };
+    return { configured: false, url: null, publishableKey };
   }
 }

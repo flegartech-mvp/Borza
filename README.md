@@ -1,50 +1,58 @@
-# Borza
+# Borza Academy
 
-Borza is a German-first European market-intelligence platform for active investors and traders, with a separate learning layer for Slovenian and European finance students. It turns German and European market news into structured catalysts and understandable financial knowledge while preserving original-source links and labeling demo, stale, or degraded data honestly.
+**Learn finance. Practise trading. Build real market skills.**
 
-Borza is informational software, not financial advice. Article tone and relevance scores are transparent editorial heuristics and do not predict market prices.
+Borza Academy is a German-first, multilingual finance-learning platform for responsible trading practice, finance and economics study, investing foundations, and disciplined risk management. German, Slovenian, and English are first-class interface languages.
+
+The product combines concise lessons, worked calculations, quizzes, spaced repetition, interactive chart exercises, deterministic paper-trading scenarios, finance tools, progress tracking, and a structured trading journal. It is education software—not financial advice, a brokerage, a live-data terminal, or evidence that simulated performance will transfer to real markets.
 
 ## Architecture
 
 ```text
-German / European official RSS + Marketaux + optional GDELT
-                         |
-                 composite ingestion
-                         |
-scheduler -> ingestion_jobs -> worker -> PostgreSQL -> FastAPI
-                                      |                 |
-                                   Valkey        REST + WebSocket
-                                                        |
-                                                Next.js frontend
+version-controlled Academy content
+              |
+      FastAPI content + learner APIs
+              |
+   PostgreSQL / local SQLite fallback
+              |
+       Next.js Academy experience
+              |
+ optional Supabase Auth for accounts
 ```
 
-Runtime applications are limited to `frontend/` and `backend/`.
+The normal local runtime has three services only:
 
-- Next.js 16 frontend: Vercel or the standalone frontend container.
-- FastAPI API: persistent container service.
-- Ingestion worker: separate process using durable database jobs and leases.
-- Scheduler: separate process that enqueues ingestion jobs.
-- PostgreSQL: production database managed by Alembic.
-- Valkey/Redis: realtime fanout when enabled.
+- Next.js 16 / React 19 frontend.
+- FastAPI / SQLAlchemy / Alembic backend.
+- PostgreSQL 16 (with SQLite as a development and unit-test fallback).
 
-The premium trading-bot package is separate from Borza runtime code and is not publicly downloadable.
+There are no news providers, ingestion workers, schedulers, Valkey dependency, real-money orders, broker connections, or live market-data requirements.
+
+## Product Areas
+
+- **Home** — next lesson, reviews due, weekly learning progress, mastery, streak, simulator process summary, and journal prompts.
+- **Learn** — twelve curriculum paths; Finance Foundations, Trading Foundations, Risk Management, and Technical Analysis launch with complete lessons and assessments.
+- **Practice** — chart exercises with hidden future candles and accessible textual summaries.
+- **Simulator** — deterministic historical-style replay with educational market, limit, stop, and bracket orders.
+- **Finance Tools** — trading-risk and corporate-finance calculators with formulas and interpretations.
+- **Review** — FSRS-backed recall scheduling using Again, Hard, Good, and Easy grades.
+- **Journal** — planned versus actual risk, emotions, rules, lessons, and repeated-pattern reviews.
+- **Profile** — onboarding goals, language, theme, weekly commitment, progress, achievements, and settings.
+
+All chart and scenario datasets are labelled simulated. Process quality is scored separately from profit: a disciplined loss can be better work than a reckless win.
 
 ## Quick Start
 
-Requirements: Docker Desktop, or Python 3.12 and Node.js 24.
+Requirements: Docker Desktop, or Python 3.12 plus Node.js 24.
 
 ```powershell
 Copy-Item .env.example .env
 docker compose up --build
 ```
 
-Open `http://localhost:3000`. API docs are available at `http://localhost:8000/docs` in local development.
+Open `http://localhost:3000`. In local mode, visitors can use the labelled demo workspace. API docs are available at `http://localhost:8000/docs` outside deployed environments.
 
-The default `composite` provider always uses official RSS feeds and adds Marketaux when `MARKETAUX_API_TOKEN` is configured. Without the token, official RSS remains healthy and no demo or GDELT data is silently substituted. Set `DEMO_MODE=true` only when an explicitly simulated feed is wanted.
-
-## Run Without Docker
-
-Backend setup:
+### Run without Docker
 
 ```powershell
 Set-Location backend
@@ -55,19 +63,7 @@ python -m alembic upgrade head
 python -m uvicorn app.main:app --reload
 ```
 
-Start the worker and scheduler in separate activated terminals:
-
-```powershell
-Set-Location backend
-python -m app.workers.ingestion_worker
-```
-
-```powershell
-Set-Location backend
-python -m app.scheduler
-```
-
-Frontend:
+In another terminal:
 
 ```powershell
 Set-Location frontend
@@ -75,72 +71,40 @@ npm ci
 npm run dev
 ```
 
-For local development without Valkey, set `REALTIME_ENABLED=false`; the frontend falls back to bounded polling.
+## Authentication
 
-## News Sources
+The landing page and labelled demo lesson/scenario are public. Persisted private progress uses Supabase Auth when configured.
 
-Operational by default:
-
-- Deutsche Bundesbank general feed: official, Germany, German.
-- Destatis current releases: official statistics, Germany, German.
-- Deutsche Börse press releases: exchange, Germany, English.
-- Xetra and Frankfurt Newsboard: exchange operations, Germany, English.
-- Deutsche Börse circulars: exchange notices, Germany, English.
-- European Central Bank press feed: official, Europe, English.
-- Slovenian Ministry of Finance GOV.SI feed: official, Slovenia, Slovenian.
-
-Optional:
-
-- Marketaux with `MARKETAUX_API_TOKEN`: primary broad discovery for DACH/EU entities, German and English articles, ticker metadata, entity sentiment, and similar-story hints.
-- GDELT DOC 2.0: low-frequency global research fallback with bounded finance query groups and visible attribution.
-- OpenNews with `OPENNEWS_TOKEN`.
-- Finnhub with `FINNHUB_API_KEY`.
-
-EQS News is a high-value company-disclosure target, but Borza does not scrape or redistribute it until technical access and commercial licensing terms are verified. BaFin, ESMA, European Commission releases, Banka Slovenije, and permitted company investor-relations feeds also remain candidates. Borza does not ship guessed or dead endpoints.
-
-See `docs/product-direction.md` for the Borza Markets and Borza Learn boundaries and the honest delivery order for catalysts, companies, calendars, watchlists, alerts, and multilingual learning.
-
-Configure the provider set with:
+Backend variables:
 
 ```env
-NEWS_PROVIDER=composite
-COMPOSITE_PROVIDERS=rss,marketaux
-MARKETAUX_API_TOKEN=replace-with-a-server-side-token
+SUPABASE_URL=https://<project-ref>.supabase.co
+SUPABASE_PUBLISHABLE_KEY=<publishable-key>
+ACADEMY_ALLOW_DEMO_AUTH=false
 ```
 
-Allowed standalone values are `composite`, `rss`, `marketaux`, `gdelt`, `opennews`, `finnhub`, and `demo`. A missing Marketaux token disables it inside the composite while official RSS continues; a persisted standalone Marketaux job fails explicitly if its token was removed. Failures from one composite provider do not discard successful results from others.
+Frontend variables:
 
-The persistent scheduler uses provider-specific defaults: RSS every 10 minutes, Marketaux every 20 minutes, and optional GDELT every 2 hours. The Marketaux default is three articles per request so the free-plan limit is not accidentally exceeded; changing plan or cadence is an operator decision.
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<publishable-key>
+```
 
-## Environment
+Never expose a Supabase secret or `service_role` key through `NEXT_PUBLIC_*`. FastAPI verifies the caller before owner-scoped reads and writes. Direct browser access to Academy state tables is not required.
 
-Copy `.env.example` and change values for the target environment.
+## Authored Content
 
-| Variable                 | Service                | Purpose                                                                  |
-| ------------------------ | ---------------------- | ------------------------------------------------------------------------ |
-| `DATABASE_URL`           | API, worker, scheduler | SQLAlchemy PostgreSQL URL; local file-backed SQLite is development-only. |
-| `MIGRATION_DATABASE_URL` | migration job          | Direct/session PostgreSQL URL for Alembic when runtime uses a pooler.    |
-| `NEWS_PROVIDER`          | worker, scheduler      | Canonical provider mode; defaults to `composite`.                        |
-| `COMPOSITE_PROVIDERS`    | worker, scheduler      | Ordered provider set; defaults to `rss,marketaux`.                        |
-| `MARKETAUX_API_TOKEN`    | API, worker, scheduler | Optional server-side Marketaux token; never expose it through the client. |
-| `MARKETAUX_FETCH_INTERVAL_SECONDS` | scheduler | Marketaux cadence; defaults to 1,200 seconds.                             |
-| `RSS_FETCH_INTERVAL_SECONDS` | scheduler           | Official RSS cadence; defaults to 600 seconds.                            |
-| `GDELT_FETCH_INTERVAL_SECONDS` | scheduler         | Optional GDELT cadence; defaults to 7,200 seconds.                        |
-| `OPENNEWS_TOKEN`         | worker                 | Optional server-side OpenNews bearer token.                              |
-| `FINNHUB_API_KEY`        | worker                 | Optional server-side Finnhub key.                                        |
-| `CRON_SECRET`            | API                    | Bearer secret for operator ingestion endpoints.                          |
-| `EVENT_BUS_URL`          | API, worker            | Valkey/Redis connection URL.                                             |
-| `REALTIME_ENABLED`       | API, worker            | Enables shared WebSocket publication; polling remains available.         |
-| `CORS_ORIGINS`           | API                    | Comma-separated frontend origins.                                        |
-| `ALLOWED_HOSTS`          | API                    | Accepted API hostnames.                                                  |
-| `NEXT_PUBLIC_API_URL`    | frontend build         | Absolute public FastAPI URL. HTTPS is required for deployed builds.      |
-| `NEXT_PUBLIC_WS_URL`     | frontend build         | Optional absolute WSS news-stream URL.                                   |
+Stable lessons, quizzes, glossary entries, review cards, chart exercises, calculator exercises, and simulation scenario definitions live under `content/academy/`. The validator checks identifiers, ordering, prerequisites, references, sources, and DE/SL/EN availability:
 
-Never expose provider, database, or cron credentials through `NEXT_PUBLIC_*` variables.
+```powershell
+python scripts/validate_academy_content.py
+```
+
+User state lives in the database; large lesson bodies and deterministic scenario definitions do not live in migrations.
 
 ## Database Migrations
 
-Runtime processes verify that the schema is current and never create tables automatically.
+Runtime processes verify schema state and never create tables dynamically.
 
 ```powershell
 Set-Location backend
@@ -149,19 +113,9 @@ python -m alembic current
 python -m alembic check
 ```
 
-Run migrations once before starting a new API or worker release.
+Migrations `0001`–`0011` preserve the historical news schema. Academy runtime code does not import or query those tables. They remain untouched for safe upgrades; the separate opt-in legacy archival script requires explicit operator confirmation and is never part of normal deployment.
 
-## API
-
-Health endpoints:
-
-- `GET /live`: process liveness.
-- `GET /ready`: database and configured realtime readiness.
-- `GET /api/health/operational`: worker, scheduler, queue, and ingestion freshness.
-
-The primary feed is `GET /api/news-page`. It supports bounded pagination, search, category, source, source type, region, language, company/ticker, publication window, official-only, minimum relevance, and `newest`, `relevance`, or `most_covered` ordering. Responses include active filters, ingestion freshness, demo status, and partial-result status.
-
-## Tests
+## Verification
 
 Backend:
 
@@ -169,7 +123,11 @@ Backend:
 Set-Location backend
 python -m ruff format --check .
 python -m ruff check .
-python -m pytest -q
+python -m mypy app
+python -m pytest --cov=app --cov-report=term-missing
+python -m alembic upgrade head
+python -m alembic current
+python -m alembic check
 ```
 
 Frontend:
@@ -180,37 +138,37 @@ npm ci
 npm run format:check
 npm run lint
 npm run typecheck
-npm run test:run
+npm run test:coverage
 npm run build
 npx playwright install chromium
 npm run test:e2e
 ```
 
+Full local gate:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/validate.ps1
+```
+
 Infrastructure:
 
 ```powershell
-docker compose config
-docker build --target test -t borza-backend-test ./backend
-docker build --build-arg NEXT_PUBLIC_API_URL=https://api.example.com -t borza-frontend ./frontend
+docker compose config --quiet
+docker compose -f docker-compose.test.yml --profile integration up --build --abort-on-container-exit --exit-code-from backend-postgres-test backend-postgres-test
 ```
 
 ## Deployment
 
-The canonical hosted model is:
+- Vercel hosts the `frontend/` Next.js project.
+- Render hosts the single `backend/` FastAPI service and runs `alembic upgrade head` as its pre-deploy command.
+- Supabase or standard PostgreSQL hosts learner state.
 
-- Vercel project root `frontend/`: Next.js only.
-- Render Blueprint `render.yaml`: FastAPI API, ingestion worker, scheduler, and Valkey.
-- Supabase or standard PostgreSQL: primary database.
+Deploy migration first, then API, then frontend. See `PRODUCTION_RUNBOOK.md`. This feature branch must not be merged or deployed until its full verification gate passes and an explicit release decision is made.
 
-Set `NEXT_PUBLIC_API_URL` and optional `NEXT_PUBLIC_WS_URL` in Vercel. Set backend secrets only on the API/worker/scheduler host. Do not deploy `backend/` through Vercel and do not configure a frontend cron. See `PRODUCTION_RUNBOOK.md` for the release order and health checks.
+## Boundaries
 
-## Known Limitations
-
-- Marketaux and optional GDELT results are discovery metadata; publisher quality still varies and must be judged through source labels and original links.
-- Marketaux free-plan coverage is intentionally quota-bounded to three articles per 20-minute request. It is useful for development, not equivalent to a licensed real-time professional feed.
-- EQS, dpa-AFX, and exchange market-data redistribution are not implemented or licensed.
-- Official-source coverage is limited to verified feeds in the registry.
-- Full article text is not republished; cards use provider/feed summaries and original links.
-- Relevance, tone, and inferred geography are explainable heuristics, not validated market-impact predictions.
-- Map coverage remains a secondary experimental route and is not part of primary navigation.
-- Production checkout/private delivery for the separate premium bot is not configured.
+- No brokerage integration or real order transmission.
+- No live-market-data claim.
+- No profitability claim or trading-guru language.
+- No university affiliation, endorsement, or unlicensed logo use.
+- The separate `premium/ai-trading-bot/` packaging area is not part of the Academy runtime.

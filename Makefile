@@ -1,12 +1,9 @@
-.PHONY: dev backend worker scheduler frontend install test test-integration lint format-check build validate migrate seed
+.PHONY: dev backend frontend install test test-integration lint format-check typecheck build validate migrate content-check
+
 dev:
 	docker compose up --build
 backend:
 	cd backend && uvicorn app.main:app --reload
-worker:
-	cd backend && python -m app.workers.ingestion_worker
-scheduler:
-	cd backend && python -m app.scheduler
 frontend:
 	cd frontend && npm run dev
 install:
@@ -23,12 +20,15 @@ lint:
 format-check:
 	cd backend && python -m ruff format --check .
 	cd frontend && npm run format:check
-build:
+typecheck:
+	cd backend && python -m mypy app
 	cd frontend && npm run typecheck
+build:
 	cd frontend && npm run build
+content-check:
+	python scripts/validate_academy_content.py
+	python -m unittest scripts.test_validate_academy_content
 validate:
 	powershell -ExecutionPolicy Bypass -File scripts/validate.ps1
 migrate:
 	cd backend && python -m alembic upgrade head
-seed:
-	cd backend && python -m app.seed

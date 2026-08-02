@@ -1,73 +1,63 @@
-# Borza Product Direction
+# Borza Academy Product Direction
 
-## Product Thesis
+## Promise
 
-Borza turns German and European market news into structured trading catalysts and understandable financial knowledge.
+Borza Academy helps learners understand finance, practise trading mechanics without real money, and build disciplined market skills.
 
-- German: **Borza verwandelt deutsche und europäische Finanznachrichten in strukturierte Marktsignale und verständliches Finanzwissen.**
-- Slovenian: **Borza pretvarja nemške in evropske finančne novice v strukturirane tržne signale in razumljivo finančno znanje.**
+- German: **Finanzen verstehen. Trading üben. Marktfähigkeiten aufbauen.**
+- Slovenian: **Razumi finance. Vadi trgovanje. Zgradi resnične tržne veščine.**
+- English: **Learn finance. Practise trading. Build real market skills.**
 
-Borza is not a Slovenia-only news dashboard and is not a generic article reader. Germany and the wider DACH and European trading market are the primary commercial focus. Slovenian students are a distinct education and acquisition audience.
+German is the default commercial language. Slovenian is a first-class student language. English is fully usable.
 
-## Product Modes
+## Audiences
 
-### Borza Markets
+1. Beginners learning finance, investing, and market mechanics.
+2. People practising day trading responsibly without brokerage integration.
+3. Finance, economics, banking, and business students.
+4. Intermediate learners strengthening risk management, analysis, and discipline.
 
-The primary mode is a German-first, desktop-first market workspace for active investors and traders. It prioritizes DAX, MDAX, SDAX, TecDAX, Xetra, Frankfurt, German and major European companies, ECB and Bundesbank policy, German macro releases, regulation, earnings, and intraday catalysts.
+The product does not claim affiliation with the University of Maribor, the University of Ljubljana, or any other educational institution.
 
-The core unit should evolve from an article into a catalyst that answers:
+## Learning model
 
-- What happened?
-- Which company, ticker, index, sector, currency, or asset may be affected?
-- When was it first seen and most recently updated?
-- How many independent sources describe the event?
-- Which source is primary and how trustworthy is it?
-- Why might a trader care?
-- Is the potential direction positive, negative, mixed, or unclear?
+The core loop is:
 
-Direction and relevance are contextual labels, never guaranteed price predictions.
+```text
+explain -> demonstrate -> practise -> receive feedback -> review -> reflect
+```
 
-### Borza Learn
+Mastery combines lesson completion, quiz evidence, calculator practice, chart decisions, simulator rule adherence, and spaced recall. One multiple-choice answer never creates a “Mastered” state.
 
-The secondary mode reuses the same events for German, Slovenian, and English learning. It should connect current news with macroeconomics, monetary economics, banking, financial markets, investments, corporate finance, accounting, international economics, econometrics, risk management, and business German.
+Four launch paths are complete:
 
-Future learning layers may include simple, finance-student, and advanced explanations; terminology; German-Slovenian vocabulary; cited examples; quizzes; exam questions; notes; and historical comparisons.
+- Finance Foundations
+- Trading Foundations
+- Risk Management
+- Technical Analysis
 
-Borza must not imply affiliation with or endorsement by a university. Institution names and branding require careful factual context and formal permission where applicable.
+Eight further paths have honest curriculum previews and unlock as authored content reaches the same quality bar.
 
-## Shared Platform
+## Trading education principles
 
-Markets and Learn share:
+- Risk and uncertainty come before setup selection.
+- Chart patterns and indicators are context tools, not predictions.
+- The simulator scores process separately from outcome.
+- Complex leverage practice requires risk prerequisites.
+- A valid no-trade decision is a successful learning outcome.
+- No live orders, deposits, profit promises, signal selling, or real-account balances.
 
-- composite ingestion and provider isolation;
-- normalized articles and future event entities;
-- companies, tickers, topics, sectors, and asset classes;
-- source trust, relevance, duplicate grouping, and provenance;
-- original-language content and original-source links.
+## Content integrity
 
-Generated summaries and translations must be labeled separately from publisher text. Proper names, ticker symbols, and official institution names must remain intact.
+Instruction is original. Authoritative source links support factual verification; they are not copied lessons. Each lesson presents objectives, explanation, visual/interactive work, calculation or worked example, common mistake, takeaway, knowledge check, review cards, and sources.
 
-## Source Hierarchy
+## Delivery order
 
-1. Verified official, regulatory, statistical, exchange, and company investor-relations sources.
-2. Permitted professional editorial sources.
-3. Marketaux as the primary broad financial discovery provider.
-4. Optional low-frequency research providers such as GDELT.
-5. Explicitly labeled demo data only when intentionally enabled.
+1. Public landing and complete labelled demo loop.
+2. Authenticated onboarding and recommended path.
+3. Lesson/progress/quiz/review loop.
+4. Chart laboratory and deterministic simulator.
+5. Calculators, journal, analytics, achievements, and skill map.
+6. Additional complete learning paths.
 
-The default German backbone uses verified feeds from Deutsche Bundesbank, Destatis, Deutsche Börse, Xetra/Frankfurt, and the ECB. Marketaux supplies keyed DACH/EU discovery when configured; GDELT remains optional. EQS News, BaFin, ESMA, European Commission, and company investor-relations integrations remain targets until stable, permitted endpoints and redistribution terms are verified. No dead or guessed feed URL may ship.
-
-## Delivery Order
-
-The intended product hierarchy is Markets, Catalysts, Companies, Calendar, Watchlists, and Learn. Navigation must expose only operational destinations.
-
-Near-term engineering order:
-
-1. German official-source coverage and trustworthy catalyst grouping.
-2. German-first interface with explicit language preferences.
-3. Company/ticker entities and DAX-family classification.
-4. Catalyst timelines, velocity, calendars, watchlists, and alerts.
-5. Multilingual Learn explanations and study workflows.
-6. Entitlements and billing only when subscriptions are genuinely operational.
-
-The current release implements article normalization, official-source priority, bounded duplicate grouping, relevance metadata, filters, and Markets/Learn route foundations. It does not yet claim operational watchlists, alerts, company pages, calendars, translations, subscriptions, or university integrations.
+Navigation exposes only implemented destinations. Preview content must say what is available and what is not.

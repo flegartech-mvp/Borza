@@ -1,57 +1,54 @@
-# Borza Architecture
+# Borza Academy Architecture
 
-## Product Boundary
+## Runtime topology
 
-Borza is a German-first European market-intelligence platform. Borza Markets is the primary commercial experience; Borza Learn is a separate learning layer over the same source-backed events. Brokerage, live trading, fake pricing, university integrations, and premium artifact delivery are outside the primary runtime.
+```text
+Browser
+  |-- Next.js 16 UI (Vercel or container)
+  |       |-- public demo state (versioned browser storage, labelled)
+  |       `-- Supabase Auth session when configured
+  |
+  `-- FastAPI /api/v1 (Render or container)
+          |-- validated authored content registry
+          |-- owner-scoped learning state
+          |-- quiz/mastery/review services
+          |-- deterministic simulator and finance math
+          `-- SQLAlchemy -> PostgreSQL 16 / local SQLite
+```
 
-## Runtime Boundary
+There are no ingestion workers, schedulers, news providers, Valkey dependency, news WebSocket, or brokerage service.
 
-- `frontend/`: Next.js application only.
-- `backend/`: FastAPI API, ingestion worker, scheduler, providers, models, and Alembic migrations.
-- `premium/ai-trading-bot/`: packaging policy and wrappers only; no runtime dependency.
+## Content boundary
 
-## Ingestion Flow
+`content/academy/` is the canonical stable curriculum. A repository validator checks:
 
-1. The scheduler creates an idempotent durable ingestion job.
-2. A worker claims the job, maintains its heartbeat, and acquires a fenced lease.
-3. `CompositeNewsProvider` runs configured providers concurrently.
-4. Provider records are validated at the normalized article boundary.
-5. The composite layer merges exact URL/title duplicates and bounded fuzzy candidates, preferring verified official sources.
-6. `NewsWorker` calculates article tone metadata, ticker links, and relevance/attention context, then commits bounded batches.
-7. Each run records provider windows, requests, retries, accepted records, duplicates, malformed records, warnings, and errors.
-8. Committed article events publish through Valkey when realtime is enabled.
+- unique IDs and ordered paths/modules/lessons;
+- prerequisites and skill references;
+- German, Slovenian, and English availability;
+- question, glossary, flashcard, chart, calculator, and scenario references;
+- authoritative HTTPS lesson sources;
+- required launch counts and content integrity.
 
-One provider failure produces a partial run. It does not roll back records from healthy providers.
+FastAPI reads this registry through a cached immutable loader. Content bodies are not inserted into migrations. User progress stores the content version it was completed against.
 
-## Provider Roles
+## Data boundary
 
-- RSS registry: verified first-party, statistical, regulatory, or exchange publications with source ID, type, region, original language, trust tier, market relevance, polling interval, and category. German and European sources are the default priority.
-- Marketaux: primary keyed DACH/EU discovery with entity, ticker, entity-sentiment, and similar-story metadata; never treated as primary truth.
-- GDELT DOC 2.0: optional low-frequency global research fallback, never a release-blocking dependency.
-- OpenNews: optional authenticated supplemental provider with the required labeled demo fallback behavior.
-- Finnhub: optional keyed supplemental provider.
-- Demo: explicit simulated data only.
+PostgreSQL stores identity linkage, preferences, onboarding, enrollments, lesson state, notes/bookmarks, attempts/responses, review scheduling/history, mastery evidence, simulator sessions/orders/trades, journals/tags, achievements, streaks, and activity events.
 
-The persistent scheduler separates provider cadence instead of running the whole composite on one timer: verified RSS defaults to 10 minutes, Marketaux to 20 minutes, and optional GDELT to two hours. Manual operator jobs may still execute the configured composite once.
+Authored identifiers are stable strings. User-owned records use UUIDs. Monetary/simulator values use exact decimal columns. History endpoints are owner-scoped and paginated.
 
-## Article Model
+## Authentication
 
-The canonical record preserves provider identity, source identity/domain/type, canonical and original URLs, publication/ingestion/update times, language, geography, categories, organizations, companies, tickers, asset classes, article tone, relevance/trust scores, duplicate grouping, alternative source links, extraction status, stale status, and demo status.
+Supabase Auth handles email signup, sign-in, recovery, and session refresh. The browser sends the current access token to FastAPI. FastAPI verifies it with the configured Supabase Auth service, maps the verified user ID to an Academy user, and applies that ID to every private query.
 
-Fields are nullable where providers cannot supply reliable data. Missing geography is not replaced with fake coordinates. Full third-party article bodies are not stored.
+Development/test may enable an explicit demo-user header. Deployed environments reject it. Anonymous demo state is not written as a real account.
 
-## API And Frontend
+## Simulator
 
-`GET /api/news-page` is the primary feed contract. Queries are bounded and support search, category, source, source type, region, language, ticker/company, date window, official-only, relevance threshold, and ordering. The response includes pagination, active filters, ingestion freshness, partial-result state, and demo state.
+Scenarios use deterministic generators/curated definitions. Only candles at or before the replay cursor are returned. The server evaluates market, limit, stop, stop-loss, take-profit, and bracket behavior using explicit spread, commission, and slippage. Commands use idempotency/version fields where appropriate.
 
-The Next.js frontend uses TanStack Query for request caching/retry orchestration, URL parameters for shareable filters, and WebSocket events plus REST reconciliation when realtime is available. Polling is the fallback.
+The engine has no network path to a broker and no representation of real credentials.
 
-The map remains a secondary experimental route. Current navigation exposes only implemented Markets, catalyst-feed, and Learn destinations. Companies, calendars, watchlists, alerts, and multilingual explanations remain roadmap capabilities until their data and workflows are operational.
+## Legacy schema
 
-See `docs/product-direction.md` for the product hierarchy and language strategy.
-
-## Deployment
-
-Vercel hosts only `frontend/`. A persistent container platform hosts the FastAPI API, worker, and scheduler as separate processes. PostgreSQL is the system of record; Valkey is optional for realtime fanout. Alembic runs once before new backend processes receive traffic.
-
-See `PRODUCTION_RUNBOOK.md` for exact commands and environment ownership.
+Alembic revisions `0001`–`0011` remain immutable. Their news tables are excluded from active ORM metadata and autogenerate comparisons. Academy migrations are additive and do not drop legacy data. A separately invoked archival tool exists for a future authorized cleanup window.

@@ -1,4 +1,3 @@
-import re
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
@@ -10,11 +9,14 @@ from sqlalchemy.engine import make_url
 
 DEPLOYED_ENVIRONMENTS = frozenset({"preview", "staging", "production"})
 ROOT_ENV_FILE = Path(__file__).resolve().parents[3] / ".env"
-BEARER_TOKEN68 = re.compile(r"[A-Za-z0-9\-._~+/]+={0,}")
+DEFAULT_CONTENT_REGISTRY = (
+    Path(__file__).resolve().parents[3] / "content" / "academy" / "registry.json"
+)
 
 
 def normalize_database_url(value: str, *, deployed: bool) -> str:
-    """Return a psycopg SQLAlchemy URL without ever rendering it in logs."""
+    """Return a psycopg SQLAlchemy URL without logging credentials."""
+
     raw = value.strip()
     if not raw:
         raise ValueError("DATABASE_URL cannot be empty")
@@ -40,10 +42,11 @@ def normalize_database_url(value: str, *, deployed: bool) -> str:
 
 
 class Settings(BaseSettings):
-    """Runtime configuration. Secrets remain server-side only."""
+    """Server-side Academy configuration."""
 
     model_config = SettingsConfigDict(env_file=ROOT_ENV_FILE, extra="ignore")
-    app_name: str = "Borza"
+
+    app_name: str = "Borza Academy"
     environment: Literal["development", "test", "preview", "staging", "production"] = "development"
     backend_host: str = "0.0.0.0"
     backend_port: int = 8000
@@ -53,130 +56,65 @@ class Settings(BaseSettings):
     database_max_overflow: int = Field(2, ge=0, le=10)
     database_pool_timeout_seconds: int = Field(10, ge=1, le=60)
     database_pool_recycle_seconds: int = Field(900, ge=60, le=3600)
-    cron_secret: str | None = None
-    finnhub_api_key: str | None = None
-    marketaux_api_token: str | None = Field(default=None, max_length=512)
-    marketaux_base_url: str = "https://api.marketaux.com/v1/news/all"
-    marketaux_request_timeout_seconds: float = Field(15, ge=1, le=60)
-    marketaux_countries: str = "de,at,ch,eu"
-    marketaux_languages: str = "de,en"
-    marketaux_article_limit: int = Field(3, ge=1, le=100)
-    marketaux_default_lookback_hours: int = Field(24, ge=1, le=168)
-    marketaux_fetch_interval_seconds: int = Field(1200, ge=300, le=86_400)
-    rss_fetch_interval_seconds: int = Field(600, ge=60, le=86_400)
-    gdelt_fetch_interval_seconds: int = Field(7200, ge=900, le=86_400)
-    opennews_token: str | None = Field(default=None, max_length=512)
-    opennews_api_base: str = "https://ai.6551.io"
-    opennews_fetch_limit: int = Field(50, ge=1, le=100)
-    news_provider: Literal[
-        "composite", "demo", "finnhub", "marketaux", "opennews", "gdelt", "rss"
-    ] = "composite"
-    composite_providers: str = "rss,marketaux"
-    demo_mode: bool = False
-    news_fetch_interval_seconds: int = Field(60, ge=15, le=86_400)
-    gdelt_base_url: str = "https://api.gdeltproject.org/api/v2/doc/doc"
-    gdelt_request_timeout_seconds: float = Field(30, ge=1, le=60)
-    gdelt_max_retries: int = Field(2, ge=0, le=8)
-    gdelt_request_delay_seconds: float = Field(5, ge=0, le=30)
-    gdelt_max_records: int = Field(250, ge=1, le=250)
-    gdelt_default_lookback_hours: int = Field(48, ge=1, le=168)
-    gdelt_query_groups: str = "german_markets,german_macro,german_companies,european_markets"
-    frontend_url: str = "http://localhost:3000"
     cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
     allowed_hosts: str = "localhost,127.0.0.1,testserver"
-    realtime_enabled: bool = True
-    event_bus_url: str = "redis://localhost:6379/0"
-    realtime_max_event_bytes: int = Field(256_000, ge=16_384, le=1_000_000)
-    realtime_reconnect_seconds: float = Field(1, ge=0.1, le=30)
-    daily_ingest_lookback_hours: int = Field(48, ge=1, le=168)
-    daily_ingest_max_articles: int = Field(1000, ge=1, le=10_000)
-    daily_ingest_max_requests: int = Field(50, ge=1, le=500)
-    daily_ingest_min_window_minutes: int = Field(1, ge=1, le=1440)
-    ingestion_lock_ttl_seconds: int = Field(900, ge=30, le=86_400)
-    ingestion_lock_heartbeat_seconds: int = Field(60, ge=5, le=3600)
-    ingestion_batch_size: int = Field(50, ge=1, le=500)
-    ingestion_worker_poll_seconds: float = Field(2, ge=0.1, le=60)
-    ingestion_job_max_attempts: int = Field(3, ge=1, le=10)
-    ingestion_job_retry_base_seconds: int = Field(30, ge=1, le=3600)
-    ingestion_job_retry_max_seconds: int = Field(900, ge=1, le=86_400)
-    ingestion_worker_heartbeat_seconds: int = Field(15, ge=1, le=300)
-    ingestion_worker_stale_after_seconds: int = Field(90, ge=10, le=3600)
     log_level: str = "INFO"
-    # Serverless production intentionally does not load large ML model dependencies.
-    finbert_enabled: bool = False
-    premium_local_download_enabled: bool = False
-    premium_local_artifact_path: str = "premium/ai-trading-bot/artifacts/borza-ai-trading-bot.zip"
+    academy_content_registry_path: Path = DEFAULT_CONTENT_REGISTRY
+    academy_allow_demo_auth: bool = False
+    supabase_url: str | None = None
+    supabase_publishable_key: str | None = Field(default=None, max_length=1024)
+    supabase_auth_timeout_seconds: float = Field(5, ge=1, le=20)
 
-    @field_validator("opennews_token")
+    @field_validator("supabase_url")
     @classmethod
-    def validate_opennews_token(cls, value: str | None) -> str | None:
-        if value is None:
+    def validate_supabase_url(cls, value: str | None) -> str | None:
+        if value is None or not value.strip():
             return None
-        normalized = value.strip()
-        if not normalized:
-            return None
-        if any(ord(character) < 33 or ord(character) > 126 for character in normalized):
-            raise ValueError("OPENNEWS_TOKEN must contain only visible ASCII characters")
-        if not BEARER_TOKEN68.fullmatch(normalized):
-            raise ValueError("OPENNEWS_TOKEN must use the Bearer token68 character set")
-        return normalized
-
-    @field_validator("marketaux_api_token")
-    @classmethod
-    def validate_marketaux_api_token(cls, value: str | None) -> str | None:
-        if value is None:
-            return None
-        normalized = value.strip()
-        if not normalized:
-            return None
-        if any(ord(character) < 33 or ord(character) > 126 for character in normalized):
-            raise ValueError("MARKETAUX_API_TOKEN must contain only visible ASCII characters")
-        return normalized
-
-    @field_validator("opennews_api_base", "marketaux_base_url", "gdelt_base_url")
-    @classmethod
-    def validate_provider_url(cls, value: str) -> str:
-        parsed = urlparse(value.strip())
+        candidate = value.strip().rstrip("/")
+        parsed = urlparse(candidate)
         if (
             parsed.scheme not in {"http", "https"}
             or not parsed.hostname
             or parsed.username
             or parsed.password
+            or parsed.path not in {"", "/"}
+            or parsed.query
+            or parsed.fragment
         ):
-            raise ValueError("Provider URLs must be absolute HTTP(S) URLs without credentials")
-        return value.rstrip("/")
+            raise ValueError("SUPABASE_URL must be an absolute credential-free origin")
+        return candidate
 
-    @field_validator("event_bus_url")
+    @field_validator("supabase_publishable_key")
     @classmethod
-    def validate_event_bus_url(cls, value: str) -> str:
-        parsed = urlparse(value.strip())
-        if parsed.scheme not in {"redis", "rediss"} or not parsed.hostname or parsed.fragment:
-            raise ValueError("EVENT_BUS_URL must be an absolute redis:// or rediss:// URL")
-        return value.strip()
+    def normalize_publishable_key(cls, value: str | None) -> str | None:
+        if value is None or not value.strip():
+            return None
+        candidate = value.strip()
+        if any(ord(character) < 33 or ord(character) > 126 for character in candidate):
+            raise ValueError("SUPABASE_PUBLISHABLE_KEY must contain visible ASCII characters")
+        return candidate
 
     @model_validator(mode="after")
     def validate_runtime(self) -> "Settings":
-        if self.ingestion_lock_heartbeat_seconds >= self.ingestion_lock_ttl_seconds:
-            raise ValueError("INGESTION_LOCK_HEARTBEAT_SECONDS must be lower than the lock TTL")
-        if self.ingestion_worker_heartbeat_seconds >= self.ingestion_worker_stale_after_seconds:
-            raise ValueError(
-                "INGESTION_WORKER_HEARTBEAT_SECONDS must be lower than the stale threshold"
-            )
-        if self.ingestion_job_retry_base_seconds > self.ingestion_job_retry_max_seconds:
-            raise ValueError("INGESTION_JOB_RETRY_BASE_SECONDS must not exceed the retry maximum")
         deployed = self.environment in DEPLOYED_ENVIRONMENTS
-        if deployed and urlparse(self.opennews_api_base).scheme != "https":
-            raise ValueError("OPENNEWS_API_BASE must use HTTPS in deployed environments")
-        if deployed and urlparse(self.marketaux_base_url).scheme != "https":
-            raise ValueError("MARKETAUX_BASE_URL must use HTTPS in deployed environments")
         if not self.database_url:
             if deployed:
                 raise ValueError("DATABASE_URL is required in deployed environments")
-            self.database_url = "sqlite:///./marketpulse.db"
+            self.database_url = "sqlite:///./borza-academy.db"
         self.database_url = normalize_database_url(self.database_url, deployed=deployed)
         if self.migration_database_url:
             self.migration_database_url = normalize_database_url(
                 self.migration_database_url, deployed=deployed
+            )
+        if deployed and self.supabase_url and urlparse(self.supabase_url).scheme != "https":
+            raise ValueError("SUPABASE_URL must use HTTPS in deployed environments")
+        if bool(self.supabase_url) != bool(self.supabase_publishable_key):
+            raise ValueError(
+                "SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY must be configured together"
+            )
+        if deployed and not self.supabase_url:
+            raise ValueError(
+                "SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY are required in deployed environments"
             )
         return self
 
@@ -220,42 +158,6 @@ class Settings(BaseSettings):
     @property
     def alembic_database_url(self) -> str:
         return self.migration_database_url or str(self.database_url)
-
-    @property
-    def gdelt_query_group_list(self) -> list[str]:
-        return [item.strip().lower() for item in self.gdelt_query_groups.split(",") if item.strip()]
-
-    @property
-    def composite_provider_list(self) -> list[str]:
-        supported = {"rss", "marketaux", "gdelt", "opennews", "finnhub"}
-        providers: list[str] = []
-        for raw_provider in self.composite_providers.split(","):
-            provider = raw_provider.strip().lower()
-            if provider and provider in supported and provider not in providers:
-                providers.append(provider)
-        return providers or ["rss", "marketaux"]
-
-    @property
-    def active_composite_provider_list(self) -> list[str]:
-        providers = [
-            provider
-            for provider in self.composite_provider_list
-            if provider != "marketaux" or self.marketaux_api_token
-            if provider != "opennews" or self.opennews_token
-            if provider != "finnhub" or self.finnhub_api_key
-        ]
-        return providers or ["rss"]
-
-    def provider_fetch_interval_seconds(self, provider: str) -> int:
-        return {
-            "rss": self.rss_fetch_interval_seconds,
-            "marketaux": self.marketaux_fetch_interval_seconds,
-            "gdelt": self.gdelt_fetch_interval_seconds,
-        }.get(provider, self.news_fetch_interval_seconds)
-
-    @property
-    def event_bus_channel(self) -> str:
-        return f"borza:{self.environment}:news:v1"
 
 
 @lru_cache

@@ -1,11 +1,13 @@
 $ErrorActionPreference = "Stop"
 
-Write-Host "Starting Borza in local development mode (SQLite, polling)" -ForegroundColor Cyan
-
-# Set environment variables for standalone mode
-$env:REALTIME_ENABLED = "false"
+Write-Host "Starting Borza Academy locally (SQLite + FastAPI + Next.js)" -ForegroundColor Cyan
+$env:ENVIRONMENT = "development"
+$env:ACADEMY_ALLOW_DEMO_AUTH = "true"
 $env:BORZA_STRICT_PUBLIC_ENV = "false"
 $env:NEXT_PUBLIC_API_URL = "http://localhost:8000"
+
+Write-Host "Validating authored Academy content..." -ForegroundColor Green
+python .\scripts\validate_academy_content.py
 
 Write-Host "Applying database migrations..." -ForegroundColor Green
 Push-Location .\backend
@@ -15,23 +17,13 @@ try {
     Pop-Location
 }
 
-# Start the Backend API
-Write-Host "Starting Backend API on port 8000..." -ForegroundColor Green
+Write-Host "Starting FastAPI on port 8000..." -ForegroundColor Green
 Start-Process -WindowStyle Hidden -FilePath "python" -ArgumentList "-m uvicorn app.main:app --host 0.0.0.0 --port 8000" -WorkingDirectory ".\backend"
 
-# Start the Ingestion Worker
-Write-Host "Starting Ingestion Worker..." -ForegroundColor Green
-Start-Process -WindowStyle Hidden -FilePath "python" -ArgumentList "-m app.workers.ingestion_worker" -WorkingDirectory ".\backend"
-
-# Start the Scheduler
-Write-Host "Starting Ingestion Scheduler..." -ForegroundColor Green
-Start-Process -WindowStyle Hidden -FilePath "python" -ArgumentList "-m app.scheduler" -WorkingDirectory ".\backend"
-
-# Start the Frontend
-Write-Host "Starting Frontend on port 3000..." -ForegroundColor Green
+Write-Host "Starting Next.js on port 3000..." -ForegroundColor Green
 Start-Process -WindowStyle Hidden -FilePath "npm.cmd" -ArgumentList "run dev" -WorkingDirectory ".\frontend"
 
-Write-Host "`nAll services started! You can access the app at:" -ForegroundColor Cyan
+Write-Host "`nBorza Academy is starting:" -ForegroundColor Cyan
 Write-Host "Frontend: http://localhost:3000" -ForegroundColor White
 Write-Host "Backend API: http://localhost:8000" -ForegroundColor White
-Write-Host "`nProcesses run in the background. Stop their Python and Node processes when finished." -ForegroundColor Yellow
+Write-Host "Demo progress is browser-local unless Supabase Auth is configured." -ForegroundColor Yellow
