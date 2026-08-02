@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "product": "Borza Academy",
+  "default_locale": "de",
+  "locales": ["de", "sl", "en"],
+  "files": {
+    "registry": "registry.json",
+    "paths": "paths.json",
+    "lessons": "lessons.json",
+    "questions": "questions.json",
+    "glossary": "glossary.json",
+    "review_cards": "review_cards.json",
+    "practice": "practice.json",
+    "sources": "sources.json"
+  },
+  "launch_minimums": {
+    "paths": 12,
+    "active_paths": 4,
+    "modules_per_active_path": 6,
+    "lessons": 30,
+    "questions": 100,
+    "glossary_terms": 100,
+    "review_cards": 80,
+    "chart_exercises": 12,
+    "calculator_exercises": 10,
+    "simulation_scenarios": 10
+  }
+}

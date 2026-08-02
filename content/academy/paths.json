@@ -1,0 +1,168 @@
+{
+  "paths": [
+    {
+      "id": "path-finance-foundations",
+      "order": 1,
+      "status": "active",
+      "difficulty": "beginner",
+      "estimated_minutes": 180,
+      "prerequisite_path_ids": [],
+      "title": {"de": "Finanzgrundlagen", "sl": "Osnove financ", "en": "Finance Foundations"},
+      "summary": {
+        "de": "Verstehe, wie Geld über Zeit, Risiko, Wertpapiere und Märkte zusammenwirken.",
+        "sl": "Razumi, kako se povezujejo denar skozi čas, tveganje, vrednostni papirji in trgi.",
+        "en": "Understand how money over time, risk, securities, and markets fit together."
+      },
+      "preview_topics": {
+        "de": ["Risiko und Rendite", "Zins und Inflation", "Aktien, Anleihen und Fonds", "Marktteilnehmer und Anlageklassen"],
+        "sl": ["Tveganje in donos", "Obresti in inflacija", "Delnice, obveznice in skladi", "Udeleženci in razredi naložb"],
+        "en": ["Risk and return", "Interest and inflation", "Stocks, bonds, and funds", "Participants and asset classes"]
+      },
+      "final_assessment_id": "assessment-finance-foundations",
+      "completion_criteria": {"required_lessons": 8, "minimum_quiz_percent": 75, "required_review_cards": 12}
+    },
+    {
+      "id": "path-economics-for-markets",
+      "order": 2,
+      "status": "coming_next",
+      "difficulty": "beginner",
+      "estimated_minutes": 300,
+      "prerequisite_path_ids": ["path-finance-foundations"],
+      "title": {"de": "Ökonomie für Märkte", "sl": "Ekonomija za trge", "en": "Economics for Markets"},
+      "summary": {"de": "Geplanter Kurs zu Konjunktur, Inflation, Arbeitsmarkt, Zinsen und Wirtschaftspolitik; noch nicht zur Bearbeitung freigegeben.", "sl": "Načrtovani predmet o ciklih, inflaciji, zaposlovanju, obrestih in ekonomski politiki; še ni odprt za učenje.", "en": "Planned course on cycles, inflation, employment, rates, and economic policy; not yet open for study."},
+      "preview_topics": {"de": ["Angebot, Nachfrage und Konjunktur", "BIP, Inflation und Beschäftigung", "Zentralbanken und Fiskalpolitik", "Zinskurven, Währungen und Indikatoren"], "sl": ["Ponudba, povpraševanje in cikli", "BDP, inflacija in zaposlenost", "Centralne banke in fiskalna politika", "Krivulje donosnosti, valute in kazalniki"], "en": ["Supply, demand, and cycles", "GDP, inflation, and employment", "Central banks and fiscal policy", "Yield curves, currencies, and indicators"]},
+      "final_assessment_id": null,
+      "completion_criteria": null
+    },
+    {
+      "id": "path-financial-statements",
+      "order": 3,
+      "status": "coming_next",
+      "difficulty": "beginner",
+      "estimated_minutes": 280,
+      "prerequisite_path_ids": ["path-finance-foundations"],
+      "title": {"de": "Finanzberichte", "sl": "Računovodski izkazi", "en": "Financial Statements"},
+      "summary": {"de": "Geplanter, praxisnaher Rundgang durch Gewinnrechnung, Bilanz, Cashflow und Analysequalität; noch nicht freigegeben.", "sl": "Načrtovan praktični pregled izkaza uspeha, bilance, denarnih tokov in kakovosti analize; še ni odprt.", "en": "Planned practical tour of income statements, balance sheets, cash flow, and analysis quality; not yet open."},
+      "preview_topics": {"de": ["Umsatz, Margen und Gewinn", "Vermögen, Schulden und Eigenkapital", "Cashflow und Working Capital", "Kennzahlen und Gewinnqualität"], "sl": ["Prihodki, marže in dobiček", "Sredstva, dolg in kapital", "Denarni tok in obratni kapital", "Kazalniki in kakovost dobička"], "en": ["Revenue, margins, and profit", "Assets, debt, and equity", "Cash flow and working capital", "Ratios and earnings quality"]},
+      "final_assessment_id": null,
+      "completion_criteria": null
+    },
+    {
+      "id": "path-corporate-finance",
+      "order": 4,
+      "status": "coming_next",
+      "difficulty": "intermediate",
+      "estimated_minutes": 340,
+      "prerequisite_path_ids": ["path-finance-foundations", "path-financial-statements"],
+      "title": {"de": "Unternehmensfinanzierung", "sl": "Poslovne finance", "en": "Corporate Finance"},
+      "summary": {"de": "Geplanter Aufbaukurs zu Investitionsentscheidungen, Kapitalkosten und Bewertung; noch nicht freigegeben.", "sl": "Načrtovani nadaljevalni predmet o naložbenih odločitvah, strošku kapitala in vrednotenju; še ni odprt.", "en": "Planned intermediate course on investment decisions, cost of capital, and valuation; not yet open."},
+      "preview_topics": {"de": ["Kapitalwert und IRR", "CAPM, WACC und Kapitalstruktur", "Dividenden und Rückkäufe", "DCF und relative Bewertung"], "sl": ["NPV in IRR", "CAPM, WACC in struktura kapitala", "Dividende in odkupi", "DCF in relativno vrednotenje"], "en": ["NPV and IRR", "CAPM, WACC, and capital structure", "Dividends and buybacks", "DCF and relative valuation"]},
+      "final_assessment_id": null,
+      "completion_criteria": null
+    },
+    {
+      "id": "path-investing",
+      "order": 5,
+      "status": "coming_next",
+      "difficulty": "beginner",
+      "estimated_minutes": 300,
+      "prerequisite_path_ids": ["path-finance-foundations"],
+      "title": {"de": "Investieren", "sl": "Investiranje", "en": "Investing"},
+      "summary": {"de": "Geplanter Kurs für einen langfristigen, diversifizierten und kostenbewussten Anlageprozess; noch nicht freigegeben.", "sl": "Načrtovan predmet za dolgoročen, razpršen in stroškovno ozaveščen naložbeni proces; še ni odprt.", "en": "Planned course for a long-term, diversified, fee-aware investment process; not yet open."},
+      "preview_topics": {"de": ["Asset Allocation und Korrelation", "Indexieren und Fundamentalanalyse", "Bewertung, Gebühren und Steuern", "Verhalten und Anlageprozess"], "sl": ["Razporeditev in korelacija", "Indeksiranje in temeljna analiza", "Vrednotenje, stroški in davki", "Vedenje in naložbeni proces"], "en": ["Allocation and correlation", "Indexing and fundamental analysis", "Valuation, fees, and taxes", "Behaviour and investment process"]},
+      "final_assessment_id": null,
+      "completion_criteria": null
+    },
+    {
+      "id": "path-trading-foundations",
+      "order": 6,
+      "status": "active",
+      "difficulty": "beginner",
+      "estimated_minutes": 190,
+      "prerequisite_path_ids": ["path-finance-foundations"],
+      "title": {"de": "Trading-Grundlagen", "sl": "Osnove trgovanja", "en": "Trading Foundations"},
+      "summary": {"de": "Lerne Marktmechanik, Ordertypen, Kosten und Hebel kennen, bevor du einen simulierten Trade planst.", "sl": "Spoznaj mehaniko trga, naročila, stroške in vzvod, preden načrtuješ simulirano trgovanje.", "en": "Learn market mechanics, orders, costs, and leverage before planning a simulated trade."},
+      "preview_topics": {"de": ["Börsen, Broker und Quotes", "Liquidität, Volumen und Kosten", "Market-, Limit- und Stop-Orders", "Long, Short, Margin und Hebel"], "sl": ["Borze, posredniki in kotacije", "Likvidnost, obseg in stroški", "Tržna, omejena in stop naročila", "Dolge, kratke in vzvodne pozicije"], "en": ["Exchanges, brokers, and quotes", "Liquidity, volume, and costs", "Market, limit, and stop orders", "Long, short, margin, and leverage"]},
+      "final_assessment_id": "assessment-trading-foundations",
+      "completion_criteria": {"required_lessons": 8, "minimum_quiz_percent": 75, "required_review_cards": 12}
+    },
+    {
+      "id": "path-technical-analysis",
+      "order": 7,
+      "status": "active",
+      "difficulty": "intermediate",
+      "estimated_minutes": 210,
+      "prerequisite_path_ids": ["path-trading-foundations"],
+      "title": {"de": "Technische Analyse", "sl": "Tehnična analiza", "en": "Technical Analysis"},
+      "summary": {"de": "Lies Preis, Volumen und Kontext als bedingte Evidenz, nicht als sichere Vorhersage.", "sl": "Beri ceno, obseg in kontekst kot pogojne dokaze, ne kot zanesljivo napoved.", "en": "Read price, volume, and context as conditional evidence, not guaranteed prediction."},
+      "preview_topics": {"de": ["Kerzen, Zeitebenen und Struktur", "Unterstützung, Widerstand und Ausbrüche", "Momentum, Volumen und Durchschnitte", "ATR, VWAP und Grenzen"], "sl": ["Sveče, časovni okvirji in struktura", "Podpora, odpor in preboji", "Zagon, obseg in povprečja", "ATR, VWAP in omejitve"], "en": ["Candles, timeframes, and structure", "Support, resistance, and breakouts", "Momentum, volume, and averages", "ATR, VWAP, and limitations"]},
+      "final_assessment_id": "assessment-technical-analysis",
+      "completion_criteria": {"required_lessons": 8, "minimum_quiz_percent": 75, "required_review_cards": 12, "required_chart_exercises": 6}
+    },
+    {
+      "id": "path-risk-management",
+      "order": 8,
+      "status": "active",
+      "difficulty": "intermediate",
+      "estimated_minutes": 220,
+      "prerequisite_path_ids": ["path-trading-foundations"],
+      "title": {"de": "Risikomanagement", "sl": "Upravljanje tveganj", "en": "Risk Management"},
+      "summary": {"de": "Baue Positionsgröße, Verlustgrenzen, Erwartungswert und Nicht-Handeln zu einem belastbaren Prozess aus.", "sl": "Poveži velikost pozicije, omejitve izgub, pričakovano vrednost in odločitev, da ne trguješ, v trden proces.", "en": "Turn position sizing, loss limits, expectancy, and standing aside into a resilient process."},
+      "preview_topics": {"de": ["Risiko pro Trade und Positionsgröße", "Stops, R-Multiples und Erwartungswert", "Drawdown, Ruinrisiko und Verlustgrenzen", "Korrelation, Hebel und Tail-Risiko"], "sl": ["Tveganje na posel in velikost pozicije", "Stopi, R-količniki in pričakovana vrednost", "Padec, tveganje propada in meje izgub", "Korelacija, vzvod in repno tveganje"], "en": ["Risk per trade and position size", "Stops, R multiples, and expectancy", "Drawdown, ruin risk, and loss limits", "Correlation, leverage, and tail risk"]},
+      "final_assessment_id": "assessment-risk-management",
+      "completion_criteria": {"required_lessons": 8, "minimum_quiz_percent": 80, "required_review_cards": 12, "required_calculator_exercises": 4}
+    },
+    {
+      "id": "path-trading-psychology",
+      "order": 9,
+      "status": "coming_next",
+      "difficulty": "intermediate",
+      "estimated_minutes": 240,
+      "prerequisite_path_ids": ["path-risk-management"],
+      "title": {"de": "Trading-Psychologie", "sl": "Psihologija trgovanja", "en": "Trading Psychology"},
+      "summary": {"de": "Geplanter Kurs zu Biases, Emotionen, Regeln und prozessorientierter Disziplin; noch nicht freigegeben.", "sl": "Načrtovan predmet o pristranskostih, čustvih, pravilih in procesni disciplini; še ni odprt.", "en": "Planned course on biases, emotions, rules, and process discipline; not yet open."},
+      "preview_topics": {"de": ["FOMO, Rachetrading und Overtrading", "Biases und Verlustaversion", "Geduld, Regeln und Ergebnis-Bias", "Emotionsjournal und Umgang mit Verlusten"], "sl": ["FOMO, maščevalno in pretirano trgovanje", "Pristranskosti in odpor do izgub", "Potrpežljivost, pravila in pristranskost izida", "Čustveni dnevnik in izgube"], "en": ["FOMO, revenge trading, and overtrading", "Biases and loss aversion", "Patience, rules, and outcome bias", "Emotional journal and handling losses"]},
+      "final_assessment_id": null,
+      "completion_criteria": null
+    },
+    {
+      "id": "path-strategy-development",
+      "order": 10,
+      "status": "coming_next",
+      "difficulty": "advanced",
+      "estimated_minutes": 360,
+      "prerequisite_path_ids": ["path-risk-management", "path-technical-analysis"],
+      "title": {"de": "Strategieentwicklung", "sl": "Razvoj strategij", "en": "Strategy Development"},
+      "summary": {"de": "Geplanter Aufbaukurs für prüfbare Hypothesen, saubere Tests und klare Invalidierung; noch nicht freigegeben.", "sl": "Načrtovan napredni predmet za preverljive hipoteze, čiste teste in jasno razveljavitev; še ni odprt.", "en": "Planned advanced course for testable hypotheses, clean testing, and explicit invalidation; not yet open."},
+      "preview_topics": {"de": ["Hypothese, Ein- und Ausstieg", "Regime, Stichprobe und Kosten", "Backtest, Forward-Test und Biases", "Signifikanz, Erwartungswert und Invalidierung"], "sl": ["Hipoteza, vstop in izstop", "Režim, vzorec in stroški", "Testiranje za nazaj, naprej in pristranskosti", "Značilnost, pričakovanje in razveljavitev"], "en": ["Hypothesis, entry, and exit", "Regime, sample, and costs", "Backtest, forward test, and biases", "Significance, expectancy, and invalidation"]},
+      "final_assessment_id": null,
+      "completion_criteria": null
+    },
+    {
+      "id": "path-derivatives",
+      "order": 11,
+      "status": "coming_next",
+      "difficulty": "advanced",
+      "estimated_minutes": 320,
+      "prerequisite_path_ids": ["path-risk-management", "path-finance-foundations"],
+      "title": {"de": "Derivate", "sl": "Izvedeni finančni instrumenti", "en": "Derivatives"},
+      "summary": {"de": "Geplanter risikobewusster Einstieg in Futures und Optionen; erst nach Risikomanagement und noch nicht freigegeben.", "sl": "Načrtovan previden uvod v terminske pogodbe in opcije; šele po tveganjih in še ni odprt.", "en": "Planned risk-first introduction to futures and options; gated by risk management and not yet open."},
+      "preview_topics": {"de": ["Futures, Calls und Puts", "Strike, Verfall und Optionswert", "Greeks, Hebel und Zuteilung", "Hedging und Strategien mit begrenztem Risiko"], "sl": ["Terminske pogodbe, calli in puti", "Izvršilna cena, zapadlost in vrednost", "Grki, vzvod in dodelitev", "Varovanje in strategije z omejenim tveganjem"], "en": ["Futures, calls, and puts", "Strike, expiry, and option value", "Greeks, leverage, and assignment", "Hedging and defined-risk strategies"]},
+      "final_assessment_id": null,
+      "completion_criteria": null
+    },
+    {
+      "id": "path-practical-finance-skills",
+      "order": 12,
+      "status": "coming_next",
+      "difficulty": "beginner",
+      "estimated_minutes": 300,
+      "prerequisite_path_ids": ["path-finance-foundations"],
+      "title": {"de": "Praktische Finanzkompetenzen", "sl": "Praktične finančne veščine", "en": "Practical Finance Skills"},
+      "summary": {"de": "Geplanter Werkzeugkurs für Tabellen, Berichte, Daten, Recherche und Journaling; noch nicht freigegeben.", "sl": "Načrtovan predmet o preglednicah, poročilih, podatkih, raziskovanju in dnevniku; še ni odprt.", "en": "Planned toolkit course for spreadsheets, reports, data, research, and journaling; not yet open."},
+      "preview_topics": {"de": ["Excel und Finanzmodelle", "Geschäftsberichte, Statistik und Wahrscheinlichkeit", "Visualisierung und Python-Grundlagen", "Quellenkritik, Fehlinformation und Trading-Journal"], "sl": ["Excel in finančni modeli", "Letna poročila, statistika in verjetnost", "Vizualizacija in osnove Pythona", "Presoja virov, dezinformacije in trgovalni dnevnik"], "en": ["Excel and financial models", "Annual reports, statistics, and probability", "Visualisation and Python basics", "Source evaluation, misinformation, and trading journal"]},
+      "final_assessment_id": null,
+      "completion_criteria": null
+    }
+  ]
+}

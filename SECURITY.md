@@ -1,59 +1,43 @@
-# Borza Security Policy & Hardening Guidelines
+# Borza Academy Security Policy
 
-## 1. Threat Model & Security Boundaries
+## Security boundaries
 
-Borza is a public financial intelligence and news aggregator platform. Its primary security boundaries protect:
-1. Internal databases and secrets from unauthorized external access.
-2. Server resources from Server-Side Request Forgery (SSRF) and Denial of Service (DoS).
-3. Browser clients from Cross-Site Scripting (XSS) and Clickjacking.
+Borza Academy protects learner identity, private notes and journal entries, progress, review schedules, and simulated trading records. The simulator never communicates with a brokerage and must not contain real-order credentials or code paths.
 
----
+## Secrets
 
-## 2. Secrets & Credential Protection
+- Credentials, tokens, private keys, database URLs, and passwords must never enter Git.
+- Browser-visible configuration is limited to public URLs and the Supabase publishable key.
+- Never expose a Supabase secret or `service_role` key through `NEXT_PUBLIC_*`.
+- Local `.env*` files remain ignored. `.env.example` contains only blanks or explicit placeholders.
 
-- **No Secrets in Source Control**: Credentials, tokens, private keys, and passwords must never be committed to Git repositories or exposed in browser-visible variables.
-- **`NEXT_PUBLIC_` Scoping**: Only non-sensitive URLs (`NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_WS_URL`) are exposed to the browser client.
-- **Provider Keys**: API tokens (e.g. `OPENNEWS_TOKEN`, `FINNHUB_API_KEY`) remain strictly server-side inside `backend/`.
+## Authentication and authorization
 
----
+- Supabase Auth issues the user session; FastAPI validates the bearer token before trusting identity.
+- Do not authorize from editable `user_metadata` claims.
+- Every private database query includes the verified `user_id` predicate.
+- Child resources are loaded through `(resource_id, user_id)` scope; foreign resources return not found.
+- Demo-user headers are allowed only in development/test when explicitly enabled and are rejected in deployed environments.
 
-## 3. SSRF Defense Specification
+## Database and Supabase
 
-Borza ingests external RSS/Atom feeds and provider webhooks. To prevent SSRF attacks against internal network assets (such as Cloud Metadata services, internal databases, or localhost services), all target URLs undergo pre-flight validation (`validate_safe_url` in `backend/app/providers/rss.py`):
+- Use Alembic migrations and `Numeric`/decimal values for financial simulation fields.
+- Direct browser access to Academy state tables is not needed; revoke Data API access for `anon` and `authenticated` roles.
+- Enable RLS as defense in depth on user-owned tables and use ownership predicates for any future Data API policy.
+- Historical news tables are legacy data. Normal migrations neither read nor drop them.
+- Never run the opt-in legacy cleanup tool against production without a reviewed backup and explicit authorization.
 
-1. **Protocol Restriction**: Only `http://` and `https://` schemes are permitted.
-2. **Blocked Hosts**: Immediate rejection of `localhost`, `127.0.0.1`, `::1`, and `metadata.google.internal`.
-3. **IP Range Restrictions**: Hostnames are resolved to IP addresses and checked against:
-   - Private IPv4 blocks (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`)
-   - Loopback range (`127.0.0.0/8`)
-   - Link-local & Metadata IPs (`169.254.0.0/16` / `169.254.169.254`)
-4. **Redirect Handling**: HTTP redirect auto-following is disabled. Redirect destinations (`Location` header) are independently validated against SSRF rules before execution.
+## Browser and content safety
 
----
+- Next.js sets CSP, frame, MIME-sniffing, referrer, and permissions headers.
+- Authored content is rendered through controlled structured blocks. If Markdown support is extended, sanitize HTML before rendering.
+- External source URLs are validated as HTTPS and open with safe `rel` attributes.
+- Charts provide textual summaries and use deterministic simulated datasets; no script is loaded from TradingView at runtime.
 
-## 4. Rate Limiting & Connection Abuse Controls (BRZ-004)
+## Abuse controls
 
-- **Distributed Rate Limiting**: Production API routes use Valkey-backed rate limiting (`RateLimitMiddleware`).
-- **HTTP 429 & Retry-After**: Excess requests receive a `429 Too Many Requests` status code with an explicit `Retry-After` header indicating delay in seconds.
-- **WebSocket Connection Budget**: The `ConnectionManager` enforces max concurrent connection limits (`100` connections) per client IP.
+The FastAPI rate limiter is process-local and is defense in depth, not a distributed production quota. Production deployments should add platform/WAF rate limits for sign-in, quiz submission, journal writes, and simulator commands. API inputs have explicit schemas, sizes, pagination bounds, and idempotency where state transitions require it.
 
----
+## Reporting
 
-## 5. Content Security Policy (CSP - BRZ-012)
-
-The Next.js frontend enforces a strict Content Security Policy without `unsafe-inline` in `script-src`:
-
-```http
-Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-...'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; connect-src 'self' ws: wss: https:; frame-ancestors 'none'; object-src 'none';
-```
-
-- Blocks unauthorized inline script execution.
-- Disables framing (`frame-ancestors 'none'`) to prevent Clickjacking.
-
----
-
-## 6. Dependency Auditing & Supply Chain (BRZ-011)
-
-- Automated Python dependency auditing via `pip_audit`.
-- Automated Node dependency auditing via `npm audit`.
-- Pinned commit SHAs in GitHub Actions workflows.
+Do not include secrets, access tokens, private learner content, or production database samples in issues, logs, screenshots, or test fixtures. Report suspected vulnerabilities privately to the repository owner.

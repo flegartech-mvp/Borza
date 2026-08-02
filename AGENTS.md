@@ -1,59 +1,81 @@
-# Borza Workspace Rules
+# Borza Academy Workspace Rules
 
 ## Workspace layout
 
-- This repository root is the complete Borza application.
+- This repository root is the complete Borza Academy application.
 - `frontend/` and `backend/` are the only runtime applications.
-- `premium/ai-trading-bot/` contains packaging documentation, wrappers, and the
-  distributable ZIP. Proprietary bot source is intentionally excluded.
-- `docs/` contains architecture, upstream notices, and deployment guidance.
+- `content/academy/` contains version-controlled curriculum and deterministic simulation definitions.
+- `premium/ai-trading-bot/` is separate packaging material and must never be imported by Academy runtime code.
+- `docs/` contains product, architecture, security, and deployment guidance.
 
 ## Product direction
 
-Borza is a German-first European market-intelligence platform for three connected audiences:
+Borza Academy is a German-first interactive finance-learning platform for responsible trading practice, finance/economics students, investing beginners, and intermediate learners improving risk discipline.
 
-1. German retail investors and active traders.
-2. European day traders who need rapid, structured market catalysts.
-3. Slovenian economics and finance students, especially students in Maribor and Ljubljana.
+Use this promise consistently:
 
-The primary commercial market is Germany and the wider DACH and European trading market. The student product is a separate learning and acquisition layer that connects current German and European financial news with economics, finance, banking, investing, and business-German studies.
+> Learn finance. Practise trading. Build real market skills.
 
-Use this thesis consistently:
+German:
 
-> Borza turns German and European market news into structured trading catalysts and understandable financial knowledge.
+> Finanzen verstehen. Trading üben. Marktfähigkeiten aufbauen.
 
-The primary experience is **Borza Markets**: a German-first, information-dense workspace focused on DAX, MDAX, SDAX, TecDAX, Xetra, Frankfurt, German and major European companies, ECB and Bundesbank policy, BaFin regulation, Destatis macro releases, earnings, and intraday catalysts. Preserve original language and source links. Never present article tone or relevance as a certain price prediction.
+Slovenian:
 
-The secondary experience is **Borza Learn**: a clearly separated German, Slovenian, and English learning layer using the same market events. It may connect events to economics, finance, banking, investing, and business-German concepts, but must not imply university affiliation or endorsement.
+> Razumi finance. Vadi trgovanje. Zgradi resnične tržne veščine.
 
-Official German and European primary sources outrank discovery and editorial aggregators. Prioritize verified feeds from Deutsche Bundesbank, BaFin, Destatis, Deutsche Börse, Börse Frankfurt, ECB, ESMA, European Commission releases, and permitted company investor-relations sources. Marketaux is the primary keyed discovery provider. GDELT remains an optional low-frequency research fallback, and no discovery-provider failure may block healthy official feeds.
+The interface must feel like a premium university-style finance course, modern learning app, educational simulator, and professional toolkit. It must not become a news reader, generic course marketplace, cryptocurrency casino, trading-guru funnel, or random card dashboard.
 
-Treat EQS News as a high-value licensing target. Do not scrape, republish, or commercially redistribute EQS content until stable technical access and redistribution terms are verified. A permitted integration should initially preserve headlines, metadata, and original links rather than full release text.
+## Learning and content rules
 
-Build toward catalysts, companies, calendars, watchlists, alerts, event timelines, velocity, source counts, saved filters, and market briefings. Do not expose navigation, pricing, checkout, or controls for capabilities that are not genuinely operational.
+- German, Slovenian, and English are first-class languages; German is the default.
+- Use typed/validated translation dictionaries, not scattered hard-coded strings.
+- Store stable authored curriculum in version-controlled structured content; store learner state in PostgreSQL.
+- Validate IDs, ordering, prerequisites, locales, quizzes, glossary links, exercises, and sources.
+- Write original instruction. Do not scrape courses, textbooks, university portals, broker education, or transcripts.
+- Prefer regulators, central banks, exchanges, Investor.gov, FINRA, and official accounting/economics sources for factual verification.
+- Do not imply affiliation with any university and do not use institutional logos without permission.
+- Technical analysis must communicate uncertainty; never teach patterns as guaranteed predictions.
+- Risk Management is a first-class path and a prerequisite for complex leveraged-product practice.
 
-Preserve the existing Next.js, FastAPI, SQLAlchemy/Alembic, and PostgreSQL/SQLite stack unless a change is justified. Prioritize source credibility, duplicate grouping, time since publication, transparent uncertainty, accessible compact controls, and explicit loading, empty, partial, stale, and error states.
+## Simulator boundaries
 
-## OpenNews integration
+- Use only deterministic, licensed, or clearly labelled simulated/historical-style datasets.
+- Never integrate a real brokerage, transmit real orders, or present results as real-world profitability evidence.
+- Score process separately from P&L. A disciplined losing trade can outrank a reckless winning trade.
+- Use decimal types for balances, prices, sizes, costs, P&L, and R multiples.
+- Explain every risk metric and preserve reproducibility through content/scenario versions.
 
-- Implement OpenNews as a native server-side Borza news provider, not as an MCP runtime dependency.
-- Keep `OPENNEWS_TOKEN` server-side and document it in `.env.example`.
-- Preserve the demo provider as the safe fallback when credentials are missing or a provider request fails.
-- Normalize API data into Borza's existing article model and keep network timeouts and errors explicit.
+## Architecture
 
-## Premium AI Trading Bot
+- Preserve Next.js, FastAPI, SQLAlchemy/Alembic, PostgreSQL/SQLite, Docker, GitHub Actions, Vercel, Render, and existing Supabase PostgreSQL compatibility.
+- The normal runtime is PostgreSQL + FastAPI + Next.js. Do not add workers, schedulers, Valkey, or microservices for ordinary learning state.
+- Historical news migrations remain immutable legacy history. Academy runtime code must not import or access legacy news tables.
+- Any legacy table archival or cleanup must be a separate opt-in operator action; never drop production data automatically.
+- Use Alembic for schema changes. Runtime processes verify schema state and never call `create_all()` operationally.
 
-- Keep the premium bot completely separate from Borza's runtime.
-- Do not copy its strategy, execution, ML, exchange, backtesting, or risk-management code into Borza.
-- Do not add live-trading functionality or trading-bot API routes to Borza.
-- Borza may show a secondary premium product card, but must not publicly expose the paid ZIP in production.
-- Until a server-side payment provider and private object storage are configured, use an honest checkout/download placeholder instead of fake purchase protection.
+## Authentication and ownership
+
+- Use Supabase Auth when configured for email sign-up, sign-in, and reset; public landing/demo flows remain accessible.
+- Never expose a Supabase secret or `service_role` key in client code. Only URL and publishable key may use `NEXT_PUBLIC_*`.
+- FastAPI verifies the caller and scopes every private query by owner.
+- A user must never access another user’s notes, progress, review schedule, simulator session, order, trade, or journal entry.
+- Demo state must be explicitly labelled and must not masquerade as a real account.
+
+## UX and accessibility
+
+- Build loading, empty, error, partial, offline/demo, validation, and success states for user-facing flows.
+- Maintain keyboard navigation, semantic headings/landmarks, visible focus, screen-reader labels, chart text summaries, reduced-motion support, high contrast, and touch-friendly controls.
+- Use a calm premium light/dark design. Red is for loss, danger, and errors—not urgency manipulation.
+- Gamification rewards study consistency, review, journaling, and risk-rule discipline. Never add loot boxes, countdown pressure, fake prizes, gambling sounds, or celebrations for leverage.
+- Keep heavy chart code client-only, dynamically loaded, and correctly cleaned up.
 
 ## Engineering rules
 
-- Inspect relevant code before editing and keep diffs narrow.
-- Do not modify reference repositories unless the user explicitly requests it.
+- Inspect relevant code before editing and keep each pass coherent.
+- Do not modify reference repositories unless explicitly requested.
 - Do not put secrets in source control or browser-visible variables.
-- Use Alembic for production schema changes.
-- Run the most targeted tests, linting, type checking, and build checks available after changes.
+- Do not rewrite unrelated files or add duplicate/heavy dependencies without a clear consuming feature.
+- Run the most targeted tests, linting, type checking, migration checks, build checks, browser checks, and content validation after changes.
 - Preserve the repository as a single Git root without nested repositories.
+- Do not deploy or merge the Academy branch without explicit authorization.

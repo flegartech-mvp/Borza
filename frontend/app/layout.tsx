@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { AuthProvider } from "@/features/auth/auth-provider";
+import { DemoWorkspaceProvider } from "@/features/demo/demo-workspace-provider";
 import {
   PREFERENCE_BOOTSTRAP_SCRIPT,
   PreferencesProvider,
@@ -14,9 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Borza | Deutsche Marktnachrichten, strukturiert",
-  description:
-    "Borza verwandelt deutsche und europäische Finanznachrichten in strukturierte Marktsignale und verständliches Finanzwissen.",
+  title: { default: "Borza Academy", template: "%s | Borza Academy" },
+  description: "Learn finance. Practise trading. Build real market skills.",
 };
 
 export default function RootLayout({
@@ -25,7 +26,8 @@ export default function RootLayout({
   return (
     <html
       lang="de"
-      className={`${geistSans.variable} ${geistMono.variable}`}
+      data-theme="dark"
+      className={`dark ${geistSans.variable} ${geistMono.variable}`}
       suppressHydrationWarning
     >
       <head>
@@ -36,7 +38,11 @@ export default function RootLayout({
       </head>
       <body>
         <BorzaQueryProvider>
-          <PreferencesProvider>{children}</PreferencesProvider>
+          <PreferencesProvider>
+            <AuthProvider>
+              <DemoWorkspaceProvider>{children}</DemoWorkspaceProvider>
+            </AuthProvider>
+          </PreferencesProvider>
         </BorzaQueryProvider>
       </body>
     </html>

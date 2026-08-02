@@ -7,200 +7,121 @@ import {
   useEffect,
   useMemo,
   useState,
-  useSyncExternalStore,
   type ReactNode,
 } from "react";
 import {
-  applyPreferenceAttributes,
-  DEFAULT_EXPERIENCE_MODE,
+  dictionaries,
+  type AcademyDictionary,
+  type Language,
+} from "@/i18n/dictionaries";
+import {
+  applyPreferences,
+  DEFAULT_LANGUAGE,
   DEFAULT_THEME_PREFERENCE,
-  densityForExperience,
-  EXPERIENCE_MODE_STORAGE_KEY,
-  isExperienceMode,
-  isThemePreference,
-  parseExperienceMode,
+  LANGUAGE_STORAGE_KEY,
+  parseLanguage,
   parseThemePreference,
   resolveThemePreference,
   THEME_STORAGE_KEY,
-  type ExperienceDensity,
-  type ExperienceMode,
   type ResolvedTheme,
   type ThemePreference,
 } from "./preferences";
 
 type PreferencesContextValue = {
+  language: Language;
+  dictionary: AcademyDictionary;
+  setLanguage: (language: Language) => void;
   themePreference: ThemePreference;
   resolvedTheme: ResolvedTheme;
-  setThemePreference: (preference: ThemePreference) => void;
-  experienceMode: ExperienceMode;
-  density: ExperienceDensity;
-  setExperienceMode: (mode: ExperienceMode) => void;
+  setThemePreference: (theme: ThemePreference) => void;
 };
 
 const PreferencesContext = createContext<PreferencesContextValue | null>(null);
 
-function safeStorageRead(key: string): string | null {
-  if (typeof window === "undefined") return null;
+function safeRead(key: string): string | null {
   try {
+    if (typeof window === "undefined") return null;
     return window.localStorage.getItem(key);
   } catch {
     return null;
   }
 }
 
-function safeStorageWrite(key: string, value: string): void {
+function safeWrite(key: string, value: string): void {
   try {
+    if (typeof window === "undefined") return;
     window.localStorage.setItem(key, value);
   } catch {
-    // Preferences are optional; a privacy setting may block local storage.
+    // The application remains usable when storage is unavailable.
   }
 }
 
-function getSystemThemeQuery(): MediaQueryList | null {
-  if (
-    typeof window === "undefined" ||
-    typeof window.matchMedia !== "function"
-  ) {
-    return null;
-  }
+function systemPrefersDark(): boolean {
   try {
-    return window.matchMedia("(prefers-color-scheme: dark)");
-  } catch {
-    return null;
-  }
-}
-
-function readSystemPrefersDark(): boolean {
-  try {
-    return getSystemThemeQuery()?.matches === true;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
   } catch {
     return false;
   }
 }
 
-function readBootstrappedTheme(root: HTMLElement): ThemePreference {
-  const attribute = root.dataset.themePreference;
-  return isThemePreference(attribute)
-    ? attribute
-    : parseThemePreference(safeStorageRead(THEME_STORAGE_KEY));
-}
-
-function readBootstrappedExperience(root: HTMLElement): ExperienceMode {
-  const attribute = root.dataset.experienceMode;
-  return isExperienceMode(attribute)
-    ? attribute
-    : parseExperienceMode(safeStorageRead(EXPERIENCE_MODE_STORAGE_KEY));
-}
-
-function noopSubscribe(): () => void {
-  return () => undefined;
-}
-
-function subscribeToSystemTheme(onStoreChange: () => void): () => void {
-  const systemQuery = getSystemThemeQuery();
-  if (!systemQuery) return noopSubscribe();
-
-  try {
-    systemQuery.addEventListener("change", onStoreChange);
-    return () => {
-      try {
-        systemQuery.removeEventListener("change", onStoreChange);
-      } catch {
-        // A partial matchMedia implementation may not support cleanup.
-      }
-    };
-  } catch {
-    try {
-      systemQuery.addListener(onStoreChange);
-      return () => {
-        try {
-          systemQuery.removeListener(onStoreChange);
-        } catch {
-          // A legacy matchMedia implementation may not support cleanup.
-        }
-      };
-    } catch {
-      return noopSubscribe();
-    }
-  }
-}
-
-function useHasHydrated(): boolean {
-  return useSyncExternalStore(
-    noopSubscribe,
-    () => true,
-    () => false,
-  );
-}
-
 export function PreferencesProvider({ children }: { children: ReactNode }) {
-  const hasHydrated = useHasHydrated();
-  const bootstrappedTheme = useSyncExternalStore(
-    noopSubscribe,
-    () => readBootstrappedTheme(document.documentElement),
-    () => DEFAULT_THEME_PREFERENCE,
+  const [language, setLanguageState] = useState<Language>(DEFAULT_LANGUAGE);
+  const [themePreference, setThemeState] = useState<ThemePreference>(
+    DEFAULT_THEME_PREFERENCE,
   );
-  const bootstrappedExperience = useSyncExternalStore(
-    noopSubscribe,
-    () => readBootstrappedExperience(document.documentElement),
-    () => DEFAULT_EXPERIENCE_MODE,
-  );
-  const systemPrefersDark = useSyncExternalStore(
-    subscribeToSystemTheme,
-    readSystemPrefersDark,
-    () => false,
-  );
-  const [themeOverride, setThemeOverride] = useState<ThemePreference | null>(
-    null,
-  );
-  const [experienceOverride, setExperienceOverride] =
-    useState<ExperienceMode | null>(null);
-  const themePreference = themeOverride ?? bootstrappedTheme;
-  const experienceMode = experienceOverride ?? bootstrappedExperience;
-
-  const resolvedTheme = resolveThemePreference(
-    themePreference,
-    systemPrefersDark,
-  );
-  const density = densityForExperience(experienceMode);
+  const [systemDark, setSystemDark] = useState(false);
 
   useEffect(() => {
-    if (!hasHydrated) return;
-    applyPreferenceAttributes(
+    setLanguageState(
+      parseLanguage(
+        safeRead(LANGUAGE_STORAGE_KEY) || document.documentElement.lang,
+      ),
+    );
+    setThemeState(
+      parseThemePreference(
+        safeRead(THEME_STORAGE_KEY) ??
+          document.documentElement.dataset.themePreference,
+      ),
+    );
+    setSystemDark(systemPrefersDark());
+    const query = window.matchMedia?.("(prefers-color-scheme: dark)");
+    const handleChange = (event: MediaQueryListEvent) =>
+      setSystemDark(event.matches);
+    query?.addEventListener?.("change", handleChange);
+    return () => {
+      query?.removeEventListener?.("change", handleChange);
+    };
+  }, []);
+
+  const resolvedTheme = resolveThemePreference(themePreference, systemDark);
+
+  useEffect(() => {
+    applyPreferences(
       document.documentElement,
       themePreference,
       resolvedTheme,
-      experienceMode,
+      language,
     );
-    safeStorageWrite(THEME_STORAGE_KEY, themePreference);
-    safeStorageWrite(EXPERIENCE_MODE_STORAGE_KEY, experienceMode);
-  }, [experienceMode, hasHydrated, resolvedTheme, themePreference]);
+    safeWrite(THEME_STORAGE_KEY, themePreference);
+    safeWrite(LANGUAGE_STORAGE_KEY, language);
+  }, [language, resolvedTheme, themePreference]);
 
-  const setThemePreference = useCallback((preference: ThemePreference) => {
-    setThemeOverride(parseThemePreference(preference));
+  const setLanguage = useCallback((value: Language) => {
+    setLanguageState(parseLanguage(value));
   }, []);
-
-  const setExperienceMode = useCallback((mode: ExperienceMode) => {
-    setExperienceOverride(parseExperienceMode(mode));
+  const setThemePreference = useCallback((value: ThemePreference) => {
+    setThemeState(parseThemePreference(value));
   }, []);
-
   const value = useMemo<PreferencesContextValue>(
     () => ({
+      language,
+      dictionary: dictionaries[language],
+      setLanguage,
       themePreference,
       resolvedTheme,
       setThemePreference,
-      experienceMode,
-      density,
-      setExperienceMode,
     }),
-    [
-      density,
-      experienceMode,
-      resolvedTheme,
-      setExperienceMode,
-      setThemePreference,
-      themePreference,
-    ],
+    [language, resolvedTheme, setLanguage, setThemePreference, themePreference],
   );
 
   return (
@@ -211,9 +132,8 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
 }
 
 export function usePreferences(): PreferencesContextValue {
-  const preferences = useContext(PreferencesContext);
-  if (!preferences) {
-    throw new Error("usePreferences must be used within PreferencesProvider");
-  }
-  return preferences;
+  const context = useContext(PreferencesContext);
+  if (!context)
+    throw new Error("usePreferences must be used inside PreferencesProvider");
+  return context;
 }

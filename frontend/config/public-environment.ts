@@ -2,68 +2,57 @@ type PublicEnvironment = Record<string, string | undefined>;
 
 export type PublicEndpointConfiguration = {
   apiUrl: string;
-  apiOrigin: string;
   connectOrigins: string[];
   strict: boolean;
-  webSocketUrl: string | null;
 };
 
 const LOCAL_HOSTNAMES = new Set(["0.0.0.0", "127.0.0.1", "::1", "localhost"]);
-
-function isLocalHostname(hostname: string): boolean {
-  const normalized = hostname.toLowerCase().replace(/^\[|\]$/g, "");
-  return (
-    LOCAL_HOSTNAMES.has(normalized) ||
-    normalized.endsWith(".localhost") ||
-    /^127(?:\.\d{1,3}){3}$/.test(normalized)
-  );
-}
 
 export function isStrictPublicEnvironment(
   environment: PublicEnvironment,
 ): boolean {
   const vercel = environment.VERCEL?.toLowerCase();
-  const vercelDeployment =
+  if (
     vercel === "1" ||
     vercel === "true" ||
     ["preview", "production"].includes(
       environment.VERCEL_ENV?.toLowerCase() ?? "",
-    );
-  if (vercelDeployment) return true;
-
+    )
+  )
+    return true;
   const explicit = environment.BORZA_STRICT_PUBLIC_ENV?.toLowerCase();
   return (
     explicit === "true" ||
-    (environment.NODE_ENV?.toLowerCase() === "production" &&
-      explicit !== "false")
+    (environment.NODE_ENV === "production" && explicit !== "false")
   );
 }
 
-function parseAbsoluteEndpoint(
-  variable: string,
-  rawValue: string,
-  allowedProtocols: ReadonlySet<string>,
-  strict: boolean,
-): URL {
+function parseEndpoint(variable: string, value: string, strict: boolean): URL {
   let url: URL;
   try {
-    url = new URL(rawValue);
+    url = new URL(value);
   } catch {
     throw new Error(`${variable} must be an absolute URL.`);
   }
-
-  if (!allowedProtocols.has(url.protocol)) {
+  if (
+    !(strict
+      ? url.protocol === "https:"
+      : ["http:", "https:"].includes(url.protocol))
+  ) {
     throw new Error(
-      `${variable} must use ${[...allowedProtocols].join(" or ")}.`,
+      `${variable} must use ${strict ? "HTTPS" : "HTTP or HTTPS"}.`,
     );
   }
-  if (url.username || url.password) {
-    throw new Error(`${variable} must not contain embedded credentials.`);
+  if (url.username || url.password || url.search || url.hash) {
+    throw new Error(
+      `${variable} must be credential-free and contain no query or fragment.`,
+    );
   }
-  if (url.search || url.hash) {
-    throw new Error(`${variable} must not contain a query string or fragment.`);
-  }
-  if (strict && isLocalHostname(url.hostname)) {
+  const hostname = url.hostname.toLowerCase().replace(/^\[|\]$/g, "");
+  if (
+    strict &&
+    (LOCAL_HOSTNAMES.has(hostname) || hostname.endsWith(".localhost"))
+  ) {
     throw new Error(
       `${variable} must not target a local address in strict mode.`,
     );
@@ -71,76 +60,40 @@ function parseAbsoluteEndpoint(
   return url;
 }
 
-function normalizedUrl(url: URL): string {
-  return `${url.origin}${url.pathname}`.replace(/\/+$/, "");
-}
-
 export function resolvePublicEndpointConfiguration(
   environment: PublicEnvironment,
 ): PublicEndpointConfiguration {
   const strict = isStrictPublicEnvironment(environment);
-  const configuredApiUrl = environment.NEXT_PUBLIC_API_URL?.trim();
-
-  if (strict && !configuredApiUrl) {
+  const configured = environment.NEXT_PUBLIC_API_URL?.trim();
+  if (strict && !configured)
     throw new Error(
-      "NEXT_PUBLIC_API_URL is required for Vercel and strict production builds.",
+      "NEXT_PUBLIC_API_URL is required for strict production builds.",
     );
-  }
-
-  let apiUrl = configuredApiUrl || "http://localhost:8000";
-  let apiOrigin: string;
+  let apiUrl = configured || "http://localhost:8000";
+  let apiOrigin = "'self'";
   if (apiUrl.startsWith("/") && !apiUrl.startsWith("//")) {
-    if (strict) {
+    if (strict || /[?#\\]/.test(apiUrl))
       throw new Error(
         "NEXT_PUBLIC_API_URL must be an absolute HTTPS URL in strict mode.",
       );
-    }
-    if (apiUrl.includes("?") || apiUrl.includes("#") || apiUrl.includes("\\")) {
-      throw new Error(
-        "NEXT_PUBLIC_API_URL must be a same-origin path without a query or fragment.",
-      );
-    }
     apiUrl = apiUrl.replace(/\/+$/, "");
-    apiOrigin = "'self'";
   } else {
-    const api = parseAbsoluteEndpoint(
-      "NEXT_PUBLIC_API_URL",
-      apiUrl,
-      new Set(strict ? ["https:"] : ["http:", "https:"]),
-      strict,
-    );
-    apiUrl = normalizedUrl(api);
-    apiOrigin = api.origin;
+    const parsed = parseEndpoint("NEXT_PUBLIC_API_URL", apiUrl, strict);
+    apiUrl = `${parsed.origin}${parsed.pathname}`.replace(/\/+$/, "");
+    apiOrigin = parsed.origin;
   }
-
-  const configuredWebSocketUrl = environment.NEXT_PUBLIC_WS_URL?.trim();
-  let webSocketUrl: string | null = null;
-  let webSocketOrigin: string | null = null;
-  if (configuredWebSocketUrl) {
-    const webSocket = parseAbsoluteEndpoint(
-      "NEXT_PUBLIC_WS_URL",
-      configuredWebSocketUrl,
-      new Set(strict ? ["wss:"] : ["ws:", "wss:"]),
-      strict,
+  const origins = [apiOrigin];
+  const supabase = environment.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  if (supabase)
+    origins.push(
+      parseEndpoint("NEXT_PUBLIC_SUPABASE_URL", supabase, strict).origin,
     );
-    webSocketUrl = normalizedUrl(webSocket);
-    webSocketOrigin = webSocket.origin;
-  } else if (apiOrigin !== "'self'") {
-    const webSocket = new URL(apiOrigin);
-    webSocket.protocol = webSocket.protocol === "https:" ? "wss:" : "ws:";
-    webSocketOrigin = webSocket.origin;
-  }
-
-  const connectOrigins = [...new Set([apiOrigin, webSocketOrigin])]
-    .filter((value): value is string => Boolean(value))
-    .filter((value) => value !== "'self'");
-
   return {
     apiUrl,
-    apiOrigin,
-    connectOrigins,
+    connectOrigins: [...new Set(origins)].filter(
+      (origin) => origin !== "'self'",
+    ),
     strict,
-    webSocketUrl,
   };
 }
 
@@ -148,20 +101,13 @@ export function createContentSecurityPolicy(
   configuration: PublicEndpointConfiguration,
   development = false,
 ): string {
-  const connectSources = ["'self'", ...configuration.connectOrigins].join(" ");
-  const scriptSources = [
-    "'self'",
-    "'unsafe-inline'",
-    ...(development ? ["'unsafe-eval'"] : []),
-  ].join(" ");
   return [
     "default-src 'self'",
-    // Next.js emits small inline bootstrap scripts for static App Router pages.
-    `script-src ${scriptSources}`,
+    `script-src 'self' 'unsafe-inline'${development ? " 'unsafe-eval'" : ""}`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: https:",
     "font-src 'self' data:",
-    `connect-src ${connectSources}`,
+    `connect-src 'self' ${configuration.connectOrigins.join(" ")}`.trim(),
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

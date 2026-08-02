@@ -1,125 +1,31 @@
 services:
-  - type: keyvalue
-    name: borza-realtime
-    plan: free
-    ipAllowList: []
-    maxmemoryPolicy: allkeys-lru
-    persistenceMode: "off"
-
   - type: web
-    name: borza-api
+    name: borza-academy-api
     runtime: docker
     plan: starter
-    rootDir: backend
-    dockerfilePath: ./Dockerfile
+    rootDir: .
+    dockerfilePath: ./backend/Dockerfile
     dockerContext: .
     dockerCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 2 --timeout-keep-alive 5 --no-access-log
     preDeployCommand: alembic upgrade head
     healthCheckPath: /ready
-    # Revision 0006 requires ingestion writers to be stopped during backfill.
-    # Follow the migration-first release order in README.md.
     autoDeployTrigger: "off"
     envVars:
+      - key: APP_NAME
+        value: Borza Academy
       - key: ENVIRONMENT
         value: production
       - key: DATABASE_URL
         sync: false
       - key: MIGRATION_DATABASE_URL
         sync: false
-      - key: EVENT_BUS_URL
-        fromService:
-          type: keyvalue
-          name: borza-realtime
-          property: connectionString
-      - key: REALTIME_ENABLED
-        value: "true"
-      - key: NEWS_PROVIDER
-        value: composite
-      - key: COMPOSITE_PROVIDERS
-        value: rss,marketaux
-      - key: MARKETAUX_API_TOKEN
+      - key: SUPABASE_URL
         sync: false
+      - key: SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: ACADEMY_ALLOW_DEMO_AUTH
+        value: "false"
       - key: CORS_ORIGINS
         value: https://borza-kappa.vercel.app
       - key: ALLOWED_HOSTS
         sync: false
-      - key: CRON_SECRET
-        generateValue: true
-      - key: FINBERT_ENABLED
-        value: "false"
-
-  - type: worker
-    name: borza-ingestion-worker
-    runtime: docker
-    plan: starter
-    rootDir: backend
-    dockerfilePath: ./Dockerfile
-    dockerContext: .
-    dockerCommand: python -m app.workers.ingestion_worker
-    maxShutdownDelaySeconds: 300
-    autoDeployTrigger: "off"
-    envVars:
-      - key: ENVIRONMENT
-        value: production
-      - key: DATABASE_URL
-        fromService:
-          type: web
-          name: borza-api
-          envVarKey: DATABASE_URL
-      - key: MIGRATION_DATABASE_URL
-        fromService:
-          type: web
-          name: borza-api
-          envVarKey: MIGRATION_DATABASE_URL
-      - key: EVENT_BUS_URL
-        fromService:
-          type: keyvalue
-          name: borza-realtime
-          property: connectionString
-      - key: REALTIME_ENABLED
-        value: "true"
-      - key: NEWS_PROVIDER
-        value: composite
-      - key: COMPOSITE_PROVIDERS
-        value: rss,marketaux
-      - key: MARKETAUX_API_TOKEN
-        sync: false
-      - key: FINBERT_ENABLED
-        value: "false"
-
-  - type: worker
-    name: borza-ingestion-scheduler
-    runtime: docker
-    plan: starter
-    rootDir: backend
-    dockerfilePath: ./Dockerfile
-    dockerContext: .
-    dockerCommand: python -m app.scheduler
-    autoDeployTrigger: "off"
-    envVars:
-      - key: ENVIRONMENT
-        value: production
-      - key: DATABASE_URL
-        fromService:
-          type: web
-          name: borza-api
-          envVarKey: DATABASE_URL
-      - key: MIGRATION_DATABASE_URL
-        fromService:
-          type: web
-          name: borza-api
-          envVarKey: MIGRATION_DATABASE_URL
-      - key: REALTIME_ENABLED
-        value: "false"
-      - key: NEWS_PROVIDER
-        value: composite
-      - key: COMPOSITE_PROVIDERS
-        value: rss,marketaux
-      - key: MARKETAUX_API_TOKEN
-        sync: false
-      - key: RSS_FETCH_INTERVAL_SECONDS
-        value: "600"
-      - key: MARKETAUX_FETCH_INTERVAL_SECONDS
-        value: "1200"
-      - key: GDELT_FETCH_INTERVAL_SECONDS
-        value: "7200"

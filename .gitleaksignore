@@ -1,0 +1,10 @@
+# Intentional synthetic credentials used to verify the separately packaged
+# premium archive rejects secret-bearing inputs. These fingerprints refer only
+# to the historical test-fixture commit; new findings still fail the scan.
+a29f59d30abaaaf4ecab0de7016f20ad6e1ed66f:premium/ai-trading-bot/tests/test_package_bot.py:generic-api-key:73
+a29f59d30abaaaf4ecab0de7016f20ad6e1ed66f:premium/ai-trading-bot/tests/test_package_bot.py:generic-api-key:107
+a29f59d30abaaaf4ecab0de7016f20ad6e1ed66f:premium/ai-trading-bot/tests/test_package_bot.py:curl-auth-user:227
+a29f59d30abaaaf4ecab0de7016f20ad6e1ed66f:premium/ai-trading-bot/tests/test_package_bot.py:curl-auth-user:236
+a29f59d30abaaaf4ecab0de7016f20ad6e1ed66f:premium/ai-trading-bot/tests/test_package_bot.py:jwt:96
+a29f59d30abaaaf4ecab0de7016f20ad6e1ed66f:premium/ai-trading-bot/tests/test_package_bot.py:curl-auth-header:221
+a29f59d30abaaaf4ecab0de7016f20ad6e1ed66f:premium/ai-trading-bot/tests/test_package_bot.py:curl-auth-header:226

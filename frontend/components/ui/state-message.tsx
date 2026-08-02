@@ -99,12 +99,12 @@ function StateMessage({
       data-state={kind}
     >
       <StateIcon kind={kind} />
-      <h3
+      <h2
         id={titleId}
         className="mt-3 text-base font-semibold text-[var(--text-primary)]"
       >
         {title}
-      </h3>
+      </h2>
       {description ? (
         <div className="mt-1 max-w-lg text-sm leading-6 text-[var(--text-secondary)]">
           {description}

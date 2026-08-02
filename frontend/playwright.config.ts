@@ -1,5 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const baseURL = process.env.PLAYWRIGHT_TEST_BASE_URL || "http://127.0.0.1:3100";
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
@@ -8,7 +10,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: "html",
   use: {
-    baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || "http://localhost:3000",
+    baseURL,
     trace: "on-first-retry",
   },
   projects: [
@@ -24,9 +26,15 @@ export default defineConfig({
   webServer: process.env.PLAYWRIGHT_SKIP_SERVER
     ? undefined
     : {
-        command: "npm run dev",
-        url: "http://localhost:3000",
-        reuseExistingServer: !process.env.CI,
+        command: "npm run dev -- --hostname 127.0.0.1 --port 3100",
+        url: baseURL,
+        env: {
+          NEXT_PUBLIC_SUPABASE_URL: "",
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "",
+          NEXT_PUBLIC_API_URL: "http://localhost:8000",
+          BORZA_STRICT_PUBLIC_ENV: "false",
+        },
+        reuseExistingServer: true,
         timeout: 120_000,
       },
 });

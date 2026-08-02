@@ -1,0 +1,88 @@
+{
+  "sources": [
+    {
+      "id": "src-investor-gov-intro",
+      "publisher": "U.S. Securities and Exchange Commission - Investor.gov",
+      "title": "Introduction to Investing",
+      "url": "https://www.investor.gov/introduction-investing"
+    },
+    {
+      "id": "src-investor-gov-glossary",
+      "publisher": "U.S. Securities and Exchange Commission - Investor.gov",
+      "title": "Investor glossary",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary"
+    },
+    {
+      "id": "src-investor-gov-stocks",
+      "publisher": "U.S. Securities and Exchange Commission - Investor.gov",
+      "title": "Stocks - FAQs",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/stocks"
+    },
+    {
+      "id": "src-investor-gov-bonds",
+      "publisher": "U.S. Securities and Exchange Commission - Investor.gov",
+      "title": "Bonds - FAQs",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/bonds-or-fixed-income-products/bonds"
+    },
+    {
+      "id": "src-investor-gov-compound",
+      "publisher": "U.S. Securities and Exchange Commission - Investor.gov",
+      "title": "Compound interest",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/compound-interest"
+    },
+    {
+      "id": "src-investor-gov-diversification",
+      "publisher": "U.S. Securities and Exchange Commission - Investor.gov",
+      "title": "Asset allocation and diversification",
+      "url": "https://www.investor.gov/introduction-investing/getting-started/asset-allocation"
+    },
+    {
+      "id": "src-investor-gov-fees",
+      "publisher": "U.S. Securities and Exchange Commission - Investor.gov",
+      "title": "Understanding fees",
+      "url": "https://www.investor.gov/introduction-investing/getting-started/understanding-fees"
+    },
+    {
+      "id": "src-finra-orders",
+      "publisher": "Financial Industry Regulatory Authority",
+      "title": "Order types",
+      "url": "https://www.finra.org/investors/investing/investment-products/stocks/order-types"
+    },
+    {
+      "id": "src-finra-brokerage",
+      "publisher": "Financial Industry Regulatory Authority",
+      "title": "Brokerage accounts and margin risks",
+      "url": "https://www.finra.org/investors/investing/investment-accounts/brokerage-accounts"
+    },
+    {
+      "id": "src-finra-day-trading",
+      "publisher": "Financial Industry Regulatory Authority",
+      "title": "Day trading",
+      "url": "https://www.finra.org/investors/investing/investment-products/stocks/day-trading"
+    },
+    {
+      "id": "src-cftc-scams",
+      "publisher": "U.S. Commodity Futures Trading Commission",
+      "title": "Trading-signal and social-media scam advisory",
+      "url": "https://www.cftc.gov/LearnAndProtect/AdvisoriesAndArticles/nothing_to_like_about_social_media_scammers.html"
+    },
+    {
+      "id": "src-ecb-inflation",
+      "publisher": "European Central Bank",
+      "title": "What is inflation?",
+      "url": "https://www.ecb.europa.eu/ecb-and-you/explainers/tell-me-more/html/what_is_inflation.en.html"
+    },
+    {
+      "id": "src-ecb-markets",
+      "publisher": "European Central Bank",
+      "title": "Financial markets and interest rates",
+      "url": "https://www.ecb.europa.eu/stats/financial_markets_and_interest_rates/html/index.en.html"
+    },
+    {
+      "id": "src-esma-cfd-risk",
+      "publisher": "European Securities and Markets Authority",
+      "title": "Investor protection and leveraged-product risk",
+      "url": "https://www.esma.europa.eu/investor-corner"
+    }
+  ]
+}

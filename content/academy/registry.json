@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "default_locale": "de",
+  "locales": ["de", "sl", "en"],
+  "collections": {
+    "paths": "paths.json",
+    "lessons": "lessons.json",
+    "questions": "questions.json",
+    "glossary": "glossary.json",
+    "review_cards": "review_cards.json",
+    "practice": "practice.json",
+    "sources": "sources.json"
+  }
+}

@@ -1,6 +1,5 @@
 FROM python:3.12-slim AS builder
 
-ARG INSTALL_AI=false
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PIP_NO_CACHE_DIR=1 \
     VIRTUAL_ENV=/opt/venv
@@ -9,19 +8,19 @@ RUN python -m venv "$VIRTUAL_ENV"
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 WORKDIR /build
-COPY requirements.txt requirements-ai.txt ./
-RUN pip install --no-cache-dir -r requirements.txt \
-    && if [ "$INSTALL_AI" = "true" ]; then pip install --no-cache-dir -r requirements-ai.txt; fi
+COPY backend/requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
 
 FROM builder AS test
 
 WORKDIR /app
-COPY requirements.txt requirements-dev.txt ./
+COPY backend/requirements.txt backend/requirements-dev.txt ./
 RUN pip install --no-cache-dir -r requirements-dev.txt
-COPY pyproject.toml alembic.ini ./
-COPY alembic ./alembic
-COPY app ./app
-COPY tests ./tests
+COPY backend/pyproject.toml backend/alembic.ini ./
+COPY backend/alembic ./alembic
+COPY backend/app ./app
+COPY backend/tests ./tests
+COPY content /content
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
@@ -40,9 +39,10 @@ RUN groupadd --system --gid 10001 borza \
 
 WORKDIR /app
 COPY --from=builder /opt/venv /opt/venv
-COPY --chown=borza:borza alembic ./alembic
-COPY --chown=borza:borza alembic.ini ./
-COPY --chown=borza:borza app ./app
+COPY --chown=borza:borza backend/alembic ./alembic
+COPY --chown=borza:borza backend/alembic.ini ./
+COPY --chown=borza:borza backend/app ./app
+COPY --chown=borza:borza content /content
 
 USER 10001:10001
 EXPOSE 8000
