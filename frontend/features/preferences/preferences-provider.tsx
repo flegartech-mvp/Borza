@@ -70,25 +70,30 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
     DEFAULT_THEME_PREFERENCE,
   );
   const [systemDark, setSystemDark] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    setLanguageState(
-      parseLanguage(
-        safeRead(LANGUAGE_STORAGE_KEY) || document.documentElement.lang,
-      ),
-    );
-    setThemeState(
-      parseThemePreference(
-        safeRead(THEME_STORAGE_KEY) ??
-          document.documentElement.dataset.themePreference,
-      ),
-    );
-    setSystemDark(systemPrefersDark());
+    const hydrationTimer = window.setTimeout(() => {
+      setLanguageState(
+        parseLanguage(
+          safeRead(LANGUAGE_STORAGE_KEY) || document.documentElement.lang,
+        ),
+      );
+      setThemeState(
+        parseThemePreference(
+          safeRead(THEME_STORAGE_KEY) ??
+            document.documentElement.dataset.themePreference,
+        ),
+      );
+      setSystemDark(systemPrefersDark());
+      setHydrated(true);
+    }, 0);
     const query = window.matchMedia?.("(prefers-color-scheme: dark)");
     const handleChange = (event: MediaQueryListEvent) =>
       setSystemDark(event.matches);
     query?.addEventListener?.("change", handleChange);
     return () => {
+      window.clearTimeout(hydrationTimer);
       query?.removeEventListener?.("change", handleChange);
     };
   }, []);
@@ -96,6 +101,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
   const resolvedTheme = resolveThemePreference(themePreference, systemDark);
 
   useEffect(() => {
+    if (!hydrated) return;
     applyPreferences(
       document.documentElement,
       themePreference,
@@ -104,7 +110,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
     );
     safeWrite(THEME_STORAGE_KEY, themePreference);
     safeWrite(LANGUAGE_STORAGE_KEY, language);
-  }, [language, resolvedTheme, themePreference]);
+  }, [hydrated, language, resolvedTheme, themePreference]);
 
   const setLanguage = useCallback((value: Language) => {
     setLanguageState(parseLanguage(value));

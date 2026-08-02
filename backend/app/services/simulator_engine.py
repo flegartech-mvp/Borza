@@ -194,12 +194,74 @@ def create_session(
         commission_fixed=request.commission_fixed,
         commission_bps=request.commission_bps,
         planned_risk=request.planned_risk,
+        decision_note=request.decision_note.strip(),
+        risk_defined_before_entry=request.risk_defined_before_entry,
+        concentration_checked=request.concentration_checked,
         current_candle_index=start_index,
     )
     db.add(session)
     db.commit()
     db.refresh(session)
     return session
+
+
+PROCESS_PENALTIES = {
+    "leverage_above_5x": 50,
+    "leverage_above_2x": 10,
+    "missing_stop_loss": 20,
+    "risk_above_scenario_cap": 30,
+    "daily_loss_limit_reached": 40,
+    "risk_not_defined_before_entry": 25,
+    "decision_reason_not_documented": 15,
+    "concentration_not_checked": 10,
+}
+
+
+def evaluate_process(
+    session: SimulationSession,
+    orders: list[SimulationOrder],
+    process_rules: list[dict[str, Any]],
+) -> tuple[int, list[str], list[str], list[str]]:
+    """Score evidence that existed before the outcome, never the resulting P&L."""
+    violations = {violation for order in orders for violation in (order.rule_violations or [])}
+    followed: list[str] = []
+    note_is_documented = len(session.decision_note.split()) >= 8
+
+    if session.risk_defined_before_entry:
+        followed.append("risk_defined_before_entry")
+    else:
+        violations.add("risk_not_defined_before_entry")
+    if note_is_documented:
+        followed.append("decision_reason_documented")
+    else:
+        violations.add("decision_reason_not_documented")
+    if session.concentration_checked:
+        followed.append("concentration_checked")
+    elif orders:
+        violations.add("concentration_not_checked")
+
+    if not orders:
+        followed.append("no_trade_choice")
+    else:
+        if not any(item.startswith("leverage_above") for item in violations):
+            followed.append("leverage_at_or_below_2x")
+        if "missing_stop_loss" not in violations:
+            followed.append("protective_stop_used")
+        if "risk_above_scenario_cap" not in violations:
+            followed.append("risk_within_scenario_cap")
+
+    evaluated_scenario_rules = {
+        "risk_within_cap",
+        "journal_reason",
+        "daily_limit_honoured",
+    }
+    unevaluated = [
+        str(item.get("id"))
+        for item in process_rules
+        if item.get("id") and str(item.get("id")) not in evaluated_scenario_rules
+    ]
+    score = max(0, 100 - sum(PROCESS_PENALTIES.get(item, 10) for item in violations))
+    return score, sorted(followed), sorted(violations), unevaluated
 
 
 def owned_session(

@@ -37,7 +37,10 @@ export type DemoLesson = {
     worked: LocalizedText;
     mistake: LocalizedText;
     takeaway: LocalizedText;
+    framework?: LocalizedText;
+    reflection?: LocalizedText;
   };
+  nextAction?: { href: string; label: LocalizedText };
   glossaryIds: string[];
   sourceIds: string[];
   knowledgeCheckIds?: string[];

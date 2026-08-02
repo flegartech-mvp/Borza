@@ -22,7 +22,7 @@ def test_academy_migration_is_non_destructive_and_reversible(tmp_path: Path) -> 
     assert {"articles", "users", "lesson_progress", "simulation_trades"} <= tables
     with engine.connect() as connection:
         assert (
-            connection.execute(text("SELECT version_num FROM alembic_version")).scalar() == "0012"
+            connection.execute(text("SELECT version_num FROM alembic_version")).scalar() == "0013"
         )
 
     command.downgrade(config, "0011")

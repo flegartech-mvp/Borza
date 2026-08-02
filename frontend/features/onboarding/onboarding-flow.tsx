@@ -29,10 +29,11 @@ function localizedOptions(language: "de" | "sl" | "en") {
   const values = {
     de: {
       goal: [
-        "Finanzen von Grund auf verstehen",
-        "Auf ein Finanzstudium vorbereiten",
-        "Tradingmechanik lernen",
-        "Risikomanagement verbessern",
+        "Persönliche Finanzen verstehen",
+        "Auf Schule oder Studium vorbereiten",
+        "Grundlagen des Investierens lernen",
+        "Trading-Risikomanagement lernen",
+        "Finanzielle Entscheidungen verbessern",
       ],
       level: ["Anfänger", "Grundkenntnisse", "Mittelstufe"],
       interest: ["Vorwiegend Finanzen", "Ausgewogen", "Vorwiegend Trading"],
@@ -53,10 +54,11 @@ function localizedOptions(language: "de" | "sl" | "en") {
     },
     sl: {
       goal: [
-        "Razumeti finance od začetka",
-        "Priprava na študij financ",
-        "Naučiti se mehanike trgovanja",
-        "Izboljšati upravljanje tveganj",
+        "Razumeti osebne finance",
+        "Priprava na šolo ali študij",
+        "Spoznati osnove investiranja",
+        "Spoznati upravljanje tveganj pri trgovanju",
+        "Izboljšati finančno odločanje",
       ],
       level: ["Začetnik", "Osnovno znanje", "Srednja raven"],
       interest: ["Predvsem finance", "Uravnoteženo", "Predvsem trgovanje"],
@@ -78,10 +80,11 @@ function localizedOptions(language: "de" | "sl" | "en") {
     },
     en: {
       goal: [
-        "Understand finance from zero",
-        "Prepare for finance studies",
-        "Learn trading mechanics",
-        "Improve risk management",
+        "Understand personal finance",
+        "Prepare for school or university",
+        "Learn investing foundations",
+        "Learn trading risk management",
+        "Improve financial decision-making",
       ],
       level: ["Beginner", "Some foundations", "Intermediate"],
       interest: ["Mostly finance", "Balanced", "Mostly trading"],

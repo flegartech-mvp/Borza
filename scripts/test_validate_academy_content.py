@@ -57,6 +57,19 @@ class AcademyContentValidationTests(unittest.TestCase):
         with self.assertRaisesRegex(ContentValidationError, "exactly the locales"):
             validate_registry(self.content_root)
 
+    def test_flagship_risk_lessons_require_framework_and_handoff(self) -> None:
+        payload = self.read_json("lessons.json")
+        risk_lesson = next(
+            item
+            for item in payload["lessons"]
+            if item["path_id"] == "path-risk-management"
+        )
+        del risk_lesson["content"]["reflection_prompt"]
+        self.write_json("lessons.json", payload)
+
+        with self.assertRaisesRegex(ContentValidationError, "flagship decision framework"):
+            validate_registry(self.content_root)
+
     def test_answer_revealing_legacy_matching_shape_is_rejected(self) -> None:
         payload = self.read_json("questions.json")
         question = next(item for item in payload["questions"] if item["type"] == "matching")

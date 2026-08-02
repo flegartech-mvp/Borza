@@ -283,9 +283,10 @@ const de: AcademyDictionary = {
     settings: "Einstellungen",
   },
   landing: {
-    eyebrow: "Interaktive Finanzbildung",
-    title: "Finanzen verstehen. Trading üben. Marktfähigkeiten aufbauen.",
-    body: "Ein ruhiger, strukturierter Lernraum für Finanzgrundlagen, Marktmechanik, Risikomanagement und verantwortungsvolles Tradingtraining.",
+    eyebrow: "Decision Academy für Europa",
+    title:
+      "Triff bessere Finanzentscheidungen, bevor echtes Geld die Lektion teuer macht.",
+    body: "Lerne Finanzgrundlagen, beherrsche Risiko und übe realistische Entscheidungen in einem sicheren, mehrsprachigen Raum für Einsteiger, Studierende und Schulen.",
     lessonPreview: "Eine echte Lektion, nicht nur ein Kurskatalog",
     chartPreview: "Charts lesen, bevor du Entscheidungen bewertest",
     riskTitle: "Risiko vor Rendite",
@@ -296,7 +297,7 @@ const de: AcademyDictionary = {
       "Die Kernanwendung und die Demo-Lektion sind in allen drei Sprachen nutzbar.",
     toolsTitle: "Werkzeuge mit Erklärung",
     toolsBody:
-      "18 Rechner verbinden Formel, Beispiel, Interpretation und typische Fehler.",
+      "Rechner verbinden Formel, Beispiel, Interpretation und typische Fehler.",
     pathsTitle: "Vier vollständige Startpfade",
     pathsBody:
       "Finanzgrundlagen, Tradinggrundlagen, Risikomanagement und Technische Analyse.",
@@ -544,9 +545,10 @@ const sl: AcademyDictionary = {
     settings: "Nastavitve",
   },
   landing: {
-    eyebrow: "Interaktivno finančno izobraževanje",
-    title: "Razumi finance. Vadi trgovanje. Zgradi resnične tržne veščine.",
-    body: "Miren in strukturiran prostor za osnove financ, delovanje trgov, upravljanje tveganj in odgovorno vadbo trgovanja.",
+    eyebrow: "Akademija odločanja za Evropo",
+    title:
+      "Sprejemaj boljše finančne odločitve, preden lekcija s pravim denarjem postane draga.",
+    body: "Spoznaj finančne osnove, obvladaj tveganje in vadi realistične odločitve v varnem večjezičnem okolju za začetnike, dijake, študente in šole.",
     lessonPreview: "Prava lekcija, ne le katalog tečajev",
     chartPreview: "Preberi graf, preden oceniš odločitev",
     riskTitle: "Tveganje pred donosom",
@@ -557,7 +559,7 @@ const sl: AcademyDictionary = {
       "Jedro aplikacije in demo lekcija sta na voljo v vseh treh jezikih.",
     toolsTitle: "Orodja z razlago",
     toolsBody:
-      "18 kalkulatorjev poveže formulo, primer, razlago in pogoste napake.",
+      "Kalkulatorji povežejo formulo, primer, razlago in pogoste napake.",
     pathsTitle: "Štiri celovite začetne poti",
     pathsBody:
       "Osnove financ, osnove trgovanja, upravljanje tveganj in tehnična analiza.",
@@ -799,9 +801,10 @@ const en: AcademyDictionary = {
     settings: "Settings",
   },
   landing: {
-    eyebrow: "Interactive finance education",
-    title: "Learn finance. Practise trading. Build real market skills.",
-    body: "A calm, structured learning workspace for finance foundations, market mechanics, risk management, and responsible trading practice.",
+    eyebrow: "A decision academy for Europe",
+    title:
+      "Make better financial decisions before real money makes the lesson expensive.",
+    body: "Learn financial foundations, master risk, and practise realistic decisions in a safe multilingual workspace for beginners, students, and schools.",
     lessonPreview: "A real lesson, not just a course catalogue",
     chartPreview: "Read the chart before judging the decision",
     riskTitle: "Risk before return",
@@ -812,7 +815,7 @@ const en: AcademyDictionary = {
       "The core experience and complete demo lesson work in all three languages.",
     toolsTitle: "Tools with explanations",
     toolsBody:
-      "18 calculators connect the formula, example, interpretation, and common mistakes.",
+      "Calculators connect the formula, example, interpretation, and common mistakes.",
     pathsTitle: "Four complete starting paths",
     pathsBody:
       "Finance Foundations, Trading Foundations, Risk Management, and Technical Analysis.",

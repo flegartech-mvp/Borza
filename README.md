@@ -2,9 +2,9 @@
 
 **Learn finance. Practise trading. Build real market skills.**
 
-Borza Academy is a German-first, multilingual finance-learning platform for responsible trading practice, finance and economics study, investing foundations, and disciplined risk management. German, Slovenian, and English are first-class interface languages.
+Borza Academy is a German-first, multilingual financial decision-making and risk-management academy for European beginners, students, schools, and aspiring traders. German, Slovenian, and English are first-class interface languages.
 
-The product combines concise lessons, worked calculations, quizzes, spaced repetition, interactive chart exercises, deterministic paper-trading scenarios, finance tools, progress tracking, and a structured trading journal. It is education software—not financial advice, a brokerage, a live-data terminal, or evidence that simulated performance will transfer to real markets.
+The product combines lessons, worked calculations, quizzes, spaced repetition, interactive chart exercises, deterministic paper-trading scenarios, finance tools, progress tracking, and a structured trading journal. Its core loop is: **learn a concept → investigate a realistic case → calculate or visualise → make a simulated decision → receive process feedback → reflect in a journal.** It is education software—not financial advice, a brokerage, a live-data terminal, or evidence that simulated performance will transfer to real markets.
 
 ## Architecture
 
@@ -30,6 +30,8 @@ There are no news providers, ingestion workers, schedulers, Valkey dependency, r
 
 ## Product Areas
 
+Risk Management is the flagship reference path. Finance Foundations and Trading Foundations provide prerequisites; Technical Analysis remains conditional and uncertainty-aware. Planned paths stay secondary until their authored content meets the learning standard.
+
 - **Home** — next lesson, reviews due, weekly learning progress, mastery, streak, simulator process summary, and journal prompts.
 - **Learn** — twelve curriculum paths; Finance Foundations, Trading Foundations, Risk Management, and Technical Analysis launch with complete lessons and assessments.
 - **Practice** — chart exercises with hidden future candles and accessible textual summaries.
@@ -38,6 +40,8 @@ There are no news providers, ingestion workers, schedulers, Valkey dependency, r
 - **Review** — FSRS-backed recall scheduling using Again, Hard, Good, and Easy grades.
 - **Journal** — planned versus actual risk, emotions, rules, lessons, and repeated-pattern reviews.
 - **Profile** — onboarding goals, language, theme, weekly commitment, progress, achievements, and settings.
+- **Schools** — public 35-hour programme proposal for Slovenian secondary schools, with teacher guidance and official reference points.
+- **Impact** — current capabilities, roadmap, support models, funding boundaries, and a privacy-preserving local interest brief.
 
 All chart and scenario datasets are labelled simulated. Process quality is scored separately from profit: a disciplined loss can be better work than a reckless win.
 
@@ -114,6 +118,19 @@ python -m alembic check
 ```
 
 Migrations `0001`–`0011` preserve the historical news schema. Academy runtime code does not import or query those tables. They remain untouched for safe upgrades; the separate opt-in legacy archival script requires explicit operator confirmation and is never part of normal deployment.
+
+Migration `0012` adds Academy identity and learner state. Migration `0013` adds simulator precommitment evidence (decision note, risk-defined confirmation, and concentration check) for process scoring that remains independent of profit.
+
+## Product and contribution documentation
+
+- [`docs/PRODUCT_VISION.md`](docs/PRODUCT_VISION.md) — position, audience, learning loop, and boundaries.
+- [`docs/LEARNING_STANDARD.md`](docs/LEARNING_STANDARD.md) — lesson anatomy, evidence, assessment, and accessibility.
+- [`docs/SCHOOL_PROGRAMME_SI.md`](docs/SCHOOL_PROGRAMME_SI.md) — maintainable Slovenian teacher programme source.
+- [`docs/IMPACT_AND_FUNDING.md`](docs/IMPACT_AND_FUNDING.md) — impact model, roadmap, support, and payment boundary.
+- [`docs/ROADMAP.md`](docs/ROADMAP.md) — staged product plan and explicit non-goals.
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — runtime, content, data, auth, simulator, and legacy boundaries.
+
+Contributions should be narrow, reviewed, and supported by the relevant validator, tests, type/lint/build checks, and source updates. Curriculum contributions must be original, multilingual, age-appropriate, and free of profit promises or implied institutional approval.
 
 ## Verification
 

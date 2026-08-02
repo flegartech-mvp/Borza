@@ -20,6 +20,24 @@ import { DEMO_CANDLES, DEMO_GLOSSARY, DEMO_MODULES } from "@/lib/demo-academy";
 import { ChartLoader } from "@/features/charts/chart-loader";
 import { useLesson } from "./use-academy-content";
 
+const lessonExtensionCopy = {
+  de: {
+    framework: "Entscheidungsrahmen",
+    reflection: "Reflexion",
+    next: "Als Nächstes anwenden",
+  },
+  sl: {
+    framework: "Okvir odločanja",
+    reflection: "Refleksija",
+    next: "Naslednji praktični korak",
+  },
+  en: {
+    framework: "Decision framework",
+    reflection: "Reflection",
+    next: "Apply this next",
+  },
+} as const;
+
 export function LessonPage({ lessonId }: { lessonId: string }) {
   const { dictionary, language } = usePreferences();
   const {
@@ -88,6 +106,7 @@ export function LessonPage({ lessonId }: { lessonId: string }) {
   const glossary = lesson.resolvedGlossary?.length
     ? lesson.resolvedGlossary
     : DEMO_GLOSSARY.filter((term) => lesson.glossaryIds.includes(term.id));
+  const extensionCopy = lessonExtensionCopy[language];
   const sections = [
     ["objectives", dictionary.lesson.objectives],
     ["core", dictionary.lesson.core],
@@ -95,7 +114,13 @@ export function LessonPage({ lessonId }: { lessonId: string }) {
     ["exercise", dictionary.lesson.exercise],
     ["worked", dictionary.lesson.worked],
     ["mistake", dictionary.lesson.mistake],
+    ...(lesson.sections.framework
+      ? ([["framework", extensionCopy.framework]] as const)
+      : []),
     ["takeaway", dictionary.lesson.takeaway],
+    ...(lesson.sections.reflection
+      ? ([["reflection", extensionCopy.reflection]] as const)
+      : []),
     ["check", dictionary.lesson.check],
     ["cards", dictionary.lesson.cards],
     ["sources", dictionary.lesson.sources],
@@ -262,6 +287,49 @@ export function LessonPage({ lessonId }: { lessonId: string }) {
               {lesson.sections.takeaway[language]}
             </p>
           </section>
+          {lesson.sections.framework ? (
+            <section
+              id="framework"
+              className="mt-10 scroll-mt-32 rounded-2xl border border-[#b5cce4] bg-[#eef5fb] p-5 text-[#192b3a]"
+            >
+              <h3 className="font-semibold">{extensionCopy.framework}</h3>
+              <p className="mt-2 whitespace-pre-line leading-7">
+                {lesson.sections.framework[language]}
+              </p>
+            </section>
+          ) : null}
+          {lesson.sections.reflection ? (
+            <section
+              id="reflection"
+              className="mt-10 scroll-mt-32 rounded-2xl border border-[#c9bdde] bg-[#f4effb] p-5 text-[#302643]"
+            >
+              <h3 className="font-semibold">{extensionCopy.reflection}</h3>
+              <p className="mt-2 leading-7">
+                {lesson.sections.reflection[language]}
+              </p>
+              <Link
+                href="/journal"
+                className="mt-4 inline-flex items-center gap-2 font-semibold text-[#654a91]"
+              >
+                {dictionary.nav.journal}
+                <ChevronRight size={16} aria-hidden="true" />
+              </Link>
+            </section>
+          ) : null}
+          {lesson.nextAction ? (
+            <section className="mt-10 rounded-2xl bg-[#0c2f27] p-5 text-white">
+              <p className="text-xs font-semibold uppercase tracking-[.14em] text-[#8ce5c8]">
+                {extensionCopy.next}
+              </p>
+              <Link
+                href={lesson.nextAction.href}
+                className="mt-3 inline-flex min-h-11 items-center gap-2 font-semibold"
+              >
+                {lesson.nextAction.label[language]}
+                <ChevronRight size={16} aria-hidden="true" />
+              </Link>
+            </section>
+          ) : null}
           <section id="check" className="mt-10 scroll-mt-32">
             <h3 className="text-2xl font-semibold">
               {dictionary.lesson.check}

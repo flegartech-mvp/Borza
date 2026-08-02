@@ -375,6 +375,9 @@ class SimulatorCreate(BaseModel):
     commission_fixed: Decimal = Field(default=Decimal("0"), ge=0, le=100000)
     commission_bps: Decimal = Field(default=Decimal("0"), ge=0, le=1000)
     planned_risk: Decimal | None = Field(default=None, gt=0)
+    decision_note: str = Field(default="", max_length=2000)
+    risk_defined_before_entry: bool = False
+    concentration_checked: bool = False
 
 
 class SimulatorOrderIn(BaseModel):
@@ -455,6 +458,9 @@ class SimulatorSessionRead(BaseModel):
     position_stop_loss: Decimal | None
     position_take_profit: Decimal | None
     current_candle_index: int
+    decision_note: str
+    risk_defined_before_entry: bool
+    concentration_checked: bool
     visible_candles: list[dict[str, Any]]
     version: int
     rule_violations: list[str]

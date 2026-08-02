@@ -24,6 +24,7 @@ from app.schemas.academy import (
 from app.services.simulator_engine import (
     close_position,
     create_session,
+    evaluate_process,
     owned_session,
     place_order,
     scenario_candles,
@@ -73,6 +74,9 @@ def _payload(db: Session, session: SimulationSession) -> SimulatorSessionRead:
         position_stop_loss=session.position_stop_loss,
         position_take_profit=session.position_take_profit,
         current_candle_index=session.current_candle_index,
+        decision_note=session.decision_note,
+        risk_defined_before_entry=session.risk_defined_before_entry,
+        concentration_checked=session.concentration_checked,
         visible_candles=visible,
         version=session.version,
         rule_violations=list(session.rule_violations),
@@ -203,32 +207,13 @@ def results(
         )
     )
     scenario = registry_or_503().scenario_by_id(session.scenario_id) or {}
-    violations = sorted(
-        {violation for order in orders for violation in (order.rule_violations or [])}
-    )
-    penalties = {
-        "leverage_above_5x": 50,
-        "leverage_above_2x": 10,
-        "missing_stop_loss": 20,
-        "risk_above_scenario_cap": 30,
-        "daily_loss_limit_reached": 40,
-    }
-    followed: list[str] = []
-    if not orders:
-        followed.append("no_trade_choice")
-    else:
-        if not any(item.startswith("leverage_above") for item in violations):
-            followed.append("leverage_at_or_below_2x")
-        if "missing_stop_loss" not in violations:
-            followed.append("protective_stop_used")
-        if "risk_above_scenario_cap" not in violations:
-            followed.append("risk_within_scenario_cap")
     process_rules = scenario.get("process_rules") or []
-    unevaluated = [
-        str(item.get("id")) for item in process_rules if isinstance(item, dict) and item.get("id")
-    ]
+    typed_process_rules = [item for item in process_rules if isinstance(item, dict)]
+    score, followed, violations, unevaluated = evaluate_process(
+        session, orders, typed_process_rules
+    )
     process = SimulatorProcessEvaluation(
-        score=max(0, 100 - sum(penalties.get(item, 10) for item in violations)),
+        score=score,
         followed_rules=followed,
         violated_rules=violations,
         unevaluated_scenario_rules=unevaluated,

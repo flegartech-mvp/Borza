@@ -44,6 +44,10 @@ const copy = {
     win: "Trefferquote",
     violations: "Regelverstöße",
     error: "Die serverseitige Auswertung konnte nicht geladen werden.",
+    improveTitle: "So wird die Entscheidung wiederholbar",
+    improveAdvice:
+      "Schreibe vor dem nächsten Versuch Begründung, Invalidierung, Risikobudget und Abbruchregel auf. Ändere diese Regeln nicht anhand des Ergebnisses.",
+    journal: "Entscheidung im Journal reflektieren",
   },
   sl: {
     empty: "Najprej dokončaj scenarij v simulatorju.",
@@ -64,6 +68,10 @@ const copy = {
     win: "Uspešnost",
     violations: "Kršitve pravil",
     error: "Strežniške ocene ni bilo mogoče naložiti.",
+    improveTitle: "Kako odločitev postane ponovljiva",
+    improveAdvice:
+      "Pred naslednjim poskusom zapiši utemeljitev, razveljavitev, proračun tveganja in pravilo prekinitve. Pravil ne spreminjaj glede na izid.",
+    journal: "Premisli o odločitvi v dnevniku",
   },
   en: {
     empty: "Complete a simulator scenario first.",
@@ -84,6 +92,10 @@ const copy = {
     win: "Win rate",
     violations: "Rule violations",
     error: "The server-side result could not be loaded.",
+    improveTitle: "How to make the decision repeatable",
+    improveAdvice:
+      "Before the next attempt, write the reasoning, invalidation, risk budget, and stop rule. Do not change those rules in response to the outcome.",
+    journal: "Reflect on the decision in the journal",
   },
 };
 
@@ -265,6 +277,18 @@ export function SimulatorResults() {
             {dictionary.nav.review}
           </Link>
         </article>
+      </section>
+      <section className="mt-5 rounded-[var(--radius-md)] border border-[var(--electric)] bg-[var(--electric-soft)] p-5">
+        <h3 className="font-semibold">{strings.improveTitle}</h3>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--text-secondary)]">
+          {strings.improveAdvice}
+        </p>
+        <Link
+          href={sessionId ? `/journal?session=${sessionId}` : "/journal"}
+          className="mt-4 inline-flex min-h-11 items-center font-semibold text-[var(--electric)]"
+        >
+          {strings.journal}
+        </Link>
       </section>
     </>
   );

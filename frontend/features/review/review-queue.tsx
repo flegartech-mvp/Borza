@@ -92,12 +92,10 @@ export function ReviewQueue() {
   const { dictionary, language } = usePreferences();
   const { mode, state, saveReviewCard } = useDemoWorkspace();
   const strings = copy[language];
-  const [queueStartedAt] = useState(() => Date.now());
   const [cursor, setCursor] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [saving, setSaving] = useState(false);
   const [completed, setCompleted] = useState(false);
-  const [practiceMode, setPracticeMode] = useState(false);
   const query = useQuery({
     queryKey: ["academy", "review-queue"],
     queryFn: async () =>
@@ -192,7 +190,6 @@ export function ReviewQueue() {
                 setCursor(0);
                 setCompleted(false);
                 setRevealed(false);
-                setPracticeMode(true);
               }}
             >
               <RotateCcw aria-hidden="true" size={16} />

@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   calculateAnalytics,
   closeLocalPosition,
+  evaluateProcessEvidence,
   validateExposure,
   validateProtectiveLevels,
   type LocalPosition,
@@ -39,6 +40,17 @@ describe("simulator engine", () => {
       "invalid_stop",
     );
     expect(validateProtectiveLevels("short", 100, 105, 95)).toBe(null);
+    expect(validateProtectiveLevels("long", 100, 95, 99)).toBe(
+      "invalid_target",
+    );
+    expect(
+      validateExposure({
+        balance: 10_000,
+        price: 100,
+        quantity: 0,
+        riskPercent: 0.5,
+      }),
+    ).toBe("positive_values");
     expect(
       validateExposure({
         balance: 10_000,
@@ -56,6 +68,14 @@ describe("simulator engine", () => {
         riskPercent: 0.5,
       }),
     ).toBe("leverage_cap");
+    expect(
+      validateExposure({
+        balance: 10_000,
+        price: 100,
+        quantity: 10,
+        riskPercent: 0.5,
+      }),
+    ).toBe(null);
   });
 
   it("calculates drawdown and violation evidence from closed trades", () => {
@@ -98,5 +118,27 @@ describe("simulator engine", () => {
     expect(analytics.maxDrawdown).toBe(120);
     expect(analytics.violations).toBe(3);
     expect(analytics.winRate).toBeCloseTo(33.333, 2);
+  });
+
+  it("scores a documented controlled loss above an undocumented reckless win", () => {
+    const disciplined = evaluateProcessEvidence({
+      ruleViolations: [],
+      decisionNote:
+        "The setup fails below support and I will honour the daily limit.",
+      riskDefinedBeforeEntry: true,
+      concentrationChecked: true,
+      madeTrade: true,
+    });
+    const reckless = evaluateProcessEvidence({
+      ruleViolations: ["missing_stop_loss", "risk_cap"],
+      decisionNote: "Looks good",
+      riskDefinedBeforeEntry: false,
+      concentrationChecked: false,
+      madeTrade: true,
+    });
+    expect(disciplined.score).toBe(100);
+    expect(reckless.score).toBe(0);
+    expect(disciplined.followedRules).toContain("decision_reason_documented");
+    expect(reckless.violatedRules).toContain("risk_not_defined_before_entry");
   });
 });

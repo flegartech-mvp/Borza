@@ -20,6 +20,18 @@ export function CourseCatalogue() {
   const { dictionary, language } = usePreferences();
   const { state } = useDemoWorkspace();
   const { paths, isLoading, error, usingFallback } = useLearningPaths();
+  const orderedPaths = [...paths].sort((a, b) =>
+    a.id === "path-risk-management"
+      ? -1
+      : b.id === "path-risk-management"
+        ? 1
+        : 0,
+  );
+  const flagship = {
+    de: "Flaggschiff",
+    sl: "Osrednja pot",
+    en: "Flagship",
+  }[language];
   return (
     <>
       <PageHeading
@@ -39,17 +51,19 @@ export function CourseCatalogue() {
         className="grid gap-4 md:grid-cols-2"
         aria-label={dictionary.learn.activePaths}
       >
-        {paths.map((path, index) => (
+        {orderedPaths.map((path, index) => (
           <article
             key={path.id}
-            className="content-auto rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-1)] p-6"
+            className={`content-auto rounded-[var(--radius-md)] border bg-[var(--surface-1)] p-6 ${path.id === "path-risk-management" ? "border-[var(--brand)] shadow-[var(--shadow-card)]" : "border-[var(--border-subtle)]"}`}
           >
             <div className="flex items-center justify-between">
               <span className="numeric text-xs text-[var(--text-tertiary)]">
                 0{index + 1}
               </span>
               <span className="rounded-full bg-[var(--brand-soft)] px-2.5 py-1 text-xs font-semibold text-[var(--brand)]">
-                {dictionary.learn.available}
+                {path.id === "path-risk-management"
+                  ? flagship
+                  : dictionary.learn.available}
               </span>
             </div>
             <h2 className="mt-5 text-2xl font-semibold">

@@ -43,6 +43,71 @@ export type Analytics = {
   violations: number;
 };
 
+export type ProcessEvaluation = {
+  score: number;
+  followedRules: string[];
+  violatedRules: string[];
+};
+
+const PROCESS_PENALTIES: Record<string, number> = {
+  missing_stop_loss: 20,
+  risk_cap: 30,
+  risk_above_scenario_cap: 30,
+  leverage_cap: 50,
+  leverage_above_5x: 50,
+  leverage_above_2x: 10,
+  daily_loss_limit_reached: 40,
+  risk_not_defined_before_entry: 25,
+  decision_reason_not_documented: 15,
+  concentration_not_checked: 10,
+};
+
+export function evaluateProcessEvidence({
+  ruleViolations,
+  decisionNote,
+  riskDefinedBeforeEntry,
+  concentrationChecked,
+  madeTrade,
+}: {
+  ruleViolations: string[];
+  decisionNote: string;
+  riskDefinedBeforeEntry: boolean;
+  concentrationChecked: boolean;
+  madeTrade: boolean;
+}): ProcessEvaluation {
+  const violated = new Set(ruleViolations);
+  const followed: string[] = [];
+  if (riskDefinedBeforeEntry) followed.push("risk_defined_before_entry");
+  else violated.add("risk_not_defined_before_entry");
+  if (decisionNote.trim().split(/\s+/).filter(Boolean).length >= 8)
+    followed.push("decision_reason_documented");
+  else violated.add("decision_reason_not_documented");
+  if (concentrationChecked) followed.push("concentration_checked");
+  else if (madeTrade) violated.add("concentration_not_checked");
+  if (!madeTrade) followed.push("no_trade_choice");
+  if (!violated.has("missing_stop_loss") && madeTrade)
+    followed.push("protective_stop_used");
+  if (
+    !violated.has("risk_cap") &&
+    !violated.has("risk_above_scenario_cap") &&
+    madeTrade
+  )
+    followed.push("risk_within_scenario_cap");
+  const violatedRules = [...violated].sort();
+  return {
+    score: Math.max(
+      0,
+      100 -
+        violatedRules.reduce(
+          (sum, item) => sum + (PROCESS_PENALTIES[item] ?? 10),
+          0,
+        ),
+    ),
+    followedRules: followed.sort(),
+    violatedRules,
+  };
+}
+
 export function executionPrice(
   rawPrice: number,
   side: SimulatorSide,

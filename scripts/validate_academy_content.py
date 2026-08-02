@@ -359,6 +359,24 @@ def validate_registry(root: str | Path) -> dict[str, int]:
             check(REQUIRED_LESSON_SECTIONS <= set(content), f"{label} is missing required lesson sections")
             for section in ("learn", "core", "worked_example", "common_mistake", "takeaway"):
                 localized(content.get(section), f"{label}.content.{section}")
+            for section in ("decision_framework", "reflection_prompt"):
+                if section in content:
+                    localized(content.get(section), f"{label}.content.{section}")
+            next_action = content.get("next_action")
+            if next_action is not None:
+                check(isinstance(next_action, dict), f"{label}.content.next_action must be an object")
+                if isinstance(next_action, dict):
+                    href = next_action.get("href")
+                    check(
+                        isinstance(href, str) and href.startswith("/") and not href.startswith("//"),
+                        f"{label}.content.next_action.href must be a safe internal path",
+                    )
+                    localized(next_action.get("label"), f"{label}.content.next_action.label")
+            if lesson.get("path_id") == "path-risk-management":
+                check(
+                    {"decision_framework", "reflection_prompt", "next_action"} <= set(content),
+                    f"{label} must include the flagship decision framework, reflection, and next action",
+                )
             visual = content.get("visual")
             check(isinstance(visual, dict), f"{label}.content.visual must be an object")
             if isinstance(visual, dict):

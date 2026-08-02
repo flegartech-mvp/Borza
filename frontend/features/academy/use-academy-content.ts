@@ -62,6 +62,9 @@ type BackendLesson = {
     worked_example?: LocalizedText;
     common_mistake?: LocalizedText;
     takeaway?: LocalizedText;
+    decision_framework?: LocalizedText;
+    reflection_prompt?: LocalizedText;
+    next_action?: { href?: string; label?: LocalizedText };
   };
   knowledge_checks?: string[];
   glossary?: string[];
@@ -135,7 +138,16 @@ export function lessonFromBackend(lesson: BackendLesson): DemoLesson {
       worked: lesson.content.worked_example ?? EMPTY_TEXT,
       mistake: lesson.content.common_mistake ?? EMPTY_TEXT,
       takeaway: lesson.content.takeaway ?? EMPTY_TEXT,
+      framework: lesson.content.decision_framework,
+      reflection: lesson.content.reflection_prompt,
     },
+    nextAction:
+      lesson.content.next_action?.href && lesson.content.next_action.label
+        ? {
+            href: lesson.content.next_action.href,
+            label: lesson.content.next_action.label,
+          }
+        : undefined,
     glossaryIds: lesson.glossary ?? [],
     sourceIds: lesson.sources ?? [],
     knowledgeCheckIds: lesson.knowledge_checks ?? [],

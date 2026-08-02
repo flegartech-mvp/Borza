@@ -28,6 +28,8 @@ const QUIZ_PATH = "/quiz/lesson-ff-finance-map";
 
 const MAIN_ROUTES = [
   "/",
+  "/schools",
+  "/impact",
   "/sign-in",
   "/register",
   "/forgot-password",
@@ -53,6 +55,8 @@ const MAIN_ROUTES = [
 
 const PRIMARY_ROUTES = [
   "/",
+  "/schools",
+  "/impact",
   "/home",
   "/learn",
   LESSON_PATH,
@@ -67,6 +71,8 @@ const PRIMARY_ROUTES = [
 
 const ACCESSIBILITY_ROUTES = [
   "/",
+  "/schools",
+  "/impact",
   "/home",
   "/learn",
   LESSON_PATH,
@@ -210,13 +216,40 @@ test.describe("Borza Academy required journeys", () => {
     await expect(
       page.getByRole("heading", {
         level: 1,
-        name: /Learn finance|Finanzen verstehen|Razumi finance/,
+        name: /Make better financial decisions|Triff bessere Finanzentscheidungen|Sprejemaj boljše finančne odločitve/,
       }),
     ).toBeVisible();
     await expect(page.locator('a[href="/onboarding"]').first()).toBeVisible();
     await expect(page.locator('a[href="/simulator"]').first()).toBeVisible();
     await expect(
       page.locator(`a[href="${LESSON_PATH}"]`).first(),
+    ).toBeVisible();
+  });
+
+  test("01b public school and impact claims expose their boundaries", async ({
+    page,
+  }) => {
+    await installDeterministicDemo(page);
+    await openRoute(page, "/schools");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(
+      /Financial knowledge|Finanzwissen|Finančno znanje/,
+    );
+    await expect(
+      page.getByText(
+        /not state-approved|nicht staatlich anerkannt|ni državno potrjena/,
+      ),
+    ).toBeVisible();
+
+    await openRoute(page, "/impact");
+    await expect(
+      page.getByText(
+        /no payment flow|keinen Zahlungsprozess|nima plačilnega procesa/,
+      ),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", {
+        name: /Copy conversation brief|Gesprächsnotiz kopieren|Kopiraj beležko/,
+      }),
     ).toBeVisible();
   });
 
@@ -325,10 +358,37 @@ test.describe("Borza Academy required journeys", () => {
       page.getByRole("button", { name: "Step", exact: true }),
     ).toBeEnabled();
     await page.getByRole("button", { name: "Bracket", exact: true }).click();
-    await page.getByLabel("Position size").fill("10");
-    await page.getByLabel("Risk per trade (%)").fill("0.5");
-    await page.getByLabel("Stop").fill("95");
-    await page.getByLabel("Take profit").fill("120");
+    await page
+      .getByRole("textbox", {
+        name: /Reasoning, invalidation, and stop rule/i,
+      })
+      .fill(
+        "Enter only while the setup remains valid; exit at the fixed stop.",
+      );
+    await page
+      .getByRole("checkbox", {
+        name: "Risk and invalidation were defined before position size.",
+        exact: true,
+      })
+      .check();
+    await page
+      .getByRole("checkbox", {
+        name: "Aggregate exposure and shared risk drivers were checked.",
+        exact: true,
+      })
+      .check();
+    await page
+      .getByRole("spinbutton", { name: "Position size", exact: true })
+      .fill("10");
+    await page
+      .getByRole("spinbutton", { name: "Risk per trade (%)", exact: true })
+      .fill("0.5");
+    await page
+      .getByRole("spinbutton", { name: "Stop", exact: true })
+      .fill("95");
+    await page
+      .getByRole("spinbutton", { name: "Take profit", exact: true })
+      .fill("120");
     await page.getByRole("button", { name: "Place simulated order" }).click();
     await expect(
       page.getByRole("button", { name: "Close position" }),
@@ -373,7 +433,7 @@ test.describe("Borza Academy required journeys", () => {
     ).toBeVisible();
     const state = await readDemoState(page);
     expect(state.onboarding).toMatchObject({
-      goal: "Understand finance from zero",
+      goal: "Understand personal finance",
       recommendation: "path-finance-foundations",
     });
   });
@@ -536,7 +596,7 @@ test.describe("Borza Academy required journeys", () => {
     await expect(
       page.getByRole("heading", {
         level: 1,
-        name: "Finanzen verstehen. Trading üben. Marktfähigkeiten aufbauen.",
+        name: "Triff bessere Finanzentscheidungen, bevor echtes Geld die Lektion teuer macht.",
       }),
     ).toBeVisible();
 
@@ -545,7 +605,7 @@ test.describe("Borza Academy required journeys", () => {
     await expect(
       page.getByRole("heading", {
         level: 1,
-        name: "Razumi finance. Vadi trgovanje. Zgradi resnične tržne veščine.",
+        name: "Sprejemaj boljše finančne odločitve, preden lekcija s pravim denarjem postane draga.",
       }),
     ).toBeVisible();
 
@@ -554,7 +614,7 @@ test.describe("Borza Academy required journeys", () => {
     await expect(
       page.getByRole("heading", {
         level: 1,
-        name: "Learn finance. Practise trading. Build real market skills.",
+        name: "Make better financial decisions before real money makes the lesson expensive.",
       }),
     ).toBeVisible();
     // Verify the preference survives a second reload

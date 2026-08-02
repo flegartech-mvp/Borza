@@ -9,8 +9,10 @@ import {
   CheckCircle2,
   Languages,
   GraduationCap,
+  HandHeart,
   LineChart,
   Play,
+  School,
   ShieldCheck,
   Trophy,
 } from "lucide-react";
@@ -21,6 +23,7 @@ import {
   usePreferences,
 } from "@/features/preferences";
 import { DEMO_PATHS } from "@/lib/demo-academy";
+import { MarketingFooter } from "./marketing-shell";
 
 const landingCopy = {
   de: {
@@ -38,6 +41,26 @@ const landingCopy = {
     progressBody:
       "Lektionsabschluss, Quizleistung, Abrufstärke, Rechnerpraxis, Simulator-Regeltreue und Reflexion ergeben gemeinsam Mastery.",
     states: ["Eingeführt", "In Übung", "Sicher", "Gemeistert"],
+    schools: "Für Schulen",
+    impact: "Wirkung & Unterstützung",
+    workflow: "Ein Lernzyklus, der bei einer begründeten Entscheidung endet",
+    workflowSteps: [
+      "Konzept lernen",
+      "Realistischen Fall prüfen",
+      "Rechnen oder visualisieren",
+      "Simuliert entscheiden",
+      "Prozessfeedback erhalten",
+      "Im Journal reflektieren",
+    ],
+    schoolTitle: "Ein 35-Stunden-Vorschlag für slowenische Sekundarschulen",
+    schoolBody:
+      "Persönliche Finanzen, Verbraucherschutz, digitale Sicherheit und verantwortungsvolle Marktgrundlagen—mit Lehrhinweisen, Aktivitäten und nachvollziehbarer Bewertung.",
+    impactTitle: "Öffentliche Wirkung ohne erfundene Belege",
+    impactBody:
+      "Borza zeigt vorhandene Fähigkeiten, nächste Pilot-Meilensteine, mögliche Unterstützung und beispielhafte Mittelverwendung transparent. Keine Fake-Zahlen, Logos oder Spendenkasse.",
+    credibility: "Transparent by design",
+    credibilityBody:
+      "Originale, versionierte Inhalte · offizielle Quellen · klar markierte Simulation · keine Brokeranbindung · keine Gewinnversprechen",
   },
   sl: {
     lesson: "Tokove kapitala razvrsti na primarni ali sekundarni trg.",
@@ -54,6 +77,26 @@ const landingCopy = {
     progressBody:
       "Lekcije, kvizi, priklic, kalkulatorji, pravila simulatorja in razmislek skupaj tvorijo obvladovanje.",
     states: ["Predstavljeno", "Vaja", "Usposobljeno", "Obvladano"],
+    schools: "Za šole",
+    impact: "Učinek in podpora",
+    workflow: "Učni cikel, ki se konča z utemeljeno odločitvijo",
+    workflowSteps: [
+      "Spoznaj pojem",
+      "Preuči realističen primer",
+      "Izračunaj ali prikaži",
+      "Odloči se v simulaciji",
+      "Prejmi odziv o procesu",
+      "Premisli v dnevniku",
+    ],
+    schoolTitle: "35-urni predlog za slovenske srednje šole",
+    schoolBody:
+      "Osebne finance, varstvo potrošnikov, digitalna varnost in odgovorne osnove trgov—z navodili, dejavnostmi in preglednim ocenjevanjem.",
+    impactTitle: "Javna korist brez izmišljenih dokazov",
+    impactBody:
+      "Borza transparentno pokaže obstoječe zmožnosti, naslednje korake pilota, načine podpore in primere porabe sredstev. Brez lažnih številk, logotipov ali plačil.",
+    credibility: "Transparentno že v zasnovi",
+    credibilityBody:
+      "Izvirne, verzionirane vsebine · uradni viri · jasno označena simulacija · brez brokerja · brez obljub dobička",
   },
   en: {
     lesson: "Classify capital flows as primary or secondary market activity.",
@@ -70,6 +113,26 @@ const landingCopy = {
     progressBody:
       "Lesson completion, quiz performance, recall, calculators, simulator rules, and reflection combine into mastery.",
     states: ["Introduced", "Practising", "Proficient", "Mastered"],
+    schools: "For schools",
+    impact: "Impact & support",
+    workflow: "One learning loop that ends in a defensible decision",
+    workflowSteps: [
+      "Learn a concept",
+      "Investigate a realistic case",
+      "Calculate or visualise",
+      "Make a simulated decision",
+      "Receive process feedback",
+      "Reflect in a journal",
+    ],
+    schoolTitle: "A 35-hour proposal for Slovenian secondary schools",
+    schoolBody:
+      "Personal finance, consumer protection, digital safety, and responsible market foundations—with teacher guidance, activities, and reviewable assessment.",
+    impactTitle: "Public value without invented proof",
+    impactBody:
+      "Borza transparently shows current capabilities, next pilot milestones, ways to help, and illustrative use of funds. No fake metrics, logos, or payment flow.",
+    credibility: "Transparent by design",
+    credibilityBody:
+      "Original versioned content · official sources · clearly labelled simulation · no brokerage · no profit promises",
   },
 };
 
@@ -94,324 +157,421 @@ export function LandingPage() {
     },
   ];
   return (
-    <main>
-      <header className="sticky top-0 z-40 border-b border-[var(--border-subtle)] bg-[color-mix(in_srgb,var(--background)_90%,transparent)] backdrop-blur">
-        <div className="mx-auto flex min-h-[72px] max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
-          <BrandMark />
-          <div className="flex items-center gap-2">
-            <div className="hidden lg:block">
-              <ThemeSwitcher />
-            </div>
-            <LanguageSwitcher compact />
-            <Link
-              href="/sign-in"
-              aria-label={dictionary.auth.signIn}
-              className="hidden min-h-10 items-center rounded-[var(--radius-sm)] border border-[var(--border-subtle)] px-3 text-sm font-semibold sm:inline-flex"
+    <>
+      <main id="main-content">
+        <header className="sticky top-0 z-40 border-b border-[var(--border-subtle)] bg-[color-mix(in_srgb,var(--background)_90%,transparent)] backdrop-blur">
+          <div className="mx-auto flex min-h-[72px] max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
+            <BrandMark />
+            <nav
+              className="hidden items-center gap-5 md:flex"
+              aria-label="Public"
             >
-              {dictionary.auth.signIn}
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      <section className="academy-grid overflow-hidden border-b border-[var(--border-subtle)]">
-        <div className="mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[1.08fr_.92fr] lg:items-center lg:py-28">
-          <div>
-            <span className="inline-flex rounded-full border border-[var(--brand)] bg-[var(--brand-soft)] px-3 py-1 text-xs font-semibold text-[var(--brand)]">
-              {dictionary.landing.eyebrow}
-            </span>
-            <h1 className="mt-6 max-w-4xl text-4xl font-semibold tracking-[-0.045em] sm:text-6xl lg:text-[68px] lg:leading-[1.02]">
-              {dictionary.landing.title}
-            </h1>
-            <p className="mt-6 max-w-2xl text-base leading-7 text-[var(--text-secondary)] sm:text-lg">
-              {dictionary.landing.body}
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
               <Link
-                href="/onboarding"
-                className="inline-flex min-h-12 items-center gap-2 rounded-[var(--radius-sm)] bg-[#044b39] px-5 font-semibold text-[#ffffff] dark:bg-[#4fe5b7] dark:text-[#06110e]"
+                href="/learn"
+                className="text-sm font-semibold text-[var(--text-secondary)]"
               >
-                {dictionary.common.start}
-                <ArrowRight aria-hidden="true" size={17} />
+                {dictionary.nav.learn}
               </Link>
               <Link
-                href="/simulator"
-                className="inline-flex min-h-12 items-center gap-2 rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface-1)] px-5 font-semibold"
+                href="/schools"
+                className="text-sm font-semibold text-[var(--text-secondary)]"
               >
-                <ChartCandlestick aria-hidden="true" size={18} />
-                {dictionary.common.trySimulator}
+                {copy.schools}
+              </Link>
+              <Link
+                href="/impact"
+                className="text-sm font-semibold text-[var(--text-secondary)]"
+              >
+                {copy.impact}
+              </Link>
+            </nav>
+            <div className="flex items-center gap-2">
+              <div className="hidden lg:block">
+                <ThemeSwitcher />
+              </div>
+              <LanguageSwitcher compact />
+              <Link
+                href="/sign-in"
+                aria-label={dictionary.auth.signIn}
+                className="hidden min-h-10 items-center rounded-[var(--radius-sm)] border border-[var(--border-subtle)] px-3 text-sm font-semibold sm:inline-flex"
+              >
+                {dictionary.auth.signIn}
               </Link>
             </div>
-            <p className="mt-5 max-w-2xl text-xs leading-5 text-[var(--text-tertiary)]">
-              {dictionary.landing.responsible}
-            </p>
           </div>
+        </header>
 
-          <div className="relative">
-            <div className="absolute -inset-8 -z-10 rounded-full bg-[var(--brand-soft)] blur-3xl" />
-            <article className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-strong)] bg-[var(--surface-1)] shadow-[var(--shadow-floating)]">
-              <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-5 py-4">
-                <span className="text-xs font-semibold text-[var(--brand)]">
-                  {dictionary.common.demo} · 18 min
-                </span>
-                <span className="numeric text-xs text-[var(--text-tertiary)]">
-                  01 / 08
-                </span>
-              </div>
-              <div className="reading-surface p-6 sm:p-8">
-                <BookOpenCheck aria-hidden="true" className="text-[#087f61]" />
-                <h2 className="mt-5 text-2xl font-semibold tracking-tight">
-                  {DEMO_PATHS[0].previewTopics[language][0]}
-                </h2>
-                <p className="mt-4 leading-7 text-[#4e5a60]">
-                  {dictionary.landing.lessonPreview}. {copy.lesson}
-                </p>
-                <div className="mt-6 grid gap-2">
-                  {[
-                    dictionary.lesson.objectives,
-                    dictionary.lesson.exercise,
-                    dictionary.lesson.check,
-                  ].map((label) => (
-                    <div
-                      key={label}
-                      className="flex items-center gap-3 rounded-xl border border-[#d8d3c8] bg-white/55 px-4 py-3 text-sm"
-                    >
-                      <CheckCircle2
-                        aria-hidden="true"
-                        size={17}
-                        className="text-[#087f61]"
-                      />
-                      {label}
-                    </div>
-                  ))}
-                </div>
+        <section className="academy-grid overflow-hidden border-b border-[var(--border-subtle)]">
+          <div className="mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[1.08fr_.92fr] lg:items-center lg:py-28">
+            <div>
+              <span className="inline-flex rounded-full border border-[var(--brand)] bg-[var(--brand-soft)] px-3 py-1 text-xs font-semibold text-[var(--brand)]">
+                {dictionary.landing.eyebrow}
+              </span>
+              <h1 className="mt-6 max-w-4xl text-4xl font-semibold tracking-[-0.045em] sm:text-6xl lg:text-[68px] lg:leading-[1.02]">
+                {dictionary.landing.title}
+              </h1>
+              <p className="mt-6 max-w-2xl text-base leading-7 text-[var(--text-secondary)] sm:text-lg">
+                {dictionary.landing.body}
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
                 <Link
-                  href="/lesson/lesson-ff-finance-map"
-                  className="mt-7 inline-flex items-center gap-2 font-semibold text-[#087f61]"
+                  href="/onboarding"
+                  className="inline-flex min-h-12 items-center gap-2 rounded-[var(--radius-sm)] bg-[#044b39] px-5 font-semibold text-[#ffffff] dark:bg-[#4fe5b7] dark:text-[#06110e]"
                 >
-                  {dictionary.common.continue}
-                  <ArrowRight aria-hidden="true" size={16} />
+                  {dictionary.common.start}
+                  <ArrowRight aria-hidden="true" size={17} />
+                </Link>
+                <Link
+                  href="/simulator"
+                  className="inline-flex min-h-12 items-center gap-2 rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-[var(--surface-1)] px-5 font-semibold"
+                >
+                  <ChartCandlestick aria-hidden="true" size={18} />
+                  {dictionary.common.trySimulator}
                 </Link>
               </div>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
-        <div className="grid gap-4 md:grid-cols-3">
-          {features.map(({ icon: Icon, title, body }) => (
-            <article
-              key={title}
-              className="content-auto rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-1)] p-6"
-            >
-              <span className="grid size-11 place-items-center rounded-xl bg-[var(--brand-soft)] text-[var(--brand)]">
-                <Icon aria-hidden="true" size={20} />
-              </span>
-              <h2 className="mt-5 text-lg font-semibold">{title}</h2>
-              <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
-                {body}
+              <p className="mt-5 max-w-2xl text-xs leading-5 text-[var(--text-tertiary)]">
+                {dictionary.landing.responsible}
               </p>
-            </article>
-          ))}
-        </div>
-      </section>
+            </div>
 
-      <section className="border-y border-[var(--border-subtle)] bg-[var(--background-raised)]">
-        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
-          <p className="text-xs font-semibold uppercase tracking-[.16em] text-[var(--brand)]">
-            {dictionary.landing.pathsTitle}
-          </p>
-          <h2 className="mt-3 max-w-3xl text-3xl font-semibold tracking-tight sm:text-4xl">
-            {dictionary.landing.pathsBody}
-          </h2>
-          <div className="mt-9 grid gap-4 md:grid-cols-2">
-            {DEMO_PATHS.map((path, index) => (
-              <Link
-                key={path.id}
-                href={`/learn/${path.id}`}
-                className="group rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-1)] p-6 hover:border-[var(--brand)]"
+            <div className="relative">
+              <div className="absolute -inset-8 -z-10 rounded-full bg-[var(--brand-soft)] blur-3xl" />
+              <article className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-strong)] bg-[var(--surface-1)] shadow-[var(--shadow-floating)]">
+                <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-5 py-4">
+                  <span className="text-xs font-semibold text-[var(--brand)]">
+                    {dictionary.common.demo} · 18 min
+                  </span>
+                  <span className="numeric text-xs text-[var(--text-tertiary)]">
+                    01 / 08
+                  </span>
+                </div>
+                <div className="reading-surface p-6 sm:p-8">
+                  <BookOpenCheck
+                    aria-hidden="true"
+                    className="text-[#087f61]"
+                  />
+                  <h2 className="mt-5 text-2xl font-semibold tracking-tight">
+                    {DEMO_PATHS[0].previewTopics[language][0]}
+                  </h2>
+                  <p className="mt-4 leading-7 text-[#4e5a60]">
+                    {dictionary.landing.lessonPreview}. {copy.lesson}
+                  </p>
+                  <div className="mt-6 grid gap-2">
+                    {[
+                      dictionary.lesson.objectives,
+                      dictionary.lesson.exercise,
+                      dictionary.lesson.check,
+                    ].map((label) => (
+                      <div
+                        key={label}
+                        className="flex items-center gap-3 rounded-xl border border-[#d8d3c8] bg-white/55 px-4 py-3 text-sm"
+                      >
+                        <CheckCircle2
+                          aria-hidden="true"
+                          size={17}
+                          className="text-[#087f61]"
+                        />
+                        {label}
+                      </div>
+                    ))}
+                  </div>
+                  <Link
+                    href="/lesson/lesson-ff-finance-map"
+                    className="mt-7 inline-flex items-center gap-2 font-semibold text-[#087f61]"
+                  >
+                    {dictionary.common.continue}
+                    <ArrowRight aria-hidden="true" size={16} />
+                  </Link>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
+          <div className="grid gap-4 md:grid-cols-3">
+            {features.map(({ icon: Icon, title, body }) => (
+              <article
+                key={title}
+                className="content-auto rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-1)] p-6"
               >
-                <span className="numeric text-xs text-[var(--text-tertiary)]">
-                  0{index + 1}
+                <span className="grid size-11 place-items-center rounded-xl bg-[var(--brand-soft)] text-[var(--brand)]">
+                  <Icon aria-hidden="true" size={20} />
                 </span>
-                <h2 className="mt-4 text-xl font-semibold">
-                  {path.title[language]}
-                </h2>
+                <h2 className="mt-5 text-lg font-semibold">{title}</h2>
                 <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
-                  {path.summary[language]}
+                  {body}
                 </p>
-                <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[var(--brand)]">
-                  {dictionary.learn.openPath}
-                  <ArrowRight aria-hidden="true" size={15} />
-                </span>
-              </Link>
+              </article>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section className="mx-auto grid max-w-7xl gap-6 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-2">
-        <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-1)] p-8">
-          <ChartCandlestick
-            aria-hidden="true"
-            className="text-[var(--electric)]"
-          />
-          <h2 className="mt-5 text-2xl font-semibold">
-            {dictionary.landing.chartPreview}
-          </h2>
-          <p className="mt-3 leading-7 text-[var(--text-secondary)]">
-            {dictionary.practice.intro}
-          </p>
-          <Link
-            href="/practice"
-            className="mt-6 inline-flex items-center gap-2 font-semibold text-[var(--electric)]"
-          >
-            {dictionary.nav.practice}
-            <ArrowRight aria-hidden="true" size={16} />
-          </Link>
-        </div>
-        <div className="rounded-[var(--radius-lg)] border border-[var(--brand)] bg-[var(--brand-soft)] p-8">
-          <ShieldCheck aria-hidden="true" className="text-[var(--brand)]" />
-          <h2 className="mt-5 text-2xl font-semibold">
-            {dictionary.landing.riskTitle}
-          </h2>
-          <p className="mt-3 leading-7 text-[var(--text-secondary)]">
-            {dictionary.landing.riskBody}
-          </p>
-          <Link
-            href="/learn/path-risk-management"
-            className="mt-6 inline-flex items-center gap-2 font-semibold text-[var(--brand)]"
-          >
-            {dictionary.learn.openPath}
-            <ArrowRight aria-hidden="true" size={16} />
-          </Link>
-        </div>
-      </section>
-
-      <section className="border-y border-[var(--border-subtle)] bg-[var(--background-raised)]">
-        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
-          <div>
-            <Play aria-hidden="true" className="text-[var(--electric)]" />
-            <h2 className="mt-5 text-3xl font-semibold tracking-tight">
-              {copy.simulatorTitle}
+        <section className="border-y border-[var(--border-subtle)] bg-[var(--background-raised)]">
+          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
+            <p className="text-xs font-semibold uppercase tracking-[.16em] text-[var(--brand)]">
+              {dictionary.landing.pathsTitle}
+            </p>
+            <h2 className="mt-3 max-w-3xl text-3xl font-semibold tracking-tight sm:text-4xl">
+              {dictionary.landing.pathsBody}
             </h2>
-            <p className="mt-4 max-w-xl leading-7 text-[var(--text-secondary)]">
-              {copy.simulatorBody}
+            <div className="mt-9 grid gap-4 md:grid-cols-2">
+              {DEMO_PATHS.map((path, index) => (
+                <Link
+                  key={path.id}
+                  href={`/learn/${path.id}`}
+                  className="group rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-1)] p-6 hover:border-[var(--brand)]"
+                >
+                  <span className="numeric text-xs text-[var(--text-tertiary)]">
+                    0{index + 1}
+                  </span>
+                  <h2 className="mt-4 text-xl font-semibold">
+                    {path.title[language]}
+                  </h2>
+                  <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
+                    {path.summary[language]}
+                  </p>
+                  <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[var(--brand)]">
+                    {dictionary.learn.openPath}
+                    <ArrowRight aria-hidden="true" size={15} />
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto grid max-w-7xl gap-6 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-2">
+          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-1)] p-8">
+            <ChartCandlestick
+              aria-hidden="true"
+              className="text-[var(--electric)]"
+            />
+            <h2 className="mt-5 text-2xl font-semibold">
+              {dictionary.landing.chartPreview}
+            </h2>
+            <p className="mt-3 leading-7 text-[var(--text-secondary)]">
+              {dictionary.practice.intro}
             </p>
             <Link
-              href="/simulator"
-              className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-sm)] bg-[var(--brand)] px-4 font-semibold text-[var(--brand-contrast)]"
+              href="/practice"
+              className="mt-6 inline-flex items-center gap-2 font-semibold text-[var(--electric)]"
             >
-              {dictionary.common.trySimulator}
+              {dictionary.nav.practice}
               <ArrowRight aria-hidden="true" size={16} />
             </Link>
           </div>
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-strong)] bg-[var(--surface-1)] p-5 shadow-[var(--shadow-card)]">
-            <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-4">
-              <span className="text-sm font-semibold">
-                {dictionary.simulator.title}
-              </span>
-              <span className="rounded-full bg-[var(--warning-soft)] px-2 py-1 text-xs text-[var(--warning)]">
-                {dictionary.common.demo}
-              </span>
-            </div>
-            <div className="mt-5 grid grid-cols-3 gap-2">
-              {[
-                dictionary.simulator.balance,
-                dictionary.simulator.equity,
-                dictionary.simulator.processScore,
-              ].map((label, index) => (
-                <div
-                  key={label}
-                  className="rounded-[var(--radius-sm)] bg-[var(--surface-2)] p-3"
-                >
-                  <p className="text-[10px] text-[var(--text-tertiary)]">
-                    {label}
-                  </p>
-                  <p className="numeric mt-2 font-semibold">
-                    {index < 2 ? "€10,000" : "—"}
-                  </p>
-                </div>
-              ))}
-            </div>
-            <div className="mt-4 h-40 rounded-[var(--radius-sm)] border border-[var(--border-subtle)] bg-[linear-gradient(135deg,var(--surface-2),var(--background-raised))] p-4">
-              <div className="h-full bg-[repeating-linear-gradient(0deg,transparent,transparent_31px,var(--chart-grid)_32px),repeating-linear-gradient(90deg,transparent,transparent_47px,var(--chart-grid)_48px)]">
-                <div className="relative top-20 h-0.5 rotate-[-5deg] bg-[var(--electric)]" />
-              </div>
-            </div>
-            <div className="mt-4 flex gap-2">
-              <span className="rounded-md bg-[var(--brand)] px-3 py-2 text-xs font-semibold text-[var(--brand-contrast)]">
-                {dictionary.simulator.play}
-              </span>
-              <span className="rounded-md border border-[var(--border-subtle)] px-3 py-2 text-xs">
-                {dictionary.simulator.step}
-              </span>
-              <span className="ml-auto rounded-md border border-[var(--border-subtle)] px-3 py-2 text-xs">
-                {dictionary.simulator.risk}: 0.5%
-              </span>
-            </div>
+          <div className="rounded-[var(--radius-lg)] border border-[var(--brand)] bg-[var(--brand-soft)] p-8">
+            <ShieldCheck aria-hidden="true" className="text-[var(--brand)]" />
+            <h2 className="mt-5 text-2xl font-semibold">
+              {dictionary.landing.riskTitle}
+            </h2>
+            <p className="mt-3 leading-7 text-[var(--text-secondary)]">
+              {dictionary.landing.riskBody}
+            </p>
+            <Link
+              href="/learn/path-risk-management"
+              className="mt-6 inline-flex items-center gap-2 font-semibold text-[var(--brand)]"
+            >
+              {dictionary.learn.openPath}
+              <ArrowRight aria-hidden="true" size={16} />
+            </Link>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
-        <div className="grid gap-5 lg:grid-cols-2">
-          <article className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-1)] p-7">
-            <GraduationCap aria-hidden="true" className="text-[var(--brand)]" />
-            <h2 className="mt-5 text-2xl font-semibold">{copy.student}</h2>
-            <p className="mt-3 leading-7 text-[var(--text-secondary)]">
-              {copy.studentBody}
-            </p>
-          </article>
-          <article className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-1)] p-7">
-            <LineChart aria-hidden="true" className="text-[var(--electric)]" />
-            <h2 className="mt-5 text-2xl font-semibold">{copy.trader}</h2>
-            <p className="mt-3 leading-7 text-[var(--text-secondary)]">
-              {copy.traderBody}
-            </p>
-          </article>
-        </div>
-        <article className="mt-5 rounded-[var(--radius-lg)] border border-[var(--brand)] bg-[var(--brand-soft)] p-7 sm:p-9">
-          <Trophy aria-hidden="true" className="text-[var(--brand)]" />
-          <div className="mt-5 grid gap-8 lg:grid-cols-[1fr_1.1fr]">
+        <section className="border-y border-[var(--border-subtle)] bg-[var(--background-raised)]">
+          <div className="mx-auto grid max-w-7xl gap-8 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
             <div>
-              <h2 className="text-2xl font-semibold">{copy.progress}</h2>
-              <p className="mt-3 leading-7 text-[var(--text-secondary)]">
-                {copy.progressBody}
+              <Play aria-hidden="true" className="text-[var(--electric)]" />
+              <h2 className="mt-5 text-3xl font-semibold tracking-tight">
+                {copy.simulatorTitle}
+              </h2>
+              <p className="mt-4 max-w-xl leading-7 text-[var(--text-secondary)]">
+                {copy.simulatorBody}
               </p>
               <Link
-                href="/progress"
-                className="mt-5 inline-flex items-center gap-2 font-semibold text-[var(--brand)]"
+                href="/simulator"
+                className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-sm)] bg-[var(--brand)] px-4 font-semibold text-[var(--brand-contrast)]"
               >
-                {dictionary.nav.progress}
+                {dictionary.common.trySimulator}
                 <ArrowRight aria-hidden="true" size={16} />
               </Link>
             </div>
-            <div className="grid gap-2 sm:grid-cols-2">
-              {copy.states.map((state, index) => (
-                <div
-                  key={state}
-                  className="rounded-[var(--radius-sm)] border border-[var(--border-subtle)] bg-[var(--surface-1)] p-4"
-                >
-                  <div className="flex items-center justify-between text-sm font-semibold">
-                    <span>{state}</span>
-                    <span className="numeric text-[var(--text-tertiary)]">
-                      {[20, 45, 72, 90][index]}%
-                    </span>
+            <div className="rounded-[var(--radius-lg)] border border-[var(--border-strong)] bg-[var(--surface-1)] p-5 shadow-[var(--shadow-card)]">
+              <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-4">
+                <span className="text-sm font-semibold">
+                  {dictionary.simulator.title}
+                </span>
+                <span className="rounded-full bg-[var(--warning-soft)] px-2 py-1 text-xs text-[var(--warning)]">
+                  {dictionary.common.demo}
+                </span>
+              </div>
+              <div className="mt-5 grid grid-cols-3 gap-2">
+                {[
+                  dictionary.simulator.balance,
+                  dictionary.simulator.equity,
+                  dictionary.simulator.processScore,
+                ].map((label, index) => (
+                  <div
+                    key={label}
+                    className="rounded-[var(--radius-sm)] bg-[var(--surface-2)] p-3"
+                  >
+                    <p className="text-[10px] text-[var(--text-tertiary)]">
+                      {label}
+                    </p>
+                    <p className="numeric mt-2 font-semibold">
+                      {index < 2 ? "€10,000" : "—"}
+                    </p>
                   </div>
-                  <div className="mt-3 h-2 rounded-full bg-[var(--surface-3)]">
-                    <div
-                      className="h-full rounded-full bg-[var(--brand)]"
-                      style={{ width: `${[20, 45, 72, 90][index]}%` }}
-                    />
-                  </div>
+                ))}
+              </div>
+              <div className="mt-4 h-40 rounded-[var(--radius-sm)] border border-[var(--border-subtle)] bg-[linear-gradient(135deg,var(--surface-2),var(--background-raised))] p-4">
+                <div className="h-full bg-[repeating-linear-gradient(0deg,transparent,transparent_31px,var(--chart-grid)_32px),repeating-linear-gradient(90deg,transparent,transparent_47px,var(--chart-grid)_48px)]">
+                  <div className="relative top-20 h-0.5 rotate-[-5deg] bg-[var(--electric)]" />
                 </div>
+              </div>
+              <div className="mt-4 flex gap-2">
+                <span className="rounded-md bg-[var(--brand)] px-3 py-2 text-xs font-semibold text-[var(--brand-contrast)]">
+                  {dictionary.simulator.play}
+                </span>
+                <span className="rounded-md border border-[var(--border-subtle)] px-3 py-2 text-xs">
+                  {dictionary.simulator.step}
+                </span>
+                <span className="ml-auto rounded-md border border-[var(--border-subtle)] px-3 py-2 text-xs">
+                  {dictionary.simulator.risk}: 0.5%
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
+          <div className="grid gap-5 lg:grid-cols-2">
+            <article className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-1)] p-7">
+              <GraduationCap
+                aria-hidden="true"
+                className="text-[var(--brand)]"
+              />
+              <h2 className="mt-5 text-2xl font-semibold">{copy.student}</h2>
+              <p className="mt-3 leading-7 text-[var(--text-secondary)]">
+                {copy.studentBody}
+              </p>
+            </article>
+            <article className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-1)] p-7">
+              <LineChart
+                aria-hidden="true"
+                className="text-[var(--electric)]"
+              />
+              <h2 className="mt-5 text-2xl font-semibold">{copy.trader}</h2>
+              <p className="mt-3 leading-7 text-[var(--text-secondary)]">
+                {copy.traderBody}
+              </p>
+            </article>
+          </div>
+          <article className="mt-5 rounded-[var(--radius-lg)] border border-[var(--brand)] bg-[var(--brand-soft)] p-7 sm:p-9">
+            <Trophy aria-hidden="true" className="text-[var(--brand)]" />
+            <div className="mt-5 grid gap-8 lg:grid-cols-[1fr_1.1fr]">
+              <div>
+                <h2 className="text-2xl font-semibold">{copy.progress}</h2>
+                <p className="mt-3 leading-7 text-[var(--text-secondary)]">
+                  {copy.progressBody}
+                </p>
+                <Link
+                  href="/progress"
+                  className="mt-5 inline-flex items-center gap-2 font-semibold text-[var(--brand)]"
+                >
+                  {dictionary.nav.progress}
+                  <ArrowRight aria-hidden="true" size={16} />
+                </Link>
+              </div>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {copy.states.map((state, index) => (
+                  <div
+                    key={state}
+                    className="rounded-[var(--radius-sm)] border border-[var(--border-subtle)] bg-[var(--surface-1)] p-4"
+                  >
+                    <div className="flex items-center justify-between text-sm font-semibold">
+                      <span>{state}</span>
+                      <span className="numeric text-[var(--text-tertiary)]">
+                        {[20, 45, 72, 90][index]}%
+                      </span>
+                    </div>
+                    <div className="mt-3 h-2 rounded-full bg-[var(--surface-3)]">
+                      <div
+                        className="h-full rounded-full bg-[var(--brand)]"
+                        style={{ width: `${[20, 45, 72, 90][index]}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </article>
+        </section>
+        <section className="border-y border-[var(--border-subtle)] bg-[var(--background-raised)]">
+          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
+            <p className="text-xs font-semibold uppercase tracking-[.16em] text-[var(--brand)]">
+              {dictionary.brand.promise}
+            </p>
+            <h2 className="mt-3 max-w-4xl text-3xl font-semibold tracking-tight sm:text-4xl">
+              {copy.workflow}
+            </h2>
+            <div className="mt-8 grid gap-3 md:grid-cols-3 lg:grid-cols-6">
+              {copy.workflowSteps.map((step, index) => (
+                <article
+                  key={step}
+                  className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-1)] p-4"
+                >
+                  <span className="numeric text-xs text-[var(--brand)]">
+                    0{index + 1}
+                  </span>
+                  <p className="mt-3 text-sm font-semibold leading-6">{step}</p>
+                </article>
               ))}
             </div>
           </div>
-        </article>
-      </section>
-    </main>
+        </section>
+
+        <section className="mx-auto grid max-w-7xl gap-5 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-2">
+          <article className="rounded-[var(--radius-lg)] border border-[var(--brand)] bg-[var(--brand-soft)] p-8">
+            <School aria-hidden="true" className="text-[var(--brand)]" />
+            <h2 className="mt-5 text-2xl font-semibold">{copy.schoolTitle}</h2>
+            <p className="mt-3 leading-7 text-[var(--text-secondary)]">
+              {copy.schoolBody}
+            </p>
+            <Link
+              href="/schools"
+              className="mt-6 inline-flex items-center gap-2 font-semibold text-[var(--brand)]"
+            >
+              {copy.schools}
+              <ArrowRight size={16} aria-hidden="true" />
+            </Link>
+          </article>
+          <article className="rounded-[var(--radius-lg)] border border-[var(--electric)] bg-[var(--electric-soft)] p-8">
+            <HandHeart aria-hidden="true" className="text-[var(--electric)]" />
+            <h2 className="mt-5 text-2xl font-semibold">{copy.impactTitle}</h2>
+            <p className="mt-3 leading-7 text-[var(--text-secondary)]">
+              {copy.impactBody}
+            </p>
+            <Link
+              href="/impact"
+              className="mt-6 inline-flex items-center gap-2 font-semibold text-[var(--electric)]"
+            >
+              {copy.impact}
+              <ArrowRight size={16} aria-hidden="true" />
+            </Link>
+          </article>
+          <div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-1)] p-6 lg:col-span-2">
+            <p className="text-xs font-semibold uppercase tracking-[.14em] text-[var(--text-tertiary)]">
+              {copy.credibility}
+            </p>
+            <p className="mt-3 leading-7 text-[var(--text-secondary)]">
+              {copy.credibilityBody}
+            </p>
+          </div>
+        </section>
+      </main>
+      <MarketingFooter />
+    </>
   );
 }

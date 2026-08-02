@@ -49,6 +49,18 @@ Scenarios use deterministic generators/curated definitions. Only candles at or b
 
 The engine has no network path to a broker and no representation of real credentials.
 
+Process scoring uses evidence fixed before the outcome: the learner's decision note, confirmation that risk and invalidation preceded size, concentration review, protective levels, scenario risk cap, leverage, and daily limits. P&L is reported separately and never increases the process score. Scenario rules that cannot yet be evaluated from durable evidence are explicitly returned as unevaluated.
+
+## Public product surface
+
+The Next.js public routes are independent of authentication:
+
+- `/` explains the product, learning loop, flagship path, simulator, school use, and boundaries;
+- `/schools` presents the proposed Slovenian secondary-school programme and official reference sources without claiming approval;
+- `/impact` documents current capabilities, roadmap, support models, and funding boundaries. Its interest brief remains local and transmits no data.
+
+Authenticated and labelled local-demo Academy routes share the same UI but have different persistence boundaries.
+
 ## Legacy schema
 
-Alembic revisions `0001`–`0011` remain immutable. Their news tables are excluded from active ORM metadata and autogenerate comparisons. Academy migrations are additive and do not drop legacy data. A separately invoked archival tool exists for a future authorized cleanup window.
+Alembic revisions `0001`–`0011` remain immutable. Their news tables are excluded from active ORM metadata and autogenerate comparisons. Academy migrations `0012` and `0013` are additive and do not drop legacy data. `0013` stores simulator precommitment evidence used by outcome-independent process scoring. A separately invoked archival tool exists for a future authorized cleanup window.

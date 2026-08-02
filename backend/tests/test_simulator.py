@@ -5,7 +5,45 @@ from uuid import UUID
 from app.content.registry import load_academy_registry
 from app.database import SessionLocal
 from app.models.academy import SimulationOrder, SimulationSession, User
-from app.services.simulator_engine import _apply_bracket, _order_trigger, scenario_candles
+from app.services.simulator_engine import (
+    _apply_bracket,
+    _order_trigger,
+    evaluate_process,
+    scenario_candles,
+)
+
+
+def test_process_score_rewards_precommitment_not_profit() -> None:
+    disciplined_loss = SimulationSession(
+        decision_note="The setup fails below support and I will stop at the daily limit.",
+        risk_defined_before_entry=True,
+        concentration_checked=True,
+    )
+    disciplined_order = SimulationOrder(rule_violations=[])
+    disciplined = evaluate_process(
+        disciplined_loss,
+        [disciplined_order],
+        [{"id": "risk_within_cap"}, {"id": "journal_reason"}],
+    )
+
+    reckless_win = SimulationSession(
+        decision_note="Looks good",
+        risk_defined_before_entry=False,
+        concentration_checked=False,
+    )
+    reckless_order = SimulationOrder(
+        rule_violations=["missing_stop_loss", "risk_above_scenario_cap"]
+    )
+    reckless = evaluate_process(
+        reckless_win,
+        [reckless_order],
+        [{"id": "risk_within_cap"}, {"id": "journal_reason"}],
+    )
+
+    assert disciplined[0] == 100
+    assert reckless[0] == 0
+    assert "decision_reason_documented" in disciplined[1]
+    assert "risk_not_defined_before_entry" in reckless[2]
 
 
 def test_lcg_generator_matches_known_seed_and_is_repeatable() -> None:
@@ -203,7 +241,12 @@ def test_rejected_leverage_order_remains_visible_and_no_trade_scores_well(
     no_trade = client.post(
         "/api/v1/simulator/sessions",
         headers=auth_headers,
-        json={"scenario_id": "scenario-trend-continuation"},
+        json={
+            "scenario_id": "scenario-trend-continuation",
+            "decision_note": "The setup has no clean invalidation, so I will preserve the daily risk budget.",
+            "risk_defined_before_entry": True,
+            "concentration_checked": True,
+        },
     ).json()
     before = client.get(
         f"/api/v1/simulator/sessions/{no_trade['id']}/results", headers=auth_headers
@@ -221,5 +264,6 @@ def test_rejected_leverage_order_remains_visible_and_no_trade_scores_well(
     )
     assert results.status_code == 200
     assert results.json()["process"]["score"] == 100
-    assert results.json()["process"]["followed_rules"] == ["no_trade_choice"]
+    assert "no_trade_choice" in results.json()["process"]["followed_rules"]
+    assert "decision_reason_documented" in results.json()["process"]["followed_rules"]
     assert results.json()["debrief"]

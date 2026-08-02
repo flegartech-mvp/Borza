@@ -21,6 +21,7 @@ import { DEMO_SCENARIO } from "@/lib/demo-academy";
 import {
   calculateAnalytics,
   closeLocalPosition,
+  evaluateProcessEvidence,
   executionPrice,
   validateExposure,
   validateProtectiveLevels,
@@ -72,6 +73,9 @@ type RemoteSession = {
   position_stop_loss?: number | string | null;
   position_take_profit?: number | string | null;
   current_candle_index: number;
+  decision_note?: string;
+  risk_defined_before_entry?: boolean;
+  concentration_checked?: boolean;
   visible_candles: Array<Record<string, number | string>>;
   rule_violations: string[];
   orders: RemoteOrder[];
@@ -95,8 +99,34 @@ const MAX_RISK_PERCENT = 0.5;
 const MAX_LEVERAGE = 5;
 const asNumber = (value: number | string | null | undefined) =>
   Number(value ?? 0);
-const clamp = (value: number, minimum: number, maximum: number) =>
-  Math.min(maximum, Math.max(minimum, value));
+
+const precommitmentCopy = {
+  de: {
+    title: "Entscheidung vor Ergebnis",
+    note: "Begründung, Invalidierung und Abbruchregel",
+    noteHelp:
+      "Mindestens ein klarer Satz. Die Begründung wird vor dem Replay fixiert.",
+    risk: "Risiko und Invalidierung wurden vor der Größe definiert.",
+    concentration:
+      "Gesamtexposure und gemeinsame Risikotreiber wurden geprüft.",
+  },
+  sl: {
+    title: "Odločitev pred izidom",
+    note: "Utemeljitev, razveljavitev in pravilo prekinitve",
+    noteHelp: "Vsaj en jasen stavek. Utemeljitev se zaklene pred predvajanjem.",
+    risk: "Tveganje in razveljavitev sta določena pred velikostjo.",
+    concentration:
+      "Preverjena sta skupna izpostavljenost in skupna gonila tveganj.",
+  },
+  en: {
+    title: "Decision before outcome",
+    note: "Reasoning, invalidation, and stop rule",
+    noteHelp:
+      "Use at least one clear sentence. The reasoning is fixed before replay.",
+    risk: "Risk and invalidation were defined before position size.",
+    concentration: "Aggregate exposure and shared risk drivers were checked.",
+  },
+} as const;
 
 function remoteCandles(session: RemoteSession): DemoCandle[] {
   return session.visible_candles.map((candle, index) => ({
@@ -319,6 +349,9 @@ export function TradingSimulator() {
   const [spreadBps, setSpreadBps] = useState(4);
   const [commission, setCommission] = useState(1);
   const [slippageBps, setSlippageBps] = useState(2);
+  const [decisionNote, setDecisionNote] = useState("");
+  const [riskDefinedBeforeEntry, setRiskDefinedBeforeEntry] = useState(false);
+  const [concentrationChecked, setConcentrationChecked] = useState(false);
   const [position, setPosition] = useState<LocalPosition | null>(null);
   const [pending, setPending] = useState<PendingOrder | null>(null);
   const [trades, setTrades] = useState<LocalTrade[]>([]);
@@ -357,9 +390,31 @@ export function TradingSimulator() {
   const displayEquity = remoteSession
     ? asNumber(remoteSession.equity)
     : cash + localUnrealized;
-  const violations =
-    remoteSession?.rule_violations.length ?? analytics.violations;
-  const processScore = clamp(100 - violations * 15, 0, 100);
+  const localProcess = useMemo(() => {
+    const ruleViolations = remoteSession
+      ? remoteSession.rule_violations
+      : [
+          ...trades.flatMap((trade) => trade.ruleViolations),
+          ...(position?.ruleViolations ?? []),
+        ];
+    return evaluateProcessEvidence({
+      ruleViolations,
+      decisionNote,
+      riskDefinedBeforeEntry,
+      concentrationChecked,
+      madeTrade: Boolean(displayTrades.length || position || remoteHasPosition),
+    });
+  }, [
+    concentrationChecked,
+    decisionNote,
+    displayTrades.length,
+    position,
+    remoteSession,
+    remoteHasPosition,
+    riskDefinedBeforeEntry,
+    trades,
+  ]);
+  const processScore = localProcess.score;
 
   const acceptRemote = useCallback((session: RemoteSession) => {
     remoteSessionRef.current = session;
@@ -381,6 +436,9 @@ export function TradingSimulator() {
         commission_fixed: commission,
         commission_bps: 0,
         planned_risk: startingBalance * (riskPercent / 100),
+        decision_note: decisionNote,
+        risk_defined_before_entry: riskDefinedBeforeEntry,
+        concentration_checked: concentrationChecked,
       },
     });
     return acceptRemote(created);
@@ -388,6 +446,9 @@ export function TradingSimulator() {
     acceptRemote,
     commission,
     mode,
+    decisionNote,
+    riskDefinedBeforeEntry,
+    concentrationChecked,
     riskPercent,
     slippageBps,
     spreadBps,
@@ -714,13 +775,15 @@ export function TradingSimulator() {
         netPnl: finalAnalytics.net,
         trades: nextTrades.length,
         ruleViolations: finalAnalytics.violations,
-        processScore: clamp(100 - finalAnalytics.violations * 15, 0, 100),
+        processScore: localProcess.score,
         winRate: finalAnalytics.winRate,
         expectancy: finalAnalytics.expectancy,
         profitFactor: Number.isFinite(finalAnalytics.profitFactor)
           ? finalAnalytics.profitFactor
           : 0,
         maxDrawdown: finalAnalytics.maxDrawdown,
+        followedRules: localProcess.followedRules,
+        violatedRules: localProcess.violatedRules,
         relatedLessons: [
           "lesson-ta-structure-trends",
           "lesson-rm-position-sizing",
@@ -851,6 +914,51 @@ export function TradingSimulator() {
         </section>
         <aside className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-1)] p-4">
           <h2 className="font-semibold">{dictionary.simulator.orderType}</h2>
+          <fieldset
+            disabled={Boolean(
+              remoteSession || trades.length || position || pending,
+            )}
+            className="mt-4 rounded-[var(--radius-sm)] border border-[var(--brand)] bg-[var(--brand-soft)] p-3 disabled:opacity-70"
+          >
+            <legend className="px-1 text-sm font-semibold text-[var(--brand)]">
+              {precommitmentCopy[language].title}
+            </legend>
+            <label className="mt-2 block text-xs font-medium text-[var(--text-secondary)]">
+              {precommitmentCopy[language].note}
+              <textarea
+                value={decisionNote}
+                onChange={(event) => setDecisionNote(event.target.value)}
+                rows={3}
+                maxLength={2000}
+                className="mt-1 w-full resize-y rounded-[var(--radius-sm)] border border-[var(--border-subtle)] bg-[var(--surface-1)] p-2 text-sm text-[var(--text-primary)]"
+              />
+              <span className="mt-1 block font-normal text-[var(--text-tertiary)]">
+                {precommitmentCopy[language].noteHelp}
+              </span>
+            </label>
+            <label className="mt-3 flex min-h-10 items-start gap-2 text-xs leading-5">
+              <input
+                type="checkbox"
+                checked={riskDefinedBeforeEntry}
+                onChange={(event) =>
+                  setRiskDefinedBeforeEntry(event.target.checked)
+                }
+                className="mt-1 size-4 accent-[var(--brand)]"
+              />
+              {precommitmentCopy[language].risk}
+            </label>
+            <label className="mt-2 flex min-h-10 items-start gap-2 text-xs leading-5">
+              <input
+                type="checkbox"
+                checked={concentrationChecked}
+                onChange={(event) =>
+                  setConcentrationChecked(event.target.checked)
+                }
+                className="mt-1 size-4 accent-[var(--brand)]"
+              />
+              {precommitmentCopy[language].concentration}
+            </label>
+          </fieldset>
           <div className="mt-4 grid grid-cols-2 gap-2">
             <button
               type="button"
