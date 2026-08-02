@@ -27,6 +27,7 @@ Assessment: 2026-08-02. Branch: `test/full-platform-hardening`. Code-under-test 
 | Targeted keyboard and API-failure tests | Desktop/mobile passed |
 | `npm audit --omit=dev` and full `npm audit` | 0 vulnerabilities / 0 vulnerabilities |
 | Tracked/worktree secret-pattern scan | 0 matching files |
+| Pinned Gitleaks Git-history scan | PASS: 20 commits, no leaks |
 
 ## Runtime smoke
 
@@ -36,6 +37,6 @@ The three-container production-shaped stack became healthy. `/ready` returned da
 
 - PostgreSQL stop/start injection changed `/ready` from 200 to 503 and back to 200.
 - The frontend retained a usable labelled demo when its Academy API request was aborted.
-- A full unfiltered worktree Gitleaks directory scan timed out after five minutes because it traversed generated dependency trees; tracked/worktree patterns were scanned separately, and the pinned Git-history scan is run after the report commit.
+- A full unfiltered worktree Gitleaks directory scan timed out after five minutes because it traversed generated dependency trees; tracked/worktree patterns were scanned separately, and the pinned Git-history scan passed on the report commit.
 - Python `pip-audit` 2.10.0 timed out repeatedly after 184 seconds even with pinned requirements and `--no-deps`; `uv pip check` passed 43 installed packages, but Python advisory status remains externally unverified.
 - No hosted staging/production, real Supabase Auth, live mentor provider, backup restore, central logs, or monitoring system was changed or exercised.

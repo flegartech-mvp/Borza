@@ -19,8 +19,16 @@ Code-under-test: `d320eee` on `test/full-platform-hardening`. This checklist rec
 - [x] Database outage readiness and recovery behavior pass.
 - [x] npm production/full audits report zero vulnerabilities; no direct Git dependency.
 - [x] Worktree secret token patterns report zero matching files.
+- [x] Pinned Gitleaks scan reports no leaks across the complete Git history.
 - [x] Retention CLI is dry-run first and deletion/cascade is regression-tested.
 - [x] CI builds the real production frontend image.
+
+## Preview evidence
+
+- GitHub Actions security, backend and frontend checks completed successfully on the draft PR.
+- The first automatic Vercel Preview stopped because Preview lacked `NEXT_PUBLIC_API_URL`.
+- A Preview-only `https://api.example.invalid` value was added to avoid production traffic; the isolated demo/fallback redeploy completed Ready at `https://borza-om71blia8-flegar-tech.vercel.app`.
+- The preview is intentionally not evidence of hosted API, authentication or persistence behavior.
 
 ## Required before controlled pilot
 
