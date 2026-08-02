@@ -3,7 +3,11 @@
 .vercel
 .env
 .env.*
-frontend
+frontend/.next
+frontend/node_modules
+frontend/coverage
+frontend/playwright-report
+frontend/test-results
 premium
 docs
 output

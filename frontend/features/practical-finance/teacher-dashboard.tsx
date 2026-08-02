@@ -13,6 +13,7 @@ import {
 import { PageHeading } from "@/components/academy/page-heading";
 import { Button, Surface } from "@/components/ui";
 import { useAuth } from "@/features/auth/auth-provider";
+import { hasTeacherRole } from "@/features/auth/roles";
 import { usePreferences } from "@/features/preferences";
 import { academyApi } from "@/lib/api-client";
 import { practicalContent } from "./content";
@@ -48,6 +49,9 @@ const copy = {
     local: "Lokale Demo",
     account: "Kontobasiert",
     error: "Das Klassenzimmer konnte nicht aktualisiert werden.",
+    denied: "Lehrerrolle erforderlich",
+    deniedBody:
+      "Dieses Konto ist als Lernkonto eingerichtet. Eine Administratorin oder ein Administrator muss die Lehrerrolle in den geschützten Kontometadaten vergeben.",
   },
   sl: {
     eyebrow: "Način za učitelje · v živo",
@@ -73,6 +77,9 @@ const copy = {
     local: "Lokalni demo",
     account: "Učni račun",
     error: "Razreda ni bilo mogoče posodobiti.",
+    denied: "Potrebna je vloga učitelja",
+    deniedBody:
+      "Ta račun je nastavljen kot učni račun. Skrbnik mora vlogo učitelja dodeliti v zaščitenih metapodatkih računa.",
   },
   en: {
     eyebrow: "Teacher Mode · Live",
@@ -98,6 +105,9 @@ const copy = {
     local: "Local demo",
     account: "Account-backed",
     error: "The classroom could not be updated.",
+    denied: "Teacher role required",
+    deniedBody:
+      "This account is configured as a learner. An administrator must assign the teacher role in protected account metadata.",
   },
 } as const;
 type RemoteSession = {
@@ -124,6 +134,7 @@ export function TeacherDashboard() {
   const { user } = useAuth();
   const demo = usePracticalDemoState();
   const t = copy[language];
+  const teacherAuthorized = !user || hasTeacherRole(user);
   const [activityId, setActivityId] = useState(
     practicalContent.classrooms[0].id,
   );
@@ -135,16 +146,16 @@ export function TeacherDashboard() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   useEffect(() => {
-    if (!user) return;
+    if (!user || !teacherAuthorized) return;
     void academyApi<RemoteSession[]>("/teacher/classrooms")
       .then((items) => {
         setRemoteSessions(items);
         if (items[0]) setSelectedId((current) => current || items[0].id);
       })
       .catch(() => setError(t.error));
-  }, [t.error, user]);
+  }, [t.error, teacherAuthorized, user]);
   useEffect(() => {
-    if (!user || !selectedId) return;
+    if (!user || !teacherAuthorized || !selectedId) return;
     let active = true;
     const load = () =>
       academyApi<RemoteDashboard>(`/teacher/classrooms/${selectedId}/dashboard`)
@@ -160,7 +171,7 @@ export function TeacherDashboard() {
       active = false;
       window.clearInterval(timer);
     };
-  }, [selectedId, t.error, user]);
+  }, [selectedId, t.error, teacherAuthorized, user]);
   const sessions: DemoClassroom[] = user
     ? remoteSessions.map((item) => ({
         id: item.id,
@@ -216,6 +227,22 @@ export function TeacherDashboard() {
         .map(([name]) => name),
     };
   }, [selected]);
+  if (!teacherAuthorized) {
+    return (
+      <>
+        <PageHeading
+          eyebrow={t.eyebrow}
+          title={t.denied}
+          description={t.deniedBody}
+        />
+        <Surface padding="lg">
+          <p role="alert" className="text-[var(--text-secondary)]">
+            {t.deniedBody}
+          </p>
+        </Surface>
+      </>
+    );
+  }
   const stats = user ? dashboard : localDashboard;
   async function create() {
     const activity = practicalContent.classrooms.find(

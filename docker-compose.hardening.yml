@@ -1,0 +1,30 @@
+# Isolated local QA stack. Always combine with docker-compose.yml and a unique
+# Compose project name so existing developer or production-like stacks remain untouched.
+services:
+  postgres:
+    ports: !override
+      - "55432:5432"
+
+  backend:
+    environment:
+      ENVIRONMENT: test
+      CORS_ORIGINS: http://127.0.0.1:3210
+      ALLOWED_HOSTS: 127.0.0.1,localhost,backend
+      ACADEMY_ALLOW_DEMO_AUTH: "true"
+      MENTOR_ENABLED: "false"
+    ports: !override
+      - "8100:8000"
+
+  frontend:
+    build:
+      args:
+        NEXT_PUBLIC_API_URL: http://127.0.0.1:8100
+        NEXT_PUBLIC_SUPABASE_URL: ""
+        NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ""
+        BORZA_STRICT_PUBLIC_ENV: "false"
+    environment:
+      NEXT_PUBLIC_API_URL: http://127.0.0.1:8100
+      NEXT_PUBLIC_SUPABASE_URL: ""
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ""
+    ports: !override
+      - "3210:3000"

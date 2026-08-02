@@ -9,6 +9,8 @@ import {
   ThemeSwitcher,
   usePreferences,
 } from "@/features/preferences";
+import { useAuth } from "@/features/auth/auth-provider";
+import { hasTeacherRole } from "@/features/auth/roles";
 import {
   isNavigationItemActive,
   primaryNavigation,
@@ -36,6 +38,7 @@ const snapshot = () => {
 export function SidebarNav() {
   const pathname = usePathname();
   const { dictionary, language } = usePreferences();
+  const { user } = useAuth();
   const copy = shellCopy[language];
   const collapsed = useSyncExternalStore(subscribe, snapshot, () => false);
   const setCollapsed = (next: boolean) => {
@@ -47,21 +50,23 @@ export function SidebarNav() {
     window.dispatchEvent(new Event(EVENT));
   };
   const renderItems = (items: ReturnType<typeof primaryNavigation>) =>
-    items.map((item) => {
-      const active = isNavigationItemActive(pathname, item.href);
-      return (
-        <Link
-          key={item.href}
-          href={item.href}
-          aria-current={active ? "page" : undefined}
-          title={collapsed ? item.label : undefined}
-          className={`flex min-h-10 items-center rounded-[var(--radius-sm)] border px-3 text-sm font-medium transition-colors ${collapsed ? "justify-center" : "gap-3"} ${active ? "border-[color-mix(in_srgb,var(--brand)_30%,var(--border-subtle))] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-transparent text-[var(--text-secondary)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)]"}`}
-        >
-          <NavigationIcon name={item.icon} />
-          {collapsed ? null : <span>{item.label}</span>}
-        </Link>
-      );
-    });
+    items
+      .filter((item) => item.id !== "teacher" || !user || hasTeacherRole(user))
+      .map((item) => {
+        const active = isNavigationItemActive(pathname, item.href);
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            aria-current={active ? "page" : undefined}
+            title={collapsed ? item.label : undefined}
+            className={`flex min-h-10 items-center rounded-[var(--radius-sm)] border px-3 text-sm font-medium transition-colors ${collapsed ? "justify-center" : "gap-3"} ${active ? "border-[color-mix(in_srgb,var(--brand)_30%,var(--border-subtle))] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-transparent text-[var(--text-secondary)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)]"}`}
+          >
+            <NavigationIcon name={item.icon} />
+            {collapsed ? null : <span>{item.label}</span>}
+          </Link>
+        );
+      });
   return (
     <aside
       data-collapsed={collapsed}

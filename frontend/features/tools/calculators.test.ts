@@ -54,6 +54,18 @@ describe("calculator catalogue", () => {
       expect(calculator.outputs.length).toBeGreaterThan(0);
     }
   });
+
+  it("produces finite default outputs for every displayed calculator", () => {
+    for (const calculator of CALCULATORS) {
+      const outcome = calculateTool(calculator.id, defaultInputs(calculator));
+      expect(outcome.ok, calculator.id).toBe(true);
+      if (!outcome.ok) continue;
+      expect(
+        Object.values(outcome.values).every((value) => Number.isFinite(value)),
+        calculator.id,
+      ).toBe(true);
+    }
+  });
 });
 
 describe("localized numeric parsing and validation", () => {
@@ -160,6 +172,30 @@ describe("trading calculators", () => {
       leverage: 5,
       marginPercent: 20,
     });
+  });
+
+  it("preserves position-size monotonicity at validated boundaries", () => {
+    const base = valuesFor("position-size", {
+      account: "10000",
+      riskPercent: "1",
+      entry: "100",
+      stop: "99",
+    }).units;
+    const doubledRisk = valuesFor("position-size", {
+      account: "10000",
+      riskPercent: "2",
+      entry: "100",
+      stop: "99",
+    }).units;
+    const doubledDistance = valuesFor("position-size", {
+      account: "10000",
+      riskPercent: "1",
+      entry: "100",
+      stop: "98",
+    }).units;
+
+    expect(doubledRisk).toBeCloseTo(base * 2, 10);
+    expect(doubledDistance).toBeCloseTo(base / 2, 10);
   });
 });
 

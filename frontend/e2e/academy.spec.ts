@@ -240,7 +240,9 @@ function formatAxeViolations(route: string, results: AxeResults): string[] {
       .flatMap((node) => node.target)
       .map(String)
       .join(", ");
-    return `${route}: ${violation.id} (${violation.impact ?? "unknown"}) ${violation.help} [${targets}]`;
+    const evidence =
+      violation.nodes[0]?.failureSummary?.replace(/\s+/g, " ") ?? "";
+    return `${route}: ${violation.id} (${violation.impact ?? "unknown"}) ${violation.help} [${targets}] ${evidence}`.trim();
   });
 }
 
@@ -831,9 +833,6 @@ test.describe("Borza Academy required journeys", () => {
               "best-practice",
             ],
           },
-          rules: {
-            "color-contrast": { enabled: false },
-          },
         }),
       );
       failures.push(...formatAxeViolations(route, results));
@@ -868,9 +867,6 @@ test.describe("Borza Academy required journeys", () => {
               "wcag22aa",
               "best-practice",
             ],
-          },
-          rules: {
-            "color-contrast": { enabled: false },
           },
         }),
       );

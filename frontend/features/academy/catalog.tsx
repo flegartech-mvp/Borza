@@ -54,7 +54,7 @@ export function CourseCatalogue() {
         {orderedPaths.map((path, index) => (
           <article
             key={path.id}
-            className={`content-auto rounded-[var(--radius-md)] border bg-[var(--surface-1)] p-6 ${path.id === "path-risk-management" ? "border-[var(--brand)] shadow-[var(--shadow-card)]" : "border-[var(--border-subtle)]"}`}
+            className={`rounded-[var(--radius-md)] border bg-[var(--surface-1)] p-6 ${path.id === "path-risk-management" ? "border-[var(--brand)] shadow-[var(--shadow-card)]" : "border-[var(--border-subtle)]"}`}
           >
             <div className="flex items-center justify-between">
               <span className="numeric text-xs text-[var(--text-tertiary)]">

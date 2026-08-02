@@ -4,6 +4,8 @@ import Link from "next/link";
 import { MoreHorizontal, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useRef, useState } from "react";
+import { useAuth } from "@/features/auth/auth-provider";
+import { hasTeacherRole } from "@/features/auth/roles";
 import { usePreferences } from "@/features/preferences";
 import {
   isNavigationItemActive,
@@ -17,6 +19,7 @@ import { shellCopy } from "./shell-copy";
 export function MobileBottomNav() {
   const pathname = usePathname();
   const { dictionary, language } = usePreferences();
+  const { user } = useAuth();
   const copy = shellCopy[language];
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [open, setOpen] = useState(false);
@@ -75,17 +78,21 @@ export function MobileBottomNav() {
           {[
             ...primaryNavigation(dictionary).slice(4),
             ...secondaryNavigation(dictionary),
-          ].map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={close}
-              className="flex min-h-14 items-center gap-3 rounded-[var(--radius-sm)] border border-[var(--border-subtle)] bg-[var(--surface-2)] px-3"
-            >
-              <NavigationIcon name={item.icon} />
-              <span>{item.label}</span>
-            </Link>
-          ))}
+          ]
+            .filter(
+              (item) => item.id !== "teacher" || !user || hasTeacherRole(user),
+            )
+            .map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={close}
+                className="flex min-h-14 items-center gap-3 rounded-[var(--radius-sm)] border border-[var(--border-subtle)] bg-[var(--surface-2)] px-3"
+              >
+                <NavigationIcon name={item.icon} />
+                <span>{item.label}</span>
+              </Link>
+            ))}
         </nav>
       </dialog>
     </>
