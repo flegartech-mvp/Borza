@@ -17,6 +17,7 @@
 ## Controls
 
 - FastAPI validates identity before private routes and scopes every query by verified user ID.
+- Teacher APIs additionally require the trusted `app_metadata.borza_role` claim; user-editable metadata cannot elevate a learner.
 - Production rejects development demo headers.
 - Direct `anon`/`authenticated` database access is revoked; RLS is enabled as defense in depth.
 - Financial values use decimals and validated bounds.
@@ -37,5 +38,8 @@
 ## Known operational limitations
 
 - The application rate limiter is process-local; production should enforce distributed/platform limits.
+- Public classroom joins use a separate 120/minute bucket so a 100-person class can enter without weakening the 30/minute protection on mentor, practical-attempt, and partnership endpoints.
+- The deterministic local practical-finance demo bundles authored scoring metadata in browser JavaScript; only authenticated server-scored evidence is authoritative.
+- The current CSP still permits inline script/style execution for Next.js hydration and the pre-hydration preference bootstrap. Remove `unsafe-inline` through a reviewed nonce/hash design before broad public launch.
 - Revoked Supabase sessions can remain valid until their short-lived access token expires depending on verification mode; sensitive operations should use appropriately short expiry and current session validation.
 - Static automated scans complement but do not replace a dedicated penetration test before broad public launch.

@@ -65,4 +65,4 @@ Authenticated and labelled local-demo Academy routes share the same UI but have 
 
 ## Legacy schema
 
-Alembic revisions `0001`–`0011` remain immutable. Their news tables are excluded from active ORM metadata and autogenerate comparisons. Academy migrations `0012`–`0014` are additive and do not drop legacy data. `0013` stores simulator precommitment evidence; `0014` stores practical-finance and classroom evidence. A separately invoked archival tool exists for a future authorized cleanup window.
+Alembic revisions `0001`–`0011` remain immutable. Their news tables are excluded from active ORM metadata and autogenerate comparisons. Academy migrations `0012`–`0015` are additive and do not drop legacy data. `0013` stores simulator precommitment evidence, `0014` stores practical-finance and classroom evidence, and `0015` hardens roles, partnership idempotency, grants, and practical-table RLS. A separately invoked archival tool exists for a future authorized cleanup window.

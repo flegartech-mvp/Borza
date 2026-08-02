@@ -24,6 +24,9 @@ API:
 - `SUPABASE_URL`
 - `SUPABASE_PUBLISHABLE_KEY`
 - `ACADEMY_ALLOW_DEMO_AUTH=false`
+- `CLASSROOM_RETENTION_DAYS=30`
+- `PARTNERSHIP_RETENTION_DAYS=180`
+- `RATE_LIMIT_CLASSROOM_JOIN_PER_MINUTE=120`
 - `CORS_ORIGINS=https://<frontend-host>`
 - `ALLOWED_HOSTS=<api-host>`
 
@@ -44,6 +47,7 @@ Never configure a Supabase secret or `service_role` key as `NEXT_PUBLIC_*`.
 5. Deploy the API; verify `/live`, `/ready`, OpenAPI title, public catalogue, and one authenticated owner-scoped request.
 6. Deploy the frontend; verify landing/demo, sign-in, onboarding, lesson, review, simulator, calculator, journal, locale, theme, mobile navigation, CSP, and console.
 7. Monitor API errors, auth failures, database saturation, and frontend Core Web Vitals.
+8. Schedule `python -m app.cli.data_retention --confirm`, alert on failure, and periodically verify its dry-run count.
 
 Do not run migrations independently from every API replica.
 
@@ -57,6 +61,8 @@ alembic check
 ```
 
 Test both a clean database and an existing database at legacy head `0011`. Normal Academy upgrades must preserve legacy news rows. Cleanup is a separate, explicit operator workflow.
+
+Migration `0015` must be present before teacher roles or hardened practical tables are used. Verify the server database role retains access while synthetic `anon` and `authenticated` roles cannot directly read the practical tables.
 
 ## Health and smoke checks
 

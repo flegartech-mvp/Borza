@@ -128,6 +128,14 @@ Migration `0012` adds Academy identity and learner state. Migration `0013` adds 
 
 Migration `0014` adds practical-decision attempts, competence evidence, versioned Life Simulator sessions, anonymous classroom sessions/responses, and time-limited partnership interests. It is additive and does not touch legacy news tables.
 
+Migration `0015` adds protected learner/teacher/admin roles, partnership idempotency metadata, and explicit defense-in-depth RLS/revokes for practical-finance tables. Retention is dry-run first:
+
+```powershell
+Set-Location backend
+python -m app.cli.data_retention
+python -m app.cli.data_retention --confirm
+```
+
 ## Product and contribution documentation
 
 - [`docs/PRODUCT_VISION.md`](docs/PRODUCT_VISION.md) — position, audience, learning loop, and boundaries.
@@ -169,6 +177,7 @@ npm run format:check
 npm run lint
 npm run typecheck
 npm run test:coverage
+npm run test:performance
 npm run build
 npx playwright install chromium
 npm run test:e2e
