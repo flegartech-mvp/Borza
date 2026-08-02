@@ -15,6 +15,7 @@ import {
   Users,
 } from "lucide-react";
 import { usePreferences } from "@/features/preferences";
+import { academyApi } from "@/lib/api-client";
 import { MarketingPage } from "./marketing-shell";
 
 const copy = {
@@ -72,13 +73,24 @@ const copy = {
       "Dies sind Planungsbeispiele, keine Zusage oder Spendensammlung. Borza bietet derzeit keinen Zahlungsprozess an. Rechtsträger, steuerliche Behandlung, Datenschutz, Rückerstattung und Reporting müssen vor Geldannahme geklärt sein.",
     interest: "Pilot- oder Unterstützungsinteresse vorbereiten",
     interestBody:
-      "Dieses Formular sendet und speichert keine personenbezogenen Daten. Es erstellt lokal eine kurze Gesprächsnotiz, die du über einen verifizierten Kontaktkanal des Projekts teilen kannst.",
+      "Sende ein unverbindliches Gesprächsinteresse. Es wird keine Zahlung ausgelöst; Kontaktdaten werden höchstens 180 Tage für die Pilotabstimmung gespeichert.",
     organisation: "Organisation oder Schule",
     role: "Deine Rolle",
     type: "Interesse",
     note: "Was möchtest du erreichen?",
-    copy: "Gesprächsnotiz kopieren",
-    copied: "Kopiert. Teile sie nur über einen verifizierten Kontaktkanal.",
+    email: "Kontakt-E-Mail",
+    level: "Vorgeschlagenes Unterstützungsniveau",
+    consent: "Ich stimme der Kontaktaufnahme und befristeten Speicherung zu.",
+    copy: "Interesse senden",
+    copied: "Interesse angenommen. Es wurde keine Zahlung durchgeführt.",
+    local:
+      "Die API ist nicht erreichbar. Die Notiz wurde nur lokal kopiert und nicht gesendet.",
+    levels: [
+      "€250 · Lernmaterial",
+      "€500 · halbe Klasse",
+      "€1.500 · Klassenpilot",
+      "€5.000 · Schulpilot",
+    ],
     schools: "Schulprogramm ansehen",
   },
   sl: {
@@ -135,13 +147,24 @@ const copy = {
       "To so primeri načrtovanja, ne obljuba ali zbiranje donacij. Borza trenutno nima plačilnega procesa. Pred sprejemom sredstev je treba urediti pravno osebo, davke, zasebnost, vračila in poročanje.",
     interest: "Pripravi interes za pilot ali podporo",
     interestBody:
-      "Ta obrazec ne pošilja in ne shranjuje osebnih podatkov. Lokalno pripravi kratko beležko za pogovor, ki jo lahko deliš prek preverjenega kontaktnega kanala projekta.",
+      "Pošlji neobvezujoč interes za pogovor. Plačilo se ne izvede; kontaktni podatki se za usklajevanje pilota hranijo največ 180 dni.",
     organisation: "Organizacija ali šola",
     role: "Tvoja vloga",
     type: "Vrsta interesa",
     note: "Kaj želiš doseči?",
-    copy: "Kopiraj beležko",
-    copied: "Kopirano. Deli le prek preverjenega kontaktnega kanala.",
+    email: "Kontaktni e-naslov",
+    level: "Predlagana raven podpore",
+    consent: "Strinjam se s stikom in časovno omejeno hrambo.",
+    copy: "Pošlji interes",
+    copied: "Interes je sprejet. Plačilo ni bilo izvedeno.",
+    local:
+      "API ni dosegljiv. Beležka je bila kopirana le lokalno in ni bila poslana.",
+    levels: [
+      "€250 · učno gradivo",
+      "€500 · polovica razreda",
+      "€1.500 · razredni pilot",
+      "€5.000 · šolski pilot",
+    ],
     schools: "Oglej si šolski program",
   },
   en: {
@@ -198,13 +221,24 @@ const copy = {
       "These are planning examples, not a commitment or donation solicitation. Borza currently offers no payment flow. Legal recipient, tax treatment, privacy, refunds, and reporting must be defined before accepting money.",
     interest: "Prepare pilot or support interest",
     interestBody:
-      "This form sends and stores no personal data. It creates a short conversation brief locally, which you can share through a verified project contact channel.",
+      "Send a non-binding conversation interest. No payment is initiated; contact data is retained for at most 180 days to coordinate a pilot.",
     organisation: "Organisation or school",
     role: "Your role",
     type: "Type of interest",
     note: "What would you like to achieve?",
-    copy: "Copy conversation brief",
-    copied: "Copied. Share it only through a verified contact channel.",
+    email: "Contact email",
+    level: "Proposed support level",
+    consent: "I agree to contact and time-limited retention.",
+    copy: "Send interest",
+    copied: "Interest accepted. No payment was made.",
+    local:
+      "The API is unavailable. The brief was copied locally and was not sent.",
+    levels: [
+      "€250 · learning material",
+      "€500 · half a class",
+      "€1,500 · class pilot",
+      "€5,000 · school pilot",
+    ],
     schools: "View the school programme",
   },
 } as const;
@@ -224,6 +258,10 @@ export function ImpactPage() {
   const [organisation, setOrganisation] = useState("");
   const [role, setRole] = useState("");
   const [interest, setInterest] = useState("");
+  const [email, setEmail] = useState("");
+  const [level, setLevel] = useState("");
+  const [consent, setConsent] = useState(false);
+  const [sending, setSending] = useState(false);
   const [note, setNote] = useState("");
   const [status, setStatus] = useState("");
   const brief = useMemo(
@@ -233,13 +271,35 @@ export function ImpactPage() {
         `${t.organisation}: ${organisation || "—"}`,
         `${t.role}: ${role || "—"}`,
         `${t.type}: ${interest || "—"}`,
+        `${t.email}: ${email || "—"}`,
+        `${t.level}: ${level || "—"}`,
         `${t.note}: ${note || "—"}`,
       ].join("\n"),
-    [interest, note, organisation, role, t],
+    [email, interest, level, note, organisation, role, t],
   );
-  const copyBrief = async () => {
-    await navigator.clipboard.writeText(brief);
-    setStatus(t.copied);
+  const submitInterest = async () => {
+    setSending(true);
+    setStatus("");
+    try {
+      await academyApi("/partnership-interests", {
+        method: "POST",
+        body: {
+          kind: interest || "classroom_sponsor",
+          organisation,
+          contact_role: role,
+          contact_email: email,
+          message: `${level}. ${note}`,
+          consent,
+          website: "",
+        },
+      });
+      setStatus(t.copied);
+    } catch {
+      await navigator.clipboard.writeText(brief);
+      setStatus(t.local);
+    } finally {
+      setSending(false);
+    }
   };
   return (
     <MarketingPage>
@@ -387,7 +447,7 @@ export function ImpactPage() {
             className="mt-7 grid gap-4 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-1)] p-6"
             onSubmit={(event) => {
               event.preventDefault();
-              void copyBrief();
+              void submitInterest();
             }}
           >
             <label className="text-sm font-semibold">
@@ -395,6 +455,8 @@ export function ImpactPage() {
               <input
                 value={organisation}
                 onChange={(event) => setOrganisation(event.target.value)}
+                required
+                minLength={2}
                 className="mt-2 min-h-11 w-full rounded-[var(--radius-sm)] border border-[var(--border-subtle)] bg-[var(--surface-2)] px-3 font-normal"
               />
             </label>
@@ -404,16 +466,51 @@ export function ImpactPage() {
                 <input
                   value={role}
                   onChange={(event) => setRole(event.target.value)}
+                  required
+                  minLength={2}
                   className="mt-2 min-h-11 w-full rounded-[var(--radius-sm)] border border-[var(--border-subtle)] bg-[var(--surface-2)] px-3 font-normal"
                 />
               </label>
               <label className="text-sm font-semibold">
                 {t.type}
-                <input
+                <select
                   value={interest}
                   onChange={(event) => setInterest(event.target.value)}
+                  required
+                  className="mt-2 min-h-11 w-full rounded-[var(--radius-sm)] border border-[var(--border-subtle)] bg-[var(--surface-2)] px-3 font-normal"
+                >
+                  <option value="">—</option>
+                  <option value="teacher_pilot">Teacher pilot</option>
+                  <option value="classroom_sponsor">Classroom sponsor</option>
+                  <option value="foundation">Foundation</option>
+                  <option value="partner">Partner</option>
+                </select>
+              </label>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="text-sm font-semibold">
+                {t.email}
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
                   className="mt-2 min-h-11 w-full rounded-[var(--radius-sm)] border border-[var(--border-subtle)] bg-[var(--surface-2)] px-3 font-normal"
                 />
+              </label>
+              <label className="text-sm font-semibold">
+                {t.level}
+                <select
+                  required
+                  value={level}
+                  onChange={(event) => setLevel(event.target.value)}
+                  className="mt-2 min-h-11 w-full rounded-[var(--radius-sm)] border border-[var(--border-subtle)] bg-[var(--surface-2)] px-3 font-normal"
+                >
+                  <option value="">—</option>
+                  {t.levels.map((item) => (
+                    <option key={item}>{item}</option>
+                  ))}
+                </select>
               </label>
             </div>
             <label className="text-sm font-semibold">
@@ -422,15 +519,28 @@ export function ImpactPage() {
                 value={note}
                 onChange={(event) => setNote(event.target.value)}
                 rows={4}
+                required
+                minLength={20}
                 className="mt-2 w-full rounded-[var(--radius-sm)] border border-[var(--border-subtle)] bg-[var(--surface-2)] p-3 font-normal"
               />
             </label>
+            <label className="flex items-start gap-3 text-sm leading-6">
+              <input
+                type="checkbox"
+                required
+                checked={consent}
+                onChange={(event) => setConsent(event.target.checked)}
+                className="mt-1 accent-[var(--brand)]"
+              />
+              <span>{t.consent}</span>
+            </label>
             <button
               type="submit"
+              disabled={sending}
               className="inline-flex min-h-12 w-fit items-center gap-2 rounded-[var(--radius-sm)] bg-[var(--brand)] px-5 font-semibold text-[var(--brand-contrast)]"
             >
               <Clipboard size={17} aria-hidden="true" />
-              {t.copy}
+              {sending ? "…" : t.copy}
             </button>
             {status ? (
               <p role="status" className="text-sm text-[var(--positive)]">

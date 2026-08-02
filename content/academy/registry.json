@@ -9,6 +9,11 @@
     "glossary": "glossary.json",
     "review_cards": "review_cards.json",
     "practice": "practice.json",
-    "sources": "sources.json"
+    "sources": "sources.json",
+    "life_simulator": "life_simulator.json",
+    "scam_scenarios": "scam_scenarios.json",
+    "decision_cases": "decision_cases.json",
+    "competences": "competences.json",
+    "classroom_activities": "classroom_activities.json"
   }
 }

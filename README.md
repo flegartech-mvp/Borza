@@ -37,11 +37,16 @@ Risk Management is the flagship reference path. Finance Foundations and Trading 
 - **Practice** — chart exercises with hidden future candles and accessible textual summaries.
 - **Simulator** — deterministic historical-style replay with educational market, limit, stop, and bracket orders.
 - **Finance Tools** — trading-risk and corporate-finance calculators with formulas and interpretations.
+- **Life Simulator** — eight versioned Slovenian everyday-finance decisions across income, housing, transport, shocks, credit, saving, and inflation.
+- **Decision Lab and Scam Detector** — eleven applied cases and eight calibrated fraud scenarios scored on reasoning, checks, and risk process.
+- **Teacher Mode** — 45/90-minute activities, expiring pseudonymous class sessions, aggregate live results, materials, and CSV reporting.
+- **Competence Passport** — source/version-backed practical-finance evidence with a print-to-PDF view and contextual next actions.
+- **AI Mentor** — a controlled Socratic question service with an explicit guided fallback; disabled unless a server-side provider is configured.
 - **Review** — FSRS-backed recall scheduling using Again, Hard, Good, and Easy grades.
 - **Journal** — planned versus actual risk, emotions, rules, lessons, and repeated-pattern reviews.
 - **Profile** — onboarding goals, language, theme, weekly commitment, progress, achievements, and settings.
 - **Schools** — public 35-hour programme proposal for Slovenian secondary schools, with teacher guidance and official reference points.
-- **Impact** — current capabilities, roadmap, support models, funding boundaries, and a privacy-preserving local interest brief.
+- **Impact** — current capabilities, roadmap, proposed €250/€500/€1,500/€5,000 support levels, funding boundaries, and a consent-based contact-interest form. There is no payment flow.
 
 All chart and scenario datasets are labelled simulated. Process quality is scored separately from profit: a disciplined loss can be better work than a reckless win.
 
@@ -121,6 +126,8 @@ Migrations `0001`–`0011` preserve the historical news schema. Academy runtime 
 
 Migration `0012` adds Academy identity and learner state. Migration `0013` adds simulator precommitment evidence (decision note, risk-defined confirmation, and concentration check) for process scoring that remains independent of profit.
 
+Migration `0014` adds practical-decision attempts, competence evidence, versioned Life Simulator sessions, anonymous classroom sessions/responses, and time-limited partnership interests. It is additive and does not touch legacy news tables.
+
 ## Product and contribution documentation
 
 - [`docs/PRODUCT_VISION.md`](docs/PRODUCT_VISION.md) — position, audience, learning loop, and boundaries.
@@ -129,6 +136,12 @@ Migration `0012` adds Academy identity and learner state. Migration `0013` adds 
 - [`docs/IMPACT_AND_FUNDING.md`](docs/IMPACT_AND_FUNDING.md) — impact model, roadmap, support, and payment boundary.
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) — staged product plan and explicit non-goals.
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — runtime, content, data, auth, simulator, and legacy boundaries.
+- [`docs/LIFE_SIMULATOR.md`](docs/LIFE_SIMULATOR.md) — deterministic financial state, assumptions, and evidence.
+- [`docs/TEACHER_MODE.md`](docs/TEACHER_MODE.md) and [`docs/CLASSROOM_PRIVACY.md`](docs/CLASSROOM_PRIVACY.md) — facilitation and anonymous-session safeguards.
+- [`docs/PRACTICAL_CONTENT_STANDARD.md`](docs/PRACTICAL_CONTENT_STANDARD.md) — content authoring and validation contract.
+- [`docs/COMPETENCE_PASSPORT.md`](docs/COMPETENCE_PASSPORT.md) — evidence aggregation and non-certification boundary.
+- [`docs/MENTOR_SAFETY.md`](docs/MENTOR_SAFETY.md) — AI feature flag, privacy, provider failure, and prompt boundary.
+- [`docs/SLOVENIA_ASSUMPTIONS.md`](docs/SLOVENIA_ASSUMPTIONS.md) — dated official facts versus illustrative scenario values.
 
 Contributions should be narrow, reviewed, and supported by the relevant validator, tests, type/lint/build checks, and source updates. Curriculum contributions must be original, multilingual, age-appropriate, and free of profit promises or implied institutional approval.
 

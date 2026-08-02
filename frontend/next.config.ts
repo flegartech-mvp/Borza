@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import path from "node:path";
 import {
   createContentSecurityPolicy,
   resolvePublicEndpointConfiguration,
@@ -24,6 +25,8 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   output: "standalone",
+  outputFileTracingRoot: path.join(process.cwd(), ".."),
+  turbopack: { root: path.join(process.cwd(), "..") },
   async headers() {
     return [{ source: "/(.*)", headers: securityHeaders }];
   },

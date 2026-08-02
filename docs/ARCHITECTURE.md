@@ -12,6 +12,7 @@ Browser
           |-- validated authored content registry
           |-- owner-scoped learning state
           |-- quiz/mastery/review services
+          |-- practical decisions, competence evidence, and classrooms
           |-- deterministic simulator and finance math
           `-- SQLAlchemy -> PostgreSQL 16 / local SQLite
 ```
@@ -33,7 +34,7 @@ FastAPI reads this registry through a cached immutable loader. Content bodies ar
 
 ## Data boundary
 
-PostgreSQL stores identity linkage, preferences, onboarding, enrollments, lesson state, notes/bookmarks, attempts/responses, review scheduling/history, mastery evidence, simulator sessions/orders/trades, journals/tags, achievements, streaks, and activity events.
+PostgreSQL stores identity linkage, preferences, onboarding, enrollments, lesson state, notes/bookmarks, attempts/responses, review scheduling/history, mastery evidence, simulator sessions/orders/trades, practical-decision attempts, competence evidence, Life Simulator sessions, anonymous classroom sessions, partnership interests, journals/tags, achievements, streaks, and activity events.
 
 Authored identifiers are stable strings. User-owned records use UUIDs. Monetary/simulator values use exact decimal columns. History endpoints are owner-scoped and paginated.
 
@@ -57,10 +58,11 @@ The Next.js public routes are independent of authentication:
 
 - `/` explains the product, learning loop, flagship path, simulator, school use, and boundaries;
 - `/schools` presents the proposed Slovenian secondary-school programme and official reference sources without claiming approval;
-- `/impact` documents current capabilities, roadmap, support models, and funding boundaries. Its interest brief remains local and transmits no data.
+- `/teachers`, `/class/[code]`, and the Academy teacher dashboard provide public materials, pseudonymous participation, and owner-scoped aggregate facilitation.
+- `/impact` documents current capabilities, roadmap, proposed support levels, and funding boundaries. Its consent-based interest form can transmit contact data to FastAPI with a configured retention limit; it never starts a payment.
 
 Authenticated and labelled local-demo Academy routes share the same UI but have different persistence boundaries.
 
 ## Legacy schema
 
-Alembic revisions `0001`–`0011` remain immutable. Their news tables are excluded from active ORM metadata and autogenerate comparisons. Academy migrations `0012` and `0013` are additive and do not drop legacy data. `0013` stores simulator precommitment evidence used by outcome-independent process scoring. A separately invoked archival tool exists for a future authorized cleanup window.
+Alembic revisions `0001`–`0011` remain immutable. Their news tables are excluded from active ORM metadata and autogenerate comparisons. Academy migrations `0012`–`0014` are additive and do not drop legacy data. `0013` stores simulator precommitment evidence; `0014` stores practical-finance and classroom evidence. A separately invoked archival tool exists for a future authorized cleanup window.

@@ -1,0 +1,102 @@
+{
+  "schema_version": "1.0.0",
+  "scenarios": [
+    {
+      "id": "guaranteed-green-bond", "version": "1.0", "difficulty": "foundation",
+      "title": {"de":"Garantierte grüne Anleihe","sl":"Zajamčena zelena obveznica","en":"Guaranteed green bond"},
+      "message": {"de":"Finora Capital verspricht 18 % jährlich, null Risiko und nur heute einen Bonus. Zahlung in Krypto.","sl":"Finora Capital obljublja 18 % letno, nič tveganja in bonus samo danes. Plačilo v kriptovaluti.","en":"Finora Capital promises 18% yearly, zero risk, and a today-only bonus. Payment is in crypto."},
+      "risk_level": "critical", "competences": ["scam-awareness","consumer-protection","risk-management"],
+      "signals": [
+        {"id":"guarantee","red_flag":true,"text":{"de":"Garantierte hohe Rendite ohne Risiko","sl":"Zajamčen visok donos brez tveganja","en":"Guaranteed high return without risk"},"rationale":{"de":"Rendite und Risiko lassen sich nicht vollständig trennen.","sl":"Donosa in tveganja ni mogoče popolnoma ločiti.","en":"Return and risk cannot be fully separated."}},
+        {"id":"urgency","red_flag":true,"text":{"de":"Bonus läuft heute ab","sl":"Bonus poteče danes","en":"Bonus expires today"},"rationale":{"de":"Zeitdruck verhindert Prüfung und Vergleich.","sl":"Časovni pritisk preprečuje preverjanje in primerjavo.","en":"Time pressure blocks verification and comparison."}},
+        {"id":"crypto-payment","red_flag":true,"text":{"de":"Nur Kryptozahlung","sl":"Samo plačilo s kriptovaluto","en":"Crypto-only payment"},"rationale":{"de":"Eine schwer rückholbare Zahlung erhöht das Schadensrisiko.","sl":"Težko povratno plačilo poveča tveganje škode.","en":"A hard-to-reverse payment increases loss risk."}}
+      ],
+      "safe_action":{"de":"Nicht zahlen; Anbieter und Zulassung unabhängig bei der Aufsicht prüfen.","sl":"Ne plačaj; ponudnika in dovoljenje neodvisno preveri pri nadzorniku.","en":"Do not pay; independently verify the provider and authorisation with the regulator."},
+      "verification_checks":["regulator register","legal entity","prospectus","independent contact channel"], "next_action":"/learn/path-risk-management"
+    },
+    {
+      "id": "pump-chat", "version": "1.0", "difficulty": "foundation",
+      "title": {"de":"Geheimer Kurs-Chat","sl":"Skrivna skupina za rast cene","en":"Secret price-pump chat"},
+      "message": {"de":"Ein Chat-Admin kündigt einen sicheren 10x-Sprung einer kleinen Münze an. Mitglieder sollen sofort kaufen und neue Nutzer werben.","sl":"Skrbnik skupine napove zanesljiv 10-kratni skok majhnega kovanca. Člani naj takoj kupijo in povabijo nove uporabnike.","en":"A chat admin predicts a certain 10x jump in a small coin. Members must buy now and recruit others."},
+      "risk_level":"critical", "competences":["scam-awareness","investing-foundations","risk-management"],
+      "signals":[
+        {"id":"certain-price","red_flag":true,"text":{"de":"Sichere Kursprognose","sl":"Zanesljiva napoved cene","en":"Certain price prediction"},"rationale":{"de":"Kurzfristige Kurse sind nicht garantiert.","sl":"Kratkoročne cene niso zajamčene.","en":"Short-term prices are not guaranteed."}},
+        {"id":"recruit","red_flag":true,"text":{"de":"Anwerben ist Teil des Plans","sl":"Novačenje je del načrta","en":"Recruitment is part of the plan"},"rationale":{"de":"Spätere Käufer können frühere Ausstiege finanzieren.","sl":"Poznejši kupci lahko financirajo izstop zgodnjih članov.","en":"Later buyers may fund early members' exits."}}
+      ],
+      "safe_action":{"de":"Nicht teilnehmen, Beweise sichern und die Plattform melden.","sl":"Ne sodeluj, shrani dokaze in prijavi skupino platformi.","en":"Do not participate, preserve evidence, and report the group to the platform."},
+      "verification_checks":["liquidity","ownership concentration","independent disclosures"], "next_action":"/decision-lab"
+    },
+    {
+      "id": "fake-bank-call", "version": "1.0", "difficulty": "foundation",
+      "title": {"de":"Anruf der Sicherheitsabteilung","sl":"Klic varnostne službe banke","en":"Bank security call"},
+      "message": {"de":"Ein angeblicher Bankmitarbeiter kennt deinen Namen und verlangt Einmalcode und Überweisung auf ein 'Sicherheitskonto'.","sl":"Domnevni bančni uslužbenec pozna tvoje ime ter zahteva enkratno kodo in nakazilo na 'varni račun'.","en":"A supposed bank employee knows your name and asks for a one-time code and transfer to a 'safe account'."},
+      "risk_level":"critical", "competences":["digital-safety","scam-awareness","consumer-protection"],
+      "signals":[
+        {"id":"otp","red_flag":true,"text":{"de":"Einmalcode weitergeben","sl":"Posredovanje enkratne kode","en":"Share a one-time code"},"rationale":{"de":"Ein Code kann eine Anmeldung oder Zahlung autorisieren.","sl":"Koda lahko odobri prijavo ali plačilo.","en":"A code can authorise a login or payment."}},
+        {"id":"safe-account","red_flag":true,"text":{"de":"Geld auf Sicherheitskonto verschieben","sl":"Prenos na varni račun","en":"Move money to a safe account"},"rationale":{"de":"Banken schützen Konten nicht durch Überweisung an Fremde.","sl":"Banke računov ne zaščitijo z nakazilom neznancem.","en":"Banks do not protect accounts by transferring money to strangers."}}
+      ],
+      "safe_action":{"de":"Auflegen, die offizielle Nummer selbst wählen und bei Weitergabe sofort Konto sperren lassen.","sl":"Prekini klic, sam pokliči uradno številko in ob razkritju takoj blokiraj račun.","en":"Hang up, call the official number yourself, and block the account immediately if anything was shared."},
+      "verification_checks":["official bank app","number on card","no code sharing"], "next_action":"/learn/path-finance-foundations"
+    },
+    {
+      "id": "phishing-scholarship", "version": "1.0", "difficulty": "foundation",
+      "title": {"de":"Stipendien-Rückzahlung","sl":"Vračilo štipendije","en":"Scholarship refund"},
+      "message": {"de":"Eine Nachricht von stipendije-pomoc.example fordert Login und Kartendaten für eine Rückzahlung von 340 €.","sl":"Sporočilo z naslova stipendije-pomoc.example zahteva prijavo in podatke kartice za vračilo 340 €.","en":"A message from stipendije-pomoc.example asks for login and card details for a €340 refund."},
+      "risk_level":"high", "competences":["digital-safety","scam-awareness"],
+      "signals":[
+        {"id":"lookalike-domain","red_flag":true,"text":{"de":"Unbekannte Domain","sl":"Neznana domena","en":"Unknown domain"},"rationale":{"de":"Der Name allein belegt keine offizielle Stelle.","sl":"Ime samo ne dokazuje uradne ustanove.","en":"The name alone does not prove an official institution."}},
+        {"id":"card-for-refund","red_flag":true,"text":{"de":"Kartendaten für Erstattung","sl":"Podatki kartice za vračilo","en":"Card data for a refund"},"rationale":{"de":"Unnötige Zahlungsdaten erhöhen das Missbrauchsrisiko.","sl":"Nepotrebni plačilni podatki povečajo možnost zlorabe.","en":"Unnecessary payment data increases misuse risk."}}
+      ],
+      "safe_action":{"de":"Link nicht öffnen; Portal über ein eigenes Lesezeichen oder gov.si aufrufen.","sl":"Ne odpiraj povezave; portal odpri prek svoje zaznamovane povezave ali gov.si.","en":"Do not open the link; reach the portal through your own bookmark or gov.si."},
+      "verification_checks":["domain spelling","official portal","sender headers"], "next_action":"/glossary"
+    },
+    {
+      "id": "romance-emergency", "version": "1.0", "difficulty": "intermediate",
+      "title": {"de":"Online-Beziehung und Notfall","sl":"Spletna zveza in nujni primer","en":"Online relationship emergency"},
+      "message": {"de":"Nach sechs Wochen Chats braucht eine nie persönlich getroffene Person diskret 1.200 € für einen Krankenhausnotfall.","sl":"Po šestih tednih pogovorov oseba, ki je nisi nikoli srečal, skrivaj potrebuje 1.200 € za bolnišnico.","en":"After six weeks of chats, someone never met in person discreetly needs €1,200 for a hospital emergency."},
+      "risk_level":"high", "competences":["scam-awareness","digital-safety","decision-making"],
+      "signals":[
+        {"id":"secrecy","red_flag":true,"text":{"de":"Bitte um Geheimhaltung","sl":"Prošnja za skrivnost","en":"Request for secrecy"},"rationale":{"de":"Isolation verhindert eine unabhängige Plausibilitätsprüfung.","sl":"Osamitev prepreči neodvisno preverjanje verjetnosti.","en":"Isolation prevents independent plausibility checks."}},
+        {"id":"unverified-emergency","red_flag":true,"text":{"de":"Unprüfbarer Notfall","sl":"Nepreverljiva nujnost","en":"Unverifiable emergency"},"rationale":{"de":"Emotionale Dringlichkeit ersetzt keinen Nachweis.","sl":"Čustvena nujnost ne nadomesti dokazila.","en":"Emotional urgency does not replace evidence."}}
+      ],
+      "safe_action":{"de":"Nicht senden; mit einer Vertrauensperson sprechen und Identität unabhängig prüfen.","sl":"Ne nakazuj; pogovori se z zaupanja vredno osebo in neodvisno preveri identiteto.","en":"Do not send money; speak with someone you trust and verify identity independently."},
+      "verification_checks":["reverse image search","live identity verification","independent hospital contact"], "next_action":"/journal"
+    },
+    {
+      "id": "advance-fee-loan", "version": "1.0", "difficulty": "intermediate",
+      "title": {"de":"Kredit ohne Prüfung","sl":"Kredit brez preverjanja","en":"Loan without checks"},
+      "message": {"de":"NovaKredit bewilligt 8.000 € ohne Einkommensprüfung, sobald 280 € Bearbeitungsgebühr per Gutschein bezahlt sind.","sl":"NovaKredit odobri 8.000 € brez preverjanja prihodkov, ko plačaš 280 € stroška z darilno kartico.","en":"NovaKredit approves €8,000 without income checks once a €280 fee is paid by gift card."},
+      "risk_level":"critical", "competences":["credit-debt","consumer-protection","scam-awareness"],
+      "signals":[
+        {"id":"advance-fee","red_flag":true,"text":{"de":"Gebühr vor Auszahlung","sl":"Strošek pred izplačilom","en":"Fee before disbursement"},"rationale":{"de":"Vorauszahlung ohne prüfbare Leistung kann verloren gehen.","sl":"Predplačilo brez preverljive storitve je lahko izgubljeno.","en":"An advance payment without a verifiable service can be lost."}},
+        {"id":"gift-card","red_flag":true,"text":{"de":"Zahlung per Gutschein","sl":"Plačilo z darilno kartico","en":"Gift-card payment"},"rationale":{"de":"Ungewöhnliche, schwer rückholbare Zahlungswege sind ein starkes Warnsignal.","sl":"Nenavadna in težko povratna plačila so močan opozorilni znak.","en":"Unusual, hard-to-reverse payment methods are a strong warning sign."}}
+      ],
+      "safe_action":{"de":"Keine Gebühr zahlen; Zulassung und Vertrag prüfen und Alternativen vergleichen.","sl":"Ne plačaj stroška; preveri dovoljenje in pogodbo ter primerjaj možnosti.","en":"Do not pay the fee; verify authorisation and contract, then compare alternatives."},
+      "verification_checks":["Bank of Slovenia register","APR","written contract","complaint route"], "next_action":"/tools"
+    },
+    {
+      "id": "influencer-deepfake", "version": "1.0", "difficulty": "intermediate",
+      "title": {"de":"Promi-Livestream","sl":"Prenos vplivneža","en":"Influencer livestream"},
+      "message": {"de":"Ein realistisches Video eines bekannten Sportlers fordert eine Einzahlung auf einer neuen Plattform. Kommentare zeigen angebliche Gewinne.","sl":"Realističen posnetek znanega športnika poziva k nakazilu na novo platformo. Komentarji kažejo domnevne dobičke.","en":"A realistic video of a famous athlete asks for a deposit on a new platform. Comments show supposed profits."},
+      "risk_level":"high", "competences":["digital-safety","scam-awareness","investing-foundations"],
+      "signals":[
+        {"id":"celebrity-proof","red_flag":true,"text":{"de":"Promi als einziger Vertrauensbeweis","sl":"Vplivnež kot edini dokaz zaupanja","en":"Celebrity as the only proof"},"rationale":{"de":"Bild und Stimme können manipuliert oder ohne Erlaubnis verwendet werden.","sl":"Slika in glas sta lahko prirejena ali uporabljena brez dovoljenja.","en":"Image and voice can be manipulated or used without permission."}},
+        {"id":"social-proof","red_flag":true,"text":{"de":"Unprüfbare Gewinnkommentare","sl":"Nepreverljivi komentarji o dobičkih","en":"Unverifiable profit comments"},"rationale":{"de":"Kommentare und Kontostände können erfunden sein.","sl":"Komentarji in stanja na računu so lahko izmišljeni.","en":"Comments and account balances can be fabricated."}}
+      ],
+      "safe_action":{"de":"Nicht einzahlen; offizielle Kanäle, Anbieterregister und Videoquelle getrennt prüfen.","sl":"Ne nakaži; ločeno preveri uradne kanale, register ponudnikov in izvor posnetka.","en":"Do not deposit; separately check official channels, provider registers, and the video source."},
+      "verification_checks":["official profile","video provenance","regulated entity","independent reviews"], "next_action":"/scam-detector"
+    },
+    {
+      "id": "hidden-bnpl-cost", "version": "1.0", "difficulty": "intermediate",
+      "title": {"de":"Heute null, später teuer","sl":"Danes nič, pozneje drago","en":"Zero today, costly later"},
+      "message": {"de":"Ein Laptop kostet '0 € heute'. Kleingedruckt: 24 Raten, Kontogebühr, Verzugsgebühr und automatische Kreditlinie.","sl":"Prenosnik stane '0 € danes'. Drobni tisk: 24 obrokov, strošek računa, zamudnina in samodejna kreditna linija.","en":"A laptop costs '€0 today'. Fine print: 24 instalments, account fee, late fee, and an automatic credit line."},
+      "risk_level":"medium", "competences":["credit-debt","consumer-protection","decision-making"],
+      "signals":[
+        {"id":"zero-today","red_flag":true,"text":{"de":"Nur Sofortpreis hervorgehoben","sl":"Poudarjena samo današnja cena","en":"Only today's price highlighted"},"rationale":{"de":"Der Gesamtkreditpreis bleibt verborgen.","sl":"Skupna cena kredita ostane skrita.","en":"The total credit price remains hidden."}},
+        {"id":"terms-available","red_flag":false,"text":{"de":"Bedingungen sind auffindbar","sl":"Pogoji so dostopni","en":"Terms are available"},"rationale":{"de":"Auffindbarkeit ist positiv, ersetzt aber nicht Lesen und Rechnen.","sl":"Dostopnost je pozitivna, vendar ne nadomesti branja in izračuna.","en":"Availability is positive but does not replace reading and calculation."}}
+      ],
+      "safe_action":{"de":"Gesamtbetrag und Effektivkosten berechnen; nur bei tragbarer Rate und klarer Kündigung entscheiden.","sl":"Izračunaj skupni znesek in efektivne stroške; odloči se le ob vzdržnem obroku in jasnem izstopu.","en":"Calculate total and effective cost; proceed only with an affordable payment and clear exit terms."},
+      "verification_checks":["total payable","APR","late fees","automatic credit","cancellation"], "next_action":"/decision-lab"
+    }
+  ]
+}

@@ -14,7 +14,7 @@ Financial knowledge is often abstract, fragmented, or mixed with product promoti
 
 ## Current capabilities
 
-Borza currently includes structured multilingual paths, authored lessons and quizzes, glossary and spaced review, calculator and chart exercises, deterministic simulation, process scoring, a journal, learner progress, optional Supabase authentication, and a proposed Slovenian school programme.
+Borza currently includes structured multilingual paths, authored lessons and quizzes, glossary and spaced review, calculator and chart exercises, deterministic simulation, a Slovenian Life Simulator, Decision Lab, Scam Detector, Teacher Mode, Competence Passport, controlled Socratic Mentor, a journal, learner progress, optional Supabase authentication, and a proposed Slovenian school programme.
 
 These are product capabilities, not evidence of adoption or impact. There are no public usage totals, testimonials, school logos, supporters, or pilot outcomes unless verified evidence is added later.
 
@@ -65,4 +65,6 @@ These percentages are planning examples, not a funding commitment.
 
 ## Payment boundary
 
-No donation or investment checkout should be enabled until the legal recipient, organisation, governance, tax treatment, privacy policy, refund handling, payment provider, safeguarding, and reporting duties are defined. The public impact page therefore creates a local conversation brief and transmits no personal data.
+Proposed classroom-support levels are €250, €500, €1,500, and €5,000. They are planning anchors, not products, invoices, donation commitments, or investment terms.
+
+No donation or investment checkout is enabled. A consent-based form can store organisation, role, email, interest type, support level, and message for a configurable retention period (180 days by default). If the API is unavailable, the interface explicitly says the brief was copied locally and not submitted. Payment remains blocked until the legal recipient, governance, tax, privacy, refund, safeguarding, and reporting duties are defined.

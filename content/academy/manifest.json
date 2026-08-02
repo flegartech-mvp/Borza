@@ -11,7 +11,12 @@
     "glossary": "glossary.json",
     "review_cards": "review_cards.json",
     "practice": "practice.json",
-    "sources": "sources.json"
+    "sources": "sources.json",
+    "life_simulator": "life_simulator.json",
+    "scam_scenarios": "scam_scenarios.json",
+    "decision_cases": "decision_cases.json",
+    "competences": "competences.json",
+    "classroom_activities": "classroom_activities.json"
   },
   "launch_minimums": {
     "paths": 12,
@@ -23,6 +28,12 @@
     "review_cards": 80,
     "chart_exercises": 12,
     "calculator_exercises": 10,
-    "simulation_scenarios": 10
+    "simulation_scenarios": 10,
+    "life_profiles": 6,
+    "life_rounds": 8,
+    "scam_scenarios": 8,
+    "decision_cases": 10,
+    "competences": 10,
+    "classroom_activities": 6
   }
 }

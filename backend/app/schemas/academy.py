@@ -706,3 +706,191 @@ class JournalSummary(BaseModel):
     weakest_setups: list[SetupPerformance]
     last_7_days: JournalPeriodSummary
     last_30_days: JournalPeriodSummary
+
+
+class DecisionAttemptIn(BaseModel):
+    activity_type: Literal["life_simulator", "scam_detector", "decision_lab"]
+    activity_id: str = Field(min_length=1, max_length=120)
+    content_version: str = Field(min_length=1, max_length=40)
+    selected_option_id: str = Field(min_length=1, max_length=120)
+    reasoning: str = Field(min_length=20, max_length=5000)
+    assumptions: list[str] = Field(default_factory=list, max_length=20)
+    calculations: dict[str, JsonValue] = Field(default_factory=dict)
+    response: dict[str, JsonValue] = Field(default_factory=dict)
+
+
+class DecisionAttemptRead(ORMModel):
+    id: UUID
+    activity_type: str
+    activity_id: str
+    content_version: str
+    status: str
+    selected_option_id: str | None
+    reasoning: str
+    assumptions: list[str]
+    calculations: dict[str, JsonValue]
+    feedback: dict[str, JsonValue]
+    process_score: int
+    started_at: datetime
+    completed_at: datetime | None
+
+
+class LifeSessionCreate(BaseModel):
+    profile_id: str = Field(min_length=1, max_length=100)
+
+
+class LifeSessionUpdate(BaseModel):
+    expected_round: int = Field(ge=0, le=120)
+    selected_option_id: str = Field(min_length=1, max_length=120)
+    reasoning: str = Field(min_length=20, max_length=5000)
+    calculations: dict[str, JsonValue] = Field(default_factory=dict)
+
+
+class LifeSessionRead(ORMModel):
+    id: UUID
+    profile_id: str
+    scenario_id: str
+    scenario_version: str
+    status: str
+    current_round: int
+    financial_state: dict[str, JsonValue]
+    decision_history: list[dict[str, JsonValue]]
+    process_score: int
+    started_at: datetime
+    updated_at: datetime
+    completed_at: datetime | None
+
+
+class CompetenceEvidenceRead(ORMModel):
+    id: UUID
+    competence_id: str
+    source_type: str
+    source_id: str
+    content_version: str
+    score: int
+    summary: str
+    details: dict[str, JsonValue]
+    created_at: datetime
+
+
+class CompetenceProfileItem(BaseModel):
+    competence_id: str
+    level: Literal["not_started", "introduced", "practising", "demonstrated", "strong"]
+    score: int = Field(ge=0, le=100)
+    evidence_count: int
+    recent_evidence: list[CompetenceEvidenceRead]
+
+
+class ClassroomCreate(BaseModel):
+    activity_type: Literal[
+        "life_simulator",
+        "scam_detector",
+        "decision_lab",
+        "risk_case",
+        "budgeting",
+        "credit_comparison",
+        "inflation_interest",
+    ]
+    activity_id: str = Field(min_length=1, max_length=120)
+    content_version: str = Field(min_length=1, max_length=40)
+    duration_minutes: Literal[45, 90]
+    settings: dict[str, JsonValue] = Field(default_factory=dict)
+
+
+class ClassroomSessionRead(ORMModel):
+    id: UUID
+    activity_type: str
+    activity_id: str
+    content_version: str
+    duration_minutes: int
+    status: str
+    settings: dict[str, JsonValue]
+    expires_at: datetime
+    created_at: datetime
+    started_at: datetime | None
+    closed_at: datetime | None
+
+
+class ClassroomCreated(ClassroomSessionRead):
+    classroom_code: str
+
+
+class ClassroomJoin(BaseModel):
+    classroom_code: str = Field(min_length=6, max_length=12, pattern=r"^[A-Z2-9-]+$")
+    pseudonym: str = Field(min_length=2, max_length=32, pattern=r"^[\w -]+$")
+    website: str = Field(default="", max_length=0)
+
+
+class ClassroomJoined(BaseModel):
+    session_id: UUID
+    participant_id: UUID
+    participant_token: str
+    activity_type: str
+    activity_id: str
+    content_version: str
+    expires_at: datetime
+
+
+class ClassroomResponseIn(BaseModel):
+    item_id: str = Field(min_length=1, max_length=120)
+    answer: dict[str, JsonValue]
+    reasoning: str = Field(min_length=10, max_length=5000)
+    completed: bool = False
+
+
+class ClassroomDashboard(BaseModel):
+    session: ClassroomSessionRead
+    active_participants: int
+    completed_participants: int
+    completion_rate: int
+    response_count: int
+    class_process_score: int
+    decision_distribution: dict[str, int]
+    common_misconceptions: list[dict[str, int | str]]
+    concepts_requiring_review: list[str]
+
+
+class PartnershipInterestIn(BaseModel):
+    kind: Literal["teacher_pilot", "classroom_sponsor", "foundation", "partner"]
+    organisation: str = Field(min_length=2, max_length=160)
+    contact_role: str = Field(min_length=2, max_length=100)
+    contact_email: str = Field(min_length=5, max_length=320)
+    message: str = Field(min_length=20, max_length=5000)
+    consent: bool
+    website: str = Field(default="", max_length=0)
+
+    @field_validator("contact_email")
+    @classmethod
+    def plausible_email(cls, value: str) -> str:
+        candidate = value.strip().lower()
+        if candidate.count("@") != 1 or "." not in candidate.rsplit("@", 1)[1]:
+            raise ValueError("contact_email must be a valid email address")
+        return candidate
+
+    @model_validator(mode="after")
+    def consent_is_required(self) -> "PartnershipInterestIn":
+        if not self.consent:
+            raise ValueError("consent is required")
+        return self
+
+
+class PartnershipInterestAccepted(BaseModel):
+    id: UUID
+    retention_days: int
+    status: Literal["accepted"] = "accepted"
+
+
+class MentorRequest(BaseModel):
+    context_type: Literal["lesson", "life_simulator", "scam_detector", "decision_lab"]
+    context_id: str = Field(min_length=1, max_length=120)
+    learner_message: str = Field(min_length=10, max_length=2000)
+    decision_summary: str = Field(default="", max_length=3000)
+    locale: Literal["de", "sl", "en"] = "de"
+
+
+class MentorResponse(BaseModel):
+    mode: Literal["ai", "guided_fallback"]
+    question: str
+    follow_up_prompts: list[str]
+    safety_note: str
+    referenced_content_ids: list[str]

@@ -12,7 +12,13 @@ export type NavigationIconName =
   | "glossary"
   | "progress"
   | "achievements"
-  | "settings";
+  | "settings"
+  | "lifeSimulator"
+  | "scamDetector"
+  | "decisionLab"
+  | "passport"
+  | "mentor"
+  | "teacher";
 
 export type NavigationItem = {
   id: NavigationIconName;
@@ -24,11 +30,17 @@ export type NavigationItem = {
 const primaryDefinitions = [
   ["home", "/home"],
   ["learn", "/learn"],
+  ["lifeSimulator", "/life-simulator"],
   ["practice", "/practice"],
+  ["decisionLab", "/decision-lab"],
+  ["scamDetector", "/scam-detector"],
   ["simulator", "/simulator"],
   ["tools", "/tools"],
+  ["mentor", "/mentor"],
   ["review", "/review"],
   ["journal", "/journal"],
+  ["passport", "/passport"],
+  ["teacher", "/teacher/dashboard"],
   ["profile", "/profile"],
 ] as const;
 

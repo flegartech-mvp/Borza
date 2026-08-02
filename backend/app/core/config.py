@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Literal
 from urllib.parse import urlparse
 
-from pydantic import Field, field_validator, model_validator
+from pydantic import Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.engine import make_url
 
@@ -64,6 +64,12 @@ class Settings(BaseSettings):
     supabase_url: str | None = None
     supabase_publishable_key: str | None = Field(default=None, max_length=1024)
     supabase_auth_timeout_seconds: float = Field(5, ge=1, le=20)
+    classroom_code_secret: SecretStr = SecretStr("local-development-classroom-secret-change-me")
+    partnership_retention_days: int = Field(180, ge=30, le=730)
+    mentor_enabled: bool = False
+    openai_api_key: SecretStr | None = None
+    openai_model: str = Field("gpt-5.6-sol", min_length=1, max_length=100)
+    openai_timeout_seconds: float = Field(15, ge=3, le=60)
 
     @field_validator("supabase_url")
     @classmethod
@@ -116,6 +122,10 @@ class Settings(BaseSettings):
             raise ValueError(
                 "SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY are required in deployed environments"
             )
+        if deployed and len(self.classroom_code_secret.get_secret_value()) < 32:
+            raise ValueError("CLASSROOM_CODE_SECRET must contain at least 32 characters")
+        if self.mentor_enabled and not self.openai_api_key:
+            raise ValueError("OPENAI_API_KEY is required when MENTOR_ENABLED=true")
         return self
 
     @property

@@ -531,3 +531,190 @@ class ActivityEvent(Base):
     occurred_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
+
+
+class DecisionAttempt(Base):
+    __tablename__ = "decision_attempts"
+    __table_args__ = (
+        UniqueConstraint("id", "user_id", name="uq_decision_attempts_id_user"),
+        CheckConstraint(
+            "activity_type IN ('life_simulator', 'scam_detector', 'decision_lab')",
+            name="ck_decision_attempts_activity_type",
+        ),
+        CheckConstraint(
+            "status IN ('in_progress', 'completed', 'abandoned')",
+            name="ck_decision_attempts_status",
+        ),
+        CheckConstraint("process_score BETWEEN 0 AND 100", name="ck_decision_process_score"),
+        Index("ix_decision_attempts_user_activity", "user_id", "activity_type", "completed_at"),
+    )
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=new_uuid)
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    activity_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    activity_id: Mapped[str] = mapped_column(String(120), nullable=False)
+    content_version: Mapped[str] = mapped_column(String(40), nullable=False)
+    status: Mapped[str] = mapped_column(String(16), nullable=False, default="in_progress")
+    selected_option_id: Mapped[str | None] = mapped_column(String(120))
+    reasoning: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    assumptions: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+    calculations: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
+    feedback: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
+    process_score: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class CompetenceEvidence(Base):
+    __tablename__ = "competence_evidence"
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id", "source_type", "source_id", "competence_id", name="uq_competence_source"
+        ),
+        CheckConstraint("score BETWEEN 0 AND 100", name="ck_competence_evidence_score"),
+        Index("ix_competence_evidence_user_competence", "user_id", "competence_id", "created_at"),
+    )
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=new_uuid)
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    competence_id: Mapped[str] = mapped_column(String(100), nullable=False)
+    source_type: Mapped[str] = mapped_column(String(40), nullable=False)
+    source_id: Mapped[str] = mapped_column(String(120), nullable=False)
+    content_version: Mapped[str] = mapped_column(String(40), nullable=False)
+    score: Mapped[int] = mapped_column(Integer, nullable=False)
+    summary: Mapped[str] = mapped_column(String(500), nullable=False)
+    details: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class LifeSimulationSession(Base):
+    __tablename__ = "life_simulation_sessions"
+    __table_args__ = (
+        UniqueConstraint("id", "user_id", name="uq_life_sessions_id_user"),
+        CheckConstraint(
+            "status IN ('active', 'completed', 'abandoned')", name="ck_life_sessions_status"
+        ),
+        CheckConstraint("current_round >= 0", name="ck_life_sessions_round"),
+        CheckConstraint("process_score BETWEEN 0 AND 100", name="ck_life_process_score"),
+        Index("ix_life_sessions_user_updated", "user_id", "updated_at"),
+    )
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=new_uuid)
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    profile_id: Mapped[str] = mapped_column(String(100), nullable=False)
+    scenario_id: Mapped[str] = mapped_column(String(120), nullable=False)
+    scenario_version: Mapped[str] = mapped_column(String(40), nullable=False)
+    status: Mapped[str] = mapped_column(String(16), nullable=False, default="active")
+    current_round: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    financial_state: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
+    decision_history: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+    process_score: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class ClassroomSession(Base):
+    __tablename__ = "classroom_sessions"
+    __table_args__ = (
+        UniqueConstraint("id", "teacher_user_id", name="uq_classroom_sessions_id_teacher"),
+        UniqueConstraint("code_hash", name="uq_classroom_sessions_code_hash"),
+        CheckConstraint("duration_minutes IN (45, 90)", name="ck_classroom_duration"),
+        CheckConstraint(
+            "status IN ('draft', 'active', 'closed', 'expired')", name="ck_classroom_status"
+        ),
+        Index("ix_classroom_teacher_created", "teacher_user_id", "created_at"),
+        Index("ix_classroom_status_expires", "status", "expires_at"),
+    )
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=new_uuid)
+    teacher_user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    code_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    activity_type: Mapped[str] = mapped_column(String(40), nullable=False)
+    activity_id: Mapped[str] = mapped_column(String(120), nullable=False)
+    content_version: Mapped[str] = mapped_column(String(40), nullable=False)
+    duration_minutes: Mapped[int] = mapped_column(Integer, nullable=False)
+    status: Mapped[str] = mapped_column(String(12), nullable=False, default="draft")
+    settings: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    closed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class ClassroomParticipant(Base):
+    __tablename__ = "classroom_participants"
+    __table_args__ = (
+        UniqueConstraint("id", "classroom_session_id", name="uq_classroom_participant_session"),
+        UniqueConstraint(
+            "classroom_session_id", "pseudonym", name="uq_classroom_participant_pseudonym"
+        ),
+        UniqueConstraint("access_token_hash", name="uq_classroom_access_token_hash"),
+        CheckConstraint(
+            "status IN ('active', 'completed', 'removed')", name="ck_classroom_participant_status"
+        ),
+        Index("ix_classroom_participants_session_joined", "classroom_session_id", "joined_at"),
+    )
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=new_uuid)
+    classroom_session_id: Mapped[UUID] = mapped_column(
+        ForeignKey("classroom_sessions.id", ondelete="CASCADE")
+    )
+    pseudonym: Mapped[str] = mapped_column(String(32), nullable=False)
+    access_token_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    status: Mapped[str] = mapped_column(String(12), nullable=False, default="active")
+    joined_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class ClassroomResponse(Base):
+    __tablename__ = "classroom_responses"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["participant_id", "classroom_session_id"],
+            ["classroom_participants.id", "classroom_participants.classroom_session_id"],
+            ondelete="CASCADE",
+            name="fk_classroom_response_participant_session",
+        ),
+        UniqueConstraint("participant_id", "item_id", name="uq_classroom_response_item"),
+        CheckConstraint("process_score BETWEEN 0 AND 100", name="ck_classroom_response_score"),
+        Index("ix_classroom_responses_session_created", "classroom_session_id", "created_at"),
+    )
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=new_uuid)
+    classroom_session_id: Mapped[UUID] = mapped_column(Uuid, nullable=False)
+    participant_id: Mapped[UUID] = mapped_column(Uuid, nullable=False)
+    item_id: Mapped[str] = mapped_column(String(120), nullable=False)
+    answer: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
+    reasoning: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    process_score: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    misconceptions: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class PartnershipInterest(Base):
+    __tablename__ = "partnership_interests"
+    __table_args__ = (
+        CheckConstraint(
+            "kind IN ('teacher_pilot', 'classroom_sponsor', 'foundation', 'partner')",
+            name="ck_partnership_interest_kind",
+        ),
+        CheckConstraint(
+            "status IN ('new', 'reviewed', 'closed', 'expired')", name="ck_partnership_status"
+        ),
+        Index("ix_partnership_kind_created", "kind", "created_at"),
+        Index("ix_partnership_expires", "expires_at"),
+    )
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=new_uuid)
+    kind: Mapped[str] = mapped_column(String(24), nullable=False)
+    organisation: Mapped[str] = mapped_column(String(160), nullable=False)
+    contact_role: Mapped[str] = mapped_column(String(100), nullable=False)
+    contact_email: Mapped[str] = mapped_column(String(320), nullable=False)
+    message: Mapped[str] = mapped_column(Text, nullable=False)
+    consent: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    status: Mapped[str] = mapped_column(String(12), nullable=False, default="new")
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

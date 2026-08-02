@@ -51,6 +51,15 @@ const MAIN_ROUTES = [
   "/achievements",
   "/settings",
   "/profile",
+  "/life-simulator",
+  "/decision-lab",
+  "/scam-detector",
+  "/passport",
+  "/mentor",
+  "/teacher/dashboard",
+  "/teachers",
+  "/teachers/materials/life-budget-choices",
+  "/class/ABC234",
 ] as const;
 
 const PRIMARY_ROUTES = [
@@ -67,6 +76,14 @@ const PRIMARY_ROUTES = [
   "/tools",
   "/journal",
   "/profile",
+  "/life-simulator",
+  "/decision-lab",
+  "/scam-detector",
+  "/passport",
+  "/mentor",
+  "/teacher/dashboard",
+  "/teachers",
+  "/class/ABC234",
 ] as const;
 
 const ACCESSIBILITY_ROUTES = [
@@ -82,6 +99,25 @@ const ACCESSIBILITY_ROUTES = [
   "/simulator",
   "/tools",
   "/journal",
+  "/life-simulator",
+  "/decision-lab",
+  "/scam-detector",
+  "/passport",
+  "/mentor",
+  "/teacher/dashboard",
+  "/teachers",
+  "/class/ABC234",
+] as const;
+
+const PRACTICAL_ACCESSIBILITY_ROUTES = [
+  "/life-simulator",
+  "/decision-lab",
+  "/scam-detector",
+  "/passport",
+  "/mentor",
+  "/teacher/dashboard",
+  "/teachers",
+  "/class/ABC234",
 ] as const;
 
 type DemoState = {
@@ -248,7 +284,7 @@ test.describe("Borza Academy required journeys", () => {
     ).toBeVisible();
     await expect(
       page.getByRole("button", {
-        name: /Copy conversation brief|Gesprächsnotiz kopieren|Kopiraj beležko/,
+        name: /Send interest|Interesse senden|Pošlji interes/,
       }),
     ).toBeVisible();
   });
@@ -622,6 +658,37 @@ test.describe("Borza Academy required journeys", () => {
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
   });
 
+  test("10b life decision creates durable competence evidence", async ({
+    page,
+  }) => {
+    await installDeterministicDemo(page, "en");
+    await openRoute(page, "/life-simulator");
+
+    await page
+      .getByRole("button", { name: "Start simulation", exact: true })
+      .click();
+    await page.locator('input[name="life-option"]').first().check();
+    await page
+      .getByRole("textbox", { name: "Explain your decision" })
+      .fill(
+        "I would verify the recurring costs, test the downside, and keep an emergency reserve.",
+      );
+    await page
+      .getByRole("button", { name: "Evaluate decision", exact: true })
+      .click();
+
+    await expect(page.getByRole("status")).toContainText(/\d+%/);
+    await openRoute(page, "/passport");
+    await expect(
+      page
+        .locator("main")
+        .getByRole("heading", { name: "Competence Passport", exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByText(/^[1-9] \/ 13 competences with evidence$/),
+    ).toBeVisible();
+  });
+
   test("11 mobile bottom navigation and More menu work", async ({
     page,
   }, testInfo) => {
@@ -775,6 +842,44 @@ test.describe("Borza Academy required journeys", () => {
     expect(
       failures,
       `Accessibility violations:\n${failures.join("\n")}`,
+    ).toEqual([]);
+  });
+
+  test("practical finance routes pass automated WCAG scans", async ({
+    page,
+  }) => {
+    test.setTimeout(120_000);
+    await installDeterministicDemo(page);
+    const failures: string[] = [];
+
+    for (const route of PRACTICAL_ACCESSIBILITY_ROUTES) {
+      await openRoute(page, route);
+      await page.addScriptTag({ content: axe.source });
+      const results = await page.evaluate(async () =>
+        window.axe.run(document, {
+          runOnly: {
+            type: "tag",
+            values: [
+              "wcag2a",
+              "wcag2aa",
+              "wcag21a",
+              "wcag21aa",
+              "wcag22a",
+              "wcag22aa",
+              "best-practice",
+            ],
+          },
+          rules: {
+            "color-contrast": { enabled: false },
+          },
+        }),
+      );
+      failures.push(...formatAxeViolations(route, results));
+    }
+
+    expect(
+      failures,
+      `Practical-finance accessibility violations:\n${failures.join("\n")}`,
     ).toEqual([]);
   });
 });

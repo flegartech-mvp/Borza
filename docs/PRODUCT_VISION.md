@@ -1,5 +1,9 @@
 # Borza Academy Product Vision
 
+## Practical finance platform
+
+The Academy now extends its core learning loop into everyday decisions: a Slovenia-focused Life Simulator, Decision Lab, calibrated Scam Detector, anonymous Teacher Mode, evidence-backed Competence Passport, and controlled Socratic Mentor. These are one connected evidence system, not disconnected engagement widgets. Every practical attempt should lead to feedback, reflection, a competence update, and a contextual next action.
+
 ## Promise
 
 **Learn finance. Practise trading. Build real market skills.**

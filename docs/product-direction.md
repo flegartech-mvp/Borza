@@ -1,5 +1,7 @@
 # Borza Academy Product Direction
 
+Practical financial competence is a first-class product area alongside the structured curriculum and trading-practice simulator. Life decisions, scam detection, classroom work, and Socratic prompts must reuse canonical multilingual content and contribute versioned evidence to one competence model. Teacher workflows remain pseudonymous and aggregate; sponsorship remains a contact-interest path without payment; optional AI remains server-side, feature-flagged, and clearly distinguishable from deterministic guided content.
+
 ## Promise
 
 Borza Academy helps learners understand finance, practise trading mechanics without real money, and build disciplined market skills.

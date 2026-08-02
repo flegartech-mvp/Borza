@@ -34,7 +34,13 @@ export type AcademyDictionary = {
     | "glossary"
     | "progress"
     | "achievements"
-    | "settings",
+    | "settings"
+    | "lifeSimulator"
+    | "scamDetector"
+    | "decisionLab"
+    | "passport"
+    | "mentor"
+    | "teacher",
     string
   >;
   landing: {
@@ -281,6 +287,12 @@ const de: AcademyDictionary = {
     progress: "Fortschritt",
     achievements: "Erfolge",
     settings: "Einstellungen",
+    lifeSimulator: "Lebenssimulator",
+    scamDetector: "Scam Detector",
+    decisionLab: "Decision Lab",
+    passport: "Kompetenzpass",
+    mentor: "AI Mentor",
+    teacher: "Teacher Mode",
   },
   landing: {
     eyebrow: "Decision Academy für Europa",
@@ -543,6 +555,12 @@ const sl: AcademyDictionary = {
     progress: "Napredek",
     achievements: "Dosežki",
     settings: "Nastavitve",
+    lifeSimulator: "Življenjski simulator",
+    scamDetector: "Detektor prevar",
+    decisionLab: "Laboratorij odločitev",
+    passport: "Kompetenčni potni list",
+    mentor: "AI mentor",
+    teacher: "Način za učitelje",
   },
   landing: {
     eyebrow: "Akademija odločanja za Evropo",
@@ -799,6 +817,12 @@ const en: AcademyDictionary = {
     progress: "Progress",
     achievements: "Achievements",
     settings: "Settings",
+    lifeSimulator: "Life Simulator",
+    scamDetector: "Scam Detector",
+    decisionLab: "Decision Lab",
+    passport: "Competence Passport",
+    mentor: "AI Mentor",
+    teacher: "Teacher Mode",
   },
   landing: {
     eyebrow: "A decision academy for Europe",

@@ -123,6 +123,11 @@ class AcademyRegistry:
     review_cards: tuple[dict[str, Any], ...]
     practice: dict[str, Any]
     sources: tuple[dict[str, Any], ...]
+    life_simulator: dict[str, Any]
+    scam_scenarios: tuple[dict[str, Any], ...]
+    decision_cases: tuple[dict[str, Any], ...]
+    competences: tuple[dict[str, Any], ...]
+    classroom_activities: tuple[dict[str, Any], ...]
 
     def _by_id(self, items: tuple[dict[str, Any], ...], item_id: str) -> dict[str, Any] | None:
         return next((item for item in items if str(item.get("id")) == item_id), None)
@@ -153,6 +158,18 @@ class AcademyRegistry:
     def review_card_by_id(self, card_id: str) -> dict[str, Any] | None:
         return self._by_id(self.review_cards, card_id)
 
+    def scam_scenario_by_id(self, scenario_id: str) -> dict[str, Any] | None:
+        return self._by_id(self.scam_scenarios, scenario_id)
+
+    def decision_case_by_id(self, case_id: str) -> dict[str, Any] | None:
+        return self._by_id(self.decision_cases, case_id)
+
+    def competence_by_id(self, competence_id: str) -> dict[str, Any] | None:
+        return self._by_id(self.competences, competence_id)
+
+    def classroom_activity_by_id(self, activity_id: str) -> dict[str, Any] | None:
+        return self._by_id(self.classroom_activities, activity_id)
+
     def questions_for_quiz(self, quiz_id: str) -> list[dict[str, Any]]:
         direct = [item for item in self.questions if item.get("quiz_id") == quiz_id]
         if direct:
@@ -174,6 +191,10 @@ class AcademyRegistry:
             "question": self.questions,
             "glossary": self.glossary,
             "review card": self.review_cards,
+            "scam scenario": self.scam_scenarios,
+            "decision case": self.decision_cases,
+            "competence": self.competences,
+            "classroom activity": self.classroom_activities,
         }
         all_ids: set[str] = set()
         for label, items in collections.items():
@@ -263,6 +284,13 @@ def _load_registry_cached(path_value: str, modified_ns: int) -> AcademyRegistry:
         review_cards=tuple(review_cards),
         practice=practice,
         sources=tuple(_collection_items(loaded.get("sources", []), "sources")),
+        life_simulator=loaded.get("life_simulator", {}),
+        scam_scenarios=tuple(_collection_items(loaded.get("scam_scenarios", []), "scenarios")),
+        decision_cases=tuple(_collection_items(loaded.get("decision_cases", []), "cases")),
+        competences=tuple(_collection_items(loaded.get("competences", []), "competences")),
+        classroom_activities=tuple(
+            _collection_items(loaded.get("classroom_activities", []), "activities")
+        ),
     )
     issues = registry.validate()
     if issues:

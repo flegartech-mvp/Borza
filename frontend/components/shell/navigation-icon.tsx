@@ -1,5 +1,7 @@
 import {
   Award,
+  BadgeCheck,
+  BrainCircuit,
   BookOpenText,
   BookText,
   Calculator,
@@ -11,7 +13,11 @@ import {
   House,
   LibraryBig,
   NotebookPen,
+  Presentation,
+  Scale,
   Settings,
+  ShieldAlert,
+  WalletCards,
 } from "lucide-react";
 import type { NavigationIconName } from "@/lib/navigation";
 
@@ -28,6 +34,12 @@ const icons = {
   progress: Gauge,
   achievements: Award,
   settings: Settings,
+  lifeSimulator: WalletCards,
+  scamDetector: ShieldAlert,
+  decisionLab: Scale,
+  passport: BadgeCheck,
+  mentor: BrainCircuit,
+  teacher: Presentation,
 } satisfies Record<NavigationIconName, typeof BookText>;
 
 export function NavigationIcon({

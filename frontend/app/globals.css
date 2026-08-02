@@ -228,3 +228,22 @@ dialog {
     transition-duration: 0.01ms !important;
   }
 }
+
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+
+  nav,
+  footer,
+  aside[aria-label],
+  button {
+    display: none !important;
+  }
+
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+}

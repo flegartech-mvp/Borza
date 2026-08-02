@@ -49,6 +49,8 @@ Skupaj: **35 ur**.
 
 ## 5. Predlagane dejavnosti
 
+Teacher Mode podpira šest začetnih dejavnosti v 45- in 90-minutni izvedbi. Dijaki se lahko pridružijo z začasno kodo in psevdonimom; učitelj vidi le združene odzive, porazdelitev odločitev, procesno oceno in pojme za ponovitev. Gradiva so različicena v `content/academy/teacher/`.
+
 - sestava proračuna ob spremembi prihodka ali nepričakovanem strošku;
 - primerjava navadne in sestavljene obrestne mere;
 - izračun realne kupne moči pri različnih stopnjah inflacije;

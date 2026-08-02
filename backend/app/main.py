@@ -11,6 +11,7 @@ from app.api.routes.catalog import router as catalog_router
 from app.api.routes.health import router as health_router
 from app.api.routes.journal import router as journal_router
 from app.api.routes.learning import router as learning_router
+from app.api.routes.practical import router as practical_router
 from app.api.routes.profile import router as profile_router
 from app.api.routes.review import router as review_router
 from app.api.routes.simulator import router as simulator_router
@@ -47,7 +48,13 @@ app.add_middleware(
     allow_origins=settings.cors_origin_list,
     allow_credentials=False,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type", "X-Demo-User", "Idempotency-Key"],
+    allow_headers=[
+        "Authorization",
+        "Content-Type",
+        "X-Demo-User",
+        "X-Classroom-Token",
+        "Idempotency-Key",
+    ],
 )
 app.add_middleware(RateLimitMiddleware)
 
@@ -60,6 +67,7 @@ app.include_router(simulator_router)
 app.include_router(journal_router)
 app.include_router(calculators_router)
 app.include_router(analytics_router)
+app.include_router(practical_router)
 
 
 @app.middleware("http")

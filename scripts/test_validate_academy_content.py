@@ -46,6 +46,12 @@ class AcademyContentValidationTests(unittest.TestCase):
                 "chart_exercises": 12,
                 "calculator_exercises": 10,
                 "simulation_scenarios": 10,
+                "life_profiles": 6,
+                "life_rounds": 8,
+                "scam_scenarios": 8,
+                "decision_cases": 11,
+                "competences": 13,
+                "classroom_activities": 6,
             },
         )
 
@@ -91,6 +97,23 @@ class AcademyContentValidationTests(unittest.TestCase):
         message = str(context.exception)
         self.assertIn("algorithm must be lcg-ohlcv-v1", message)
         self.assertIn("drift must be a decimal return float", message)
+
+    def test_practical_content_requires_all_locales(self) -> None:
+        payload = self.read_json("scam_scenarios.json")
+        del payload["scenarios"][0]["safe_action"]["sl"]
+        self.write_json("scam_scenarios.json", payload)
+
+        with self.assertRaisesRegex(ContentValidationError, "exactly the locales"):
+            validate_registry(self.content_root)
+
+    def test_decision_cases_require_contrasting_reasoning(self) -> None:
+        payload = self.read_json("decision_cases.json")
+        for option in payload["cases"][0]["options"]:
+            option["quality"] = "reasonable"
+        self.write_json("decision_cases.json", payload)
+
+        with self.assertRaisesRegex(ContentValidationError, "contrast strong and weak"):
+            validate_registry(self.content_root)
 
 
 if __name__ == "__main__":

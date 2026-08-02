@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0.0",
+  "activities": [
+    {
+      "id":"life-budget-choices", "version":"1.0", "kind":"life-simulator", "duration_options":[45,90], "recommended_age":"16+",
+      "title":{"de":"Lebensbudget unter Druck","sl":"Življenjski proračun pod pritiskom","en":"Life budget under pressure"},
+      "summary":{"de":"Teams vergleichen Lebensprofile und begründen Entscheidungen über Wohnen, Mobilität, Notfälle und Sparen.","sl":"Ekipe primerjajo življenjske profile in utemeljijo odločitve o bivanju, mobilnosti, izrednih dogodkih in varčevanju.","en":"Teams compare life profiles and justify housing, mobility, emergency, and saving choices."},
+      "objectives":["budgeting-cash-flow","emergency-planning","decision-making"], "material":"teacher/life-budget-choices.md", "anonymous_mode":true
+    },
+    {
+      "id":"scam-signal-triage", "version":"1.0", "kind":"scam-detector", "duration_options":[45,90], "recommended_age":"14+",
+      "title":{"de":"Betrugssignale prüfen","sl":"Preverjanje znakov prevare","en":"Scam-signal triage"},
+      "summary":{"de":"Lernende markieren Signale, trennen Unsicherheit von Betrug und formulieren sichere Prüfschritte.","sl":"Učenci označijo znake, ločijo negotovost od prevare in oblikujejo varne korake preverjanja.","en":"Learners mark signals, separate uncertainty from fraud, and formulate safe verification steps."},
+      "objectives":["scam-awareness","digital-safety","consumer-protection"], "material":"teacher/scam-signal-triage.md", "anonymous_mode":true
+    },
+    {
+      "id":"credit-total-cost", "version":"1.0", "kind":"decision-lab", "duration_options":[45,90], "recommended_age":"16+",
+      "title":{"de":"Kredit: Rate oder Gesamtkosten?","sl":"Kredit: obrok ali skupni strošek?","en":"Credit: payment or total cost?"},
+      "summary":{"de":"Die Klasse vergleicht Laufzeit, Effektivkosten, Liquidität und Ausstiegskosten statt nur Monatsraten.","sl":"Razred primerja ročnost, efektivne stroške, likvidnost in stroške izstopa namesto le mesečnega obroka.","en":"The class compares term, effective cost, liquidity, and exit costs rather than monthly payments alone."},
+      "objectives":["credit-debt","budgeting-cash-flow","decision-making"], "material":"teacher/credit-total-cost.md", "anonymous_mode":true
+    },
+    {
+      "id":"insurance-tradeoffs", "version":"1.0", "kind":"decision-lab", "duration_options":[45,90], "recommended_age":"16+",
+      "title":{"de":"Selbstbehalt oder höhere Prämie?","sl":"Višja franšiza ali višja premija?","en":"Higher deductible or higher premium?"},
+      "summary":{"de":"Lernende bewerten Eintrittswahrscheinlichkeit, Schadenshöhe, Deckung und eigene Reserve.","sl":"Učenci presojajo verjetnost, višino škode, kritje in lastno rezervo.","en":"Learners assess probability, loss size, coverage, and their own reserve."},
+      "objectives":["insurance","emergency-planning","risk-management"], "material":"teacher/insurance-tradeoffs.md", "anonymous_mode":true
+    },
+    {
+      "id":"inflation-real-value", "version":"1.0", "kind":"calculator", "duration_options":[45,90], "recommended_age":"15+",
+      "title":{"de":"Nominal oder real?","sl":"Nominalno ali realno?","en":"Nominal or real?"},
+      "summary":{"de":"Die Klasse erklärt Kaufkraft, Zinseszinseffekt und warum einzelne Annahmen kein Versprechen sind.","sl":"Razred razloži kupno moč, obrestno-obrestni učinek in zakaj posamezne predpostavke niso obljuba.","en":"The class explains purchasing power, compounding, and why a single assumption is not a promise."},
+      "objectives":["interest-inflation","investing-foundations","decision-making"], "material":"teacher/inflation-real-value.md", "anonymous_mode":true
+    },
+    {
+      "id":"job-offer-risk", "version":"1.0", "kind":"decision-lab", "duration_options":[45,90], "recommended_age":"16+",
+      "title":{"de":"Mehr Gehalt, mehr Unsicherheit","sl":"Višja plača, več negotovosti","en":"Higher pay, higher uncertainty"},
+      "summary":{"de":"Teams bewerten einen Jobwechsel anhand von Erwartungswert, Reserve, Lernwert und Verlustfähigkeit.","sl":"Ekipe presodijo menjavo službe glede na pričakovano vrednost, rezervo, učenje in zmožnost izgube.","en":"Teams assess a job change through expected value, reserve, learning value, and loss capacity."},
+      "objectives":["emergency-planning","decision-making","reflection-discipline"], "material":"teacher/job-offer-risk.md", "anonymous_mode":true
+    }
+  ]
+}

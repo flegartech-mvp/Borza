@@ -24,6 +24,7 @@ export default defineConfig({
         "features/review/review-scheduler.ts",
         "features/simulator/engine.ts",
         "features/tools/calculators.ts",
+        "features/practical-finance/engine.ts",
       ],
     },
   },

@@ -28,8 +28,12 @@ Mastery is supported by multiple evidence types:
 4. Calculator and chart work show application.
 5. Simulator evidence shows precommitment, risk control, and rule adherence.
 6. Journal reflection shows the learner can distinguish process from outcome.
+7. Decision Lab, Scam Detector, and Life Simulator attempts show applied reasoning against versioned cases.
+8. The Competence Passport aggregates multiple sources but never converts exposure into certification.
 
 One multiple-choice answer or one profitable simulation cannot create mastery.
+
+Practical evidence records content version, source type, source ID, process score, corrective feedback, and time. A client-supplied score is never authoritative: authenticated evidence is evaluated from canonical server content.
 
 ## Assessment principles
 

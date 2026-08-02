@@ -14,18 +14,21 @@ const navigation = {
   de: {
     learn: "Lernen",
     schools: "Für Schulen",
+    teachers: "Für Lehrkräfte",
     impact: "Wirkung",
     signIn: "Anmelden",
   },
   sl: {
     learn: "Učenje",
     schools: "Za šole",
+    teachers: "Za učitelje",
     impact: "Učinek",
     signIn: "Prijava",
   },
   en: {
     learn: "Learn",
     schools: "For schools",
+    teachers: "For teachers",
     impact: "Impact",
     signIn: "Sign in",
   },
@@ -74,6 +77,12 @@ export function MarketingHeader() {
           </Link>
           <Link
             className="text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+            href="/teachers"
+          >
+            {copy.teachers}
+          </Link>
+          <Link
+            className="text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             href="/impact"
           >
             {copy.impact}
@@ -113,6 +122,7 @@ export function MarketingFooter() {
           <p>{copy.boundary}</p>
           <div className="mt-3 flex flex-wrap gap-4 md:justify-end">
             <Link href="/schools">Schools</Link>
+            <Link href="/teachers">Teachers</Link>
             <Link href="/impact">Impact</Link>
             <Link href="/learn">Academy</Link>
           </div>

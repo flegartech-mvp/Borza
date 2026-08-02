@@ -57,6 +57,11 @@ REQUIRED_COLLECTIONS = {
     "review_cards",
     "practice",
     "sources",
+    "life_simulator",
+    "scam_scenarios",
+    "decision_cases",
+    "competences",
+    "classroom_activities",
 }
 REQUIRED_LESSON_SECTIONS = {
     "learn",
@@ -262,6 +267,11 @@ def validate_registry(root: str | Path) -> dict[str, int]:
     charts = payloads["practice"].get("chart_exercises")
     calculators = payloads["practice"].get("calculator_exercises")
     scenarios = payloads["practice"].get("simulation_scenarios")
+    life_scenario = payloads["life_simulator"].get("scenario")
+    scams = payloads["scam_scenarios"].get("scenarios")
+    decision_cases = payloads["decision_cases"].get("cases")
+    competences = payloads["competences"].get("competences")
+    classroom_activities = payloads["classroom_activities"].get("activities")
 
     path_by_id = unique_ids(paths, "paths")
     module_by_id = unique_ids(modules, "modules")
@@ -272,6 +282,10 @@ def validate_registry(root: str | Path) -> dict[str, int]:
     chart_by_id = unique_ids(charts, "chart exercises")
     calculator_by_id = unique_ids(calculators, "calculator exercises")
     scenario_by_id = unique_ids(scenarios, "simulation scenarios")
+    scam_by_id = unique_ids(scams, "scam scenarios")
+    decision_case_by_id = unique_ids(decision_cases, "decision cases")
+    competence_by_id = unique_ids(competences, "competences")
+    classroom_activity_by_id = unique_ids(classroom_activities, "classroom activities")
 
     all_raw_ids: list[str] = []
     for mapping in (
@@ -284,6 +298,10 @@ def validate_registry(root: str | Path) -> dict[str, int]:
         chart_by_id,
         calculator_by_id,
         scenario_by_id,
+        scam_by_id,
+        decision_case_by_id,
+        competence_by_id,
+        classroom_activity_by_id,
     ):
         all_raw_ids.extend(mapping)
     collisions = [item_id for item_id, count in Counter(all_raw_ids).items() if count > 1]
@@ -693,6 +711,106 @@ def validate_registry(root: str | Path) -> dict[str, int]:
     check(len(scenario_seeds) == len(set(scenario_seeds)), "simulation scenario seeds must be unique")
     check(not set(chart_seeds) & set(scenario_seeds), "chart and scenario seeds must not collide")
 
+    # Practical-finance collections are authored, versioned product content. Keep
+    # this validation focused on stable contracts rather than teaching wording.
+    for competence_id, competence in competence_by_id.items():
+        label = f"competence {competence_id}"
+        localized(competence.get("title"), f"{label}.title")
+        localized(competence.get("description"), f"{label}.description")
+        next_action = competence.get("next_action")
+        check(
+            isinstance(next_action, str) and next_action.startswith("/") and not next_action.startswith("//"),
+            f"{label}.next_action must be a safe internal path",
+        )
+
+    for scam_id, scam in scam_by_id.items():
+        label = f"scam scenario {scam_id}"
+        nonempty_string(scam.get("version"), f"{label}.version")
+        check(scam.get("difficulty") in {"foundation", "intermediate", "advanced"}, f"{label}.difficulty is invalid")
+        check(scam.get("risk_level") in {"low", "medium", "high", "critical"}, f"{label}.risk_level is invalid")
+        localized(scam.get("title"), f"{label}.title")
+        localized(scam.get("message"), f"{label}.message")
+        localized(scam.get("safe_action"), f"{label}.safe_action")
+        references(scam.get("competences"), set(competence_by_id), f"{label}.competences")
+        signals = scam.get("signals")
+        signal_by_id = unique_ids(signals, f"{label}.signals")
+        check(len(signal_by_id) >= 2, f"{label} must contain at least two signals")
+        for signal_id, signal in signal_by_id.items():
+            check(type(signal.get("red_flag")) is bool, f"{label}.{signal_id}.red_flag must be boolean")
+            localized(signal.get("text"), f"{label}.{signal_id}.text")
+            localized(signal.get("rationale"), f"{label}.{signal_id}.rationale")
+        checks = scam.get("verification_checks")
+        check(isinstance(checks, list) and len(checks) >= 2 and all(isinstance(item, str) and item.strip() for item in checks), f"{label}.verification_checks must contain at least two checks")
+
+    for case_id, case in decision_case_by_id.items():
+        label = f"decision case {case_id}"
+        nonempty_string(case.get("version"), f"{label}.version")
+        check(case.get("difficulty") in {"foundation", "intermediate", "advanced"}, f"{label}.difficulty is invalid")
+        localized(case.get("title"), f"{label}.title")
+        localized(case.get("context"), f"{label}.context")
+        localized(case.get("reflection"), f"{label}.reflection")
+        references(case.get("objectives"), set(competence_by_id), f"{label}.objectives")
+        options = case.get("options")
+        option_by_id = unique_ids(options, f"{label}.options")
+        check(len(option_by_id) >= 3, f"{label} must provide at least three options")
+        qualities: set[str] = set()
+        for option_id, option in option_by_id.items():
+            quality = option.get("quality")
+            check(quality in {"strong", "reasonable", "weak", "dangerous"}, f"{label}.{option_id}.quality is invalid")
+            if isinstance(quality, str):
+                qualities.add(quality)
+            localized(option.get("label"), f"{label}.{option_id}.label")
+            localized(option.get("feedback"), f"{label}.{option_id}.feedback")
+        check("strong" in qualities and qualities & {"weak", "dangerous"}, f"{label} must contrast strong and weak reasoning")
+
+    check(isinstance(life_scenario, dict), "life simulator scenario must be an object")
+    life_profiles: list[Any] = []
+    life_rounds: list[Any] = []
+    if isinstance(life_scenario, dict):
+        identifier(life_scenario.get("id"), "life simulator scenario.id")
+        nonempty_string(life_scenario.get("version"), "life simulator scenario.version")
+        localized(life_scenario.get("title"), "life simulator scenario.title")
+        localized(life_scenario.get("description"), "life simulator scenario.description")
+        life_profiles = life_scenario.get("profiles") if isinstance(life_scenario.get("profiles"), list) else []
+        life_rounds = life_scenario.get("rounds") if isinstance(life_scenario.get("rounds"), list) else []
+        profile_by_id = unique_ids(life_profiles, "life simulator profiles")
+        round_by_id = unique_ids(life_rounds, "life simulator rounds")
+        check(len(profile_by_id) >= 4, "life simulator must contain at least four profiles")
+        check(len(round_by_id) >= 8, "life simulator must contain at least eight rounds")
+        for profile_id, profile in profile_by_id.items():
+            localized(profile.get("title"), f"life profile {profile_id}.title")
+            localized(profile.get("subtitle"), f"life profile {profile_id}.subtitle")
+            state = profile.get("state")
+            check(isinstance(state, dict) and bool(state), f"life profile {profile_id}.state must be configured")
+        for round_id, round_item in round_by_id.items():
+            localized(round_item.get("title"), f"life round {round_id}.title")
+            localized(round_item.get("situation"), f"life round {round_id}.situation")
+            localized(round_item.get("prompt"), f"life round {round_id}.prompt")
+            references(round_item.get("competences"), set(competence_by_id), f"life round {round_id}.competences")
+            option_by_id = unique_ids(round_item.get("options"), f"life round {round_id}.options")
+            check(len(option_by_id) >= 2, f"life round {round_id} must provide at least two options")
+            for option_id, option in option_by_id.items():
+                localized(option.get("title"), f"life round {round_id}.{option_id}.title")
+                localized(option.get("summary"), f"life round {round_id}.{option_id}.summary")
+                localized(option.get("feedback"), f"life round {round_id}.{option_id}.feedback")
+                check(option.get("quality") in {"strong", "reasonable", "weak", "dangerous"}, f"life round {round_id}.{option_id}.quality is invalid")
+                effects = option.get("effects")
+                check(isinstance(effects, dict) and all(isinstance(value, (int, float)) for value in effects.values()), f"life round {round_id}.{option_id}.effects must be numeric")
+
+    for activity_id, activity in classroom_activity_by_id.items():
+        label = f"classroom activity {activity_id}"
+        nonempty_string(activity.get("version"), f"{label}.version")
+        localized(activity.get("title"), f"{label}.title")
+        localized(activity.get("summary"), f"{label}.summary")
+        references(activity.get("objectives"), set(competence_by_id), f"{label}.objectives")
+        durations = activity.get("duration_options")
+        check(isinstance(durations, list) and set(durations) == {45, 90}, f"{label}.duration_options must be 45 and 90")
+        material = activity.get("material")
+        check(isinstance(material, str) and material.startswith("teacher/") and not Path(material).is_absolute(), f"{label}.material must be a teacher-relative path")
+        if isinstance(material, str):
+            check((content_root / material).is_file(), f"{label}.material is missing: {material}")
+        check(activity.get("anonymous_mode") is True, f"{label} must support anonymous mode")
+
     for source_id, source in source_by_id.items():
         label = f"source {source_id}"
         nonempty_string(source.get("publisher"), f"{label}.publisher")
@@ -721,6 +839,12 @@ def validate_registry(root: str | Path) -> dict[str, int]:
         "chart_exercises": len(chart_by_id),
         "calculator_exercises": len(calculator_by_id),
         "simulation_scenarios": len(scenario_by_id),
+        "life_profiles": len(life_profiles),
+        "life_rounds": len(life_rounds),
+        "scam_scenarios": len(scam_by_id),
+        "decision_cases": len(decision_case_by_id),
+        "competences": len(competence_by_id),
+        "classroom_activities": len(classroom_activity_by_id),
     }
     minimums = manifest.get("launch_minimums")
     check(isinstance(minimums, dict), "manifest launch_minimums must be an object")
@@ -735,6 +859,12 @@ def validate_registry(root: str | Path) -> dict[str, int]:
         "chart_exercises",
         "calculator_exercises",
         "simulation_scenarios",
+        "life_profiles",
+        "life_rounds",
+        "scam_scenarios",
+        "decision_cases",
+        "competences",
+        "classroom_activities",
     }
     if isinstance(minimums, dict):
         check(set(minimums) == expected_minimum_keys, "manifest launch minimum keys drifted")
