@@ -32,10 +32,14 @@ def new_uuid() -> UUID:
 
 class User(Base):
     __tablename__ = "users"
+    __table_args__ = (
+        CheckConstraint("role IN ('learner', 'teacher', 'admin')", name="ck_users_role"),
+    )
 
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True)
     email: Mapped[str | None] = mapped_column(String(320))
     is_demo: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    role: Mapped[str] = mapped_column(String(16), nullable=False, default="learner")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
@@ -706,6 +710,11 @@ class PartnershipInterest(Base):
         ),
         Index("ix_partnership_kind_created", "kind", "created_at"),
         Index("ix_partnership_expires", "expires_at"),
+        Index(
+            "uq_partnership_idempotency_key_hash",
+            "idempotency_key_hash",
+            unique=True,
+        ),
     )
 
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=new_uuid)
@@ -716,5 +725,7 @@ class PartnershipInterest(Base):
     message: Mapped[str] = mapped_column(Text, nullable=False)
     consent: Mapped[bool] = mapped_column(Boolean, nullable=False)
     status: Mapped[str] = mapped_column(String(12), nullable=False, default="new")
+    idempotency_key_hash: Mapped[str | None] = mapped_column(String(64))
+    request_fingerprint: Mapped[str | None] = mapped_column(String(64))
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

@@ -18,6 +18,7 @@ from app.api.routes.simulator import router as simulator_router
 from app.core.config import get_settings
 from app.core.logging import configure_logging
 from app.core.rate_limiter import RateLimitMiddleware
+from app.core.request_limits import RequestBodyLimitMiddleware
 from app.services.schema_state import ensure_schema_at_head
 from app.version import __version__
 
@@ -56,7 +57,14 @@ app.add_middleware(
         "Idempotency-Key",
     ],
 )
-app.add_middleware(RateLimitMiddleware)
+app.add_middleware(RequestBodyLimitMiddleware, max_body_bytes=settings.max_request_body_bytes)
+app.add_middleware(
+    RateLimitMiddleware,
+    requests_per_minute=settings.rate_limit_requests_per_minute,
+    sensitive_per_minute=settings.rate_limit_sensitive_per_minute,
+    classroom_join_per_minute=settings.rate_limit_classroom_join_per_minute,
+    max_clients=settings.rate_limit_max_clients,
+)
 
 app.include_router(health_router)
 app.include_router(catalog_router)
@@ -77,4 +85,10 @@ async def security_headers(request: Request, call_next):
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["Referrer-Policy"] = "no-referrer"
     response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    if settings.is_deployed:
+        response.headers["Strict-Transport-Security"] = (
+            "max-age=63072000; includeSubDomains; preload"
+        )
+    if request.headers.get("Authorization") or request.headers.get("X-Demo-User"):
+        response.headers["Cache-Control"] = "private, no-store"
     return response

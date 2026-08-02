@@ -1,4 +1,5 @@
 from datetime import UTC, datetime
+from typing import Literal
 from uuid import UUID
 
 import httpx
@@ -10,8 +11,19 @@ from app.core.config import Settings, get_settings
 from app.database import get_db
 from app.models.academy import User
 
+AccountRole = Literal["learner", "teacher", "admin"]
+ACCOUNT_ROLES: frozenset[str] = frozenset({"learner", "teacher", "admin"})
 
-def _authenticate_with_supabase(token: str, settings: Settings) -> tuple[UUID, str | None]:
+
+def _account_role(payload: dict) -> AccountRole:
+    app_metadata = payload.get("app_metadata")
+    candidate = app_metadata.get("borza_role") if isinstance(app_metadata, dict) else None
+    return candidate if candidate in ACCOUNT_ROLES else "learner"
+
+
+def _authenticate_with_supabase(
+    token: str, settings: Settings
+) -> tuple[UUID, str | None, AccountRole]:
     if not settings.supabase_url or not settings.supabase_publishable_key:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -48,12 +60,13 @@ def _authenticate_with_supabase(token: str, settings: Settings) -> tuple[UUID, s
             detail="Authentication service returned an invalid user record.",
         ) from exc
     email = payload.get("email")
-    return user_id, str(email)[:320] if email else None
+    return user_id, str(email)[:320] if email else None, _account_role(payload)
 
 
 def get_current_user(
     authorization: str | None = Header(default=None),
     x_demo_user: str | None = Header(default=None, alias="X-Demo-User"),
+    x_demo_role: AccountRole = Header(default="learner", alias="X-Demo-Role"),
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
 ) -> User:
@@ -78,6 +91,7 @@ def get_current_user(
             ) from exc
         email = None
         is_demo = True
+        role = x_demo_role
     else:
         scheme, _, token = (authorization or "").partition(" ")
         if scheme.lower() != "bearer" or not token.strip():
@@ -86,18 +100,19 @@ def get_current_user(
                 detail="Authentication required.",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        user_id, email = _authenticate_with_supabase(token.strip(), settings)
+        user_id, email, role = _authenticate_with_supabase(token.strip(), settings)
         is_demo = False
 
     user = db.get(User, user_id)
     now = datetime.now(UTC)
     if user is None:
-        user = User(id=user_id, email=email, is_demo=is_demo, last_seen_at=now)
+        user = User(id=user_id, email=email, is_demo=is_demo, role=role, last_seen_at=now)
         db.add(user)
     else:
         user.last_seen_at = now
         if email:
             user.email = email
+        user.role = role
     try:
         db.commit()
     except IntegrityError:
@@ -106,4 +121,13 @@ def get_current_user(
         if user is None:
             raise
     db.refresh(user)
+    return user
+
+
+def require_teacher(user: User = Depends(get_current_user)) -> User:
+    if user.role not in {"teacher", "admin"}:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Teacher role required.",
+        )
     return user

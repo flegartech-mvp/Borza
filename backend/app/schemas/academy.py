@@ -10,6 +10,10 @@ class ORMModel(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class RequestModel(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+
 class HealthRead(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -149,7 +153,6 @@ class ChartExerciseRead(BaseModel):
     title: dict[str, str]
     prompt: dict[str, str]
     data: dict[str, JsonValue]
-    solution: dict[str, JsonValue]
     accessibility_summary: dict[str, str]
 
 
@@ -161,13 +164,11 @@ class CalculatorExerciseRead(BaseModel):
     prompt: dict[str, str]
     formula: str
     inputs: dict[str, JsonValue]
-    expected: dict[str, JsonValue]
-    worked_example: dict[str, str]
     interpretation: dict[str, str]
     common_mistake: dict[str, str]
 
 
-class ProfileUpdate(BaseModel):
+class ProfileUpdate(RequestModel):
     display_name: str | None = Field(default=None, max_length=120)
     locale: Literal["de", "sl", "en"] = "de"
     timezone: str = Field(default="Europe/Berlin", min_length=1, max_length=64)
@@ -184,7 +185,7 @@ class ProfileRead(ORMModel):
     updated_at: datetime
 
 
-class PreferenceUpdate(BaseModel):
+class PreferenceUpdate(RequestModel):
     theme: Literal["light", "dark", "system"] = "system"
     weekly_study_minutes: int = Field(default=180, ge=15, le=2400)
     reduced_motion: bool = False
@@ -200,7 +201,7 @@ class PreferenceRead(ORMModel):
     updated_at: datetime
 
 
-class OnboardingIn(BaseModel):
+class OnboardingIn(RequestModel):
     learning_goal: str = Field(min_length=1, max_length=80)
     experience_level: str = Field(min_length=1, max_length=32)
     primary_interest: str = Field(min_length=1, max_length=32)
@@ -226,7 +227,7 @@ class OnboardingRead(ORMModel):
     completed_at: datetime
 
 
-class ProgressUpdate(BaseModel):
+class ProgressUpdate(RequestModel):
     status: Literal["not_started", "in_progress", "completed"]
     progress_percent: int = Field(ge=0, le=100)
     best_score: Decimal | None = Field(default=None, ge=0, le=100)
@@ -252,7 +253,7 @@ class ProgressRead(ORMModel):
     updated_at: datetime
 
 
-class NoteWrite(BaseModel):
+class NoteWrite(RequestModel):
     body: str = Field(min_length=1, max_length=20_000)
 
 
@@ -270,12 +271,12 @@ class BookmarkRead(ORMModel):
     created_at: datetime
 
 
-class QuizAnswerIn(BaseModel):
+class QuizAnswerIn(RequestModel):
     question_id: str = Field(min_length=1, max_length=120)
     answer: JsonValue
 
 
-class QuizSubmission(BaseModel):
+class QuizSubmission(RequestModel):
     answers: list[QuizAnswerIn] = Field(min_length=1, max_length=200)
 
     @field_validator("answers")
@@ -310,7 +311,7 @@ class QuizRead(BaseModel):
     questions: list[dict[str, JsonValue]]
 
 
-class ReviewGradeIn(BaseModel):
+class ReviewGradeIn(RequestModel):
     rating: Literal["again", "hard", "good", "easy"]
     due_at: datetime
     stability: Decimal = Field(ge=0, le=36500)
@@ -367,7 +368,7 @@ class ReviewGradeResult(BaseModel):
     lapse_count: int
 
 
-class SimulatorCreate(BaseModel):
+class SimulatorCreate(RequestModel):
     scenario_id: str = Field(min_length=1, max_length=120)
     initial_balance: Decimal = Field(default=Decimal("10000"), gt=0, le=Decimal("100000000"))
     spread_bps: Decimal = Field(default=Decimal("2"), ge=0, le=1000)
@@ -380,7 +381,7 @@ class SimulatorCreate(BaseModel):
     concentration_checked: bool = False
 
 
-class SimulatorOrderIn(BaseModel):
+class SimulatorOrderIn(RequestModel):
     """An entry order with optional bracket protection for the resulting position."""
 
     expected_version: int = Field(ge=1)
@@ -399,12 +400,12 @@ class SimulatorOrderIn(BaseModel):
         return self
 
 
-class SimulatorStepIn(BaseModel):
+class SimulatorStepIn(RequestModel):
     candles: int = Field(default=1, ge=1, le=100)
     expected_version: int = Field(ge=1)
 
 
-class SimulatorCloseIn(BaseModel):
+class SimulatorCloseIn(RequestModel):
     expected_version: int = Field(ge=1)
     reason: str = Field(default="manual", min_length=1, max_length=32)
 
@@ -504,7 +505,7 @@ class SimulatorResults(BaseModel):
     recommended_review_cards: list[str]
 
 
-class JournalWrite(BaseModel):
+class JournalWrite(RequestModel):
     setup: str = Field(min_length=1, max_length=160)
     thesis: str = Field(min_length=1, max_length=20_000)
     market_context: str = Field(default="", max_length=20_000)
@@ -556,24 +557,31 @@ class JournalPage(BaseModel):
     offset: int
 
 
-class PositionSizeIn(BaseModel):
+class PositionSizeIn(RequestModel):
     account_balance: Decimal = Field(gt=0)
     risk_percent: Decimal = Field(gt=0, le=100)
     entry_price: Decimal = Field(gt=0)
     stop_price: Decimal = Field(gt=0)
 
 
-class ExpectancyIn(BaseModel):
+class ExpectancyIn(RequestModel):
     win_rate: Decimal = Field(ge=0, le=100)
     average_win: Decimal = Field(ge=0)
     average_loss: Decimal = Field(ge=0)
 
 
-class DrawdownIn(BaseModel):
+class DrawdownIn(RequestModel):
     equity_curve: list[Decimal] = Field(min_length=1, max_length=10000)
 
+    @field_validator("equity_curve")
+    @classmethod
+    def require_positive_equity(cls, value: list[Decimal]) -> list[Decimal]:
+        if any(item <= 0 for item in value):
+            raise ValueError("equity_curve values must be positive")
+        return value
 
-class RewardRiskIn(BaseModel):
+
+class RewardRiskIn(RequestModel):
     entry_price: Decimal = Field(gt=0)
     stop_price: Decimal = Field(gt=0)
     target_price: Decimal = Field(gt=0)
@@ -708,7 +716,7 @@ class JournalSummary(BaseModel):
     last_30_days: JournalPeriodSummary
 
 
-class DecisionAttemptIn(BaseModel):
+class DecisionAttemptIn(RequestModel):
     activity_type: Literal["life_simulator", "scam_detector", "decision_lab"]
     activity_id: str = Field(min_length=1, max_length=120)
     content_version: str = Field(min_length=1, max_length=40)
@@ -735,11 +743,11 @@ class DecisionAttemptRead(ORMModel):
     completed_at: datetime | None
 
 
-class LifeSessionCreate(BaseModel):
+class LifeSessionCreate(RequestModel):
     profile_id: str = Field(min_length=1, max_length=100)
 
 
-class LifeSessionUpdate(BaseModel):
+class LifeSessionUpdate(RequestModel):
     expected_round: int = Field(ge=0, le=120)
     selected_option_id: str = Field(min_length=1, max_length=120)
     reasoning: str = Field(min_length=20, max_length=5000)
@@ -781,7 +789,11 @@ class CompetenceProfileItem(BaseModel):
     recent_evidence: list[CompetenceEvidenceRead]
 
 
-class ClassroomCreate(BaseModel):
+class ClassroomSettings(RequestModel):
+    show_aggregate_only: bool = True
+
+
+class ClassroomCreate(RequestModel):
     activity_type: Literal[
         "life_simulator",
         "scam_detector",
@@ -794,7 +806,7 @@ class ClassroomCreate(BaseModel):
     activity_id: str = Field(min_length=1, max_length=120)
     content_version: str = Field(min_length=1, max_length=40)
     duration_minutes: Literal[45, 90]
-    settings: dict[str, JsonValue] = Field(default_factory=dict)
+    settings: ClassroomSettings = Field(default_factory=ClassroomSettings)
 
 
 class ClassroomSessionRead(ORMModel):
@@ -815,7 +827,7 @@ class ClassroomCreated(ClassroomSessionRead):
     classroom_code: str
 
 
-class ClassroomJoin(BaseModel):
+class ClassroomJoin(RequestModel):
     classroom_code: str = Field(min_length=6, max_length=12, pattern=r"^[A-Z2-9-]+$")
     pseudonym: str = Field(min_length=2, max_length=32, pattern=r"^[\w -]+$")
     website: str = Field(default="", max_length=0)
@@ -831,7 +843,7 @@ class ClassroomJoined(BaseModel):
     expires_at: datetime
 
 
-class ClassroomResponseIn(BaseModel):
+class ClassroomResponseIn(RequestModel):
     item_id: str = Field(min_length=1, max_length=120)
     answer: dict[str, JsonValue]
     reasoning: str = Field(min_length=10, max_length=5000)
@@ -850,7 +862,7 @@ class ClassroomDashboard(BaseModel):
     concepts_requiring_review: list[str]
 
 
-class PartnershipInterestIn(BaseModel):
+class PartnershipInterestIn(RequestModel):
     kind: Literal["teacher_pilot", "classroom_sponsor", "foundation", "partner"]
     organisation: str = Field(min_length=2, max_length=160)
     contact_role: str = Field(min_length=2, max_length=100)
@@ -880,7 +892,7 @@ class PartnershipInterestAccepted(BaseModel):
     status: Literal["accepted"] = "accepted"
 
 
-class MentorRequest(BaseModel):
+class MentorRequest(RequestModel):
     context_type: Literal["lesson", "life_simulator", "scam_detector", "decision_lab"]
     context_id: str = Field(min_length=1, max_length=120)
     learner_message: str = Field(min_length=10, max_length=2000)

@@ -38,6 +38,8 @@ def reward_to_risk(
     reward = target_price - entry_price if side == "long" else entry_price - target_price
     if risk <= 0:
         raise ValueError("stop_price must define positive risk for the selected side")
+    if reward <= 0:
+        raise ValueError("target_price must define positive reward for the selected side")
     return {
         "risk_per_unit": q_money(risk),
         "reward_per_unit": q_money(reward),

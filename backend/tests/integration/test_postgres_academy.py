@@ -2,9 +2,12 @@ from decimal import Decimal
 from uuid import UUID
 
 import pytest
+from conftest import TEST_DATABASE_URL, _alembic_config
 from sqlalchemy import inspect
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.sql import text
 
+from alembic import command
 from app.database import SessionLocal, engine
 from app.models.academy import SimulationSession, TradingJournal, User
 
@@ -43,3 +46,55 @@ def test_postgres_head_and_composite_owner_foreign_key() -> None:
         )
         with pytest.raises(IntegrityError):
             db.flush()
+
+
+def test_postgres_practical_tables_are_explicitly_protected_for_supabase_roles() -> None:
+    if engine.dialect.name != "postgresql":
+        pytest.skip("POSTGRES_TEST_DATABASE_URL is required")
+
+    config = _alembic_config(TEST_DATABASE_URL)
+    command.downgrade(config, "0014")
+    with engine.begin() as connection:
+        connection.execute(
+            text(
+                """
+DO $roles$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN
+        CREATE ROLE anon NOLOGIN;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'authenticated') THEN
+        CREATE ROLE authenticated NOLOGIN;
+    END IF;
+END
+$roles$;
+"""
+            )
+        )
+        connection.execute(text("CREATE SCHEMA IF NOT EXISTS auth"))
+    command.upgrade(config, "head")
+
+    with engine.connect() as connection:
+        protected = connection.execute(
+            text(
+                """
+SELECT relname, relrowsecurity
+FROM pg_class
+WHERE relname IN ('decision_attempts', 'classroom_responses', 'partnership_interests')
+ORDER BY relname
+"""
+            )
+        ).all()
+        assert protected == [
+            ("classroom_responses", True),
+            ("decision_attempts", True),
+            ("partnership_interests", True),
+        ]
+        assert not connection.scalar(
+            text("SELECT has_table_privilege('anon', 'public.partnership_interests', 'SELECT')")
+        )
+        assert not connection.scalar(
+            text(
+                "SELECT has_table_privilege('authenticated', 'public.classroom_responses', 'SELECT')"
+            )
+        )

@@ -71,9 +71,19 @@ def client() -> Iterator[TestClient]:
 
 @pytest.fixture
 def auth_headers() -> dict[str, str]:
-    return {"X-Demo-User": DEMO_USER_ID}
+    return {"X-Demo-User": DEMO_USER_ID, "X-Demo-Role": "learner"}
 
 
 @pytest.fixture
 def other_auth_headers() -> dict[str, str]:
-    return {"X-Demo-User": OTHER_USER_ID}
+    return {"X-Demo-User": OTHER_USER_ID, "X-Demo-Role": "learner"}
+
+
+@pytest.fixture
+def teacher_auth_headers() -> dict[str, str]:
+    return {"X-Demo-User": DEMO_USER_ID, "X-Demo-Role": "teacher"}
+
+
+@pytest.fixture
+def other_teacher_auth_headers() -> dict[str, str]:
+    return {"X-Demo-User": OTHER_USER_ID, "X-Demo-Role": "teacher"}

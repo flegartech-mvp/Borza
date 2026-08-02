@@ -103,6 +103,18 @@ def test_lesson_id_is_stable_quiz_id_and_partial_submission_is_rejected(
         assert db.scalar(select(func.count(QuizAttempt.id))) == 0
 
 
+def test_public_practice_catalog_does_not_expose_solutions(client) -> None:
+    charts = client.get("/api/v1/chart-exercises")
+    calculators = client.get("/api/v1/calculator-exercises")
+
+    assert charts.status_code == 200
+    assert calculators.status_code == 200
+    assert all("solution" not in item for item in charts.json())
+    assert all(
+        "expected" not in item and "worked_example" not in item for item in calculators.json()
+    )
+
+
 def test_openapi_uses_named_catalog_contracts(client) -> None:
     document = client.get("/openapi.json").json()
     paths = document["paths"]

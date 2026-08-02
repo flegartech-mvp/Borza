@@ -1,3 +1,4 @@
+import logging
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query, status
@@ -15,15 +16,17 @@ from app.schemas.academy import (
 )
 
 router = APIRouter(prefix="/api/v1", tags=["catalog"])
+logger = logging.getLogger(__name__)
 
 
 def registry_or_503():
     try:
         return load_academy_registry()
     except ContentRegistryError as exc:
+        logger.exception("Academy content registry could not be loaded")
         raise HTTPException(
             status.HTTP_503_SERVICE_UNAVAILABLE,
-            f"Academy content is unavailable: {exc}",
+            "Academy content is temporarily unavailable.",
         ) from exc
 
 

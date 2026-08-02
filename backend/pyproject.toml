@@ -33,6 +33,7 @@ ignore = ["E501"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+addopts = "--basetemp=.pytest-temp"
 markers = [
     "postgres: requires the disposable PostgreSQL 16 integration profile",
 ]

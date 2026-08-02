@@ -42,7 +42,7 @@ class JSONFormatter(logging.Formatter):
             data["worker_id"] = getattr(record, "worker_id")
 
         if record.exc_info:
-            data["exception"] = self.formatException(record.exc_info)
+            data["exception"] = redact_sensitive_string(self.formatException(record.exc_info))
 
         return json.dumps(data)
 

@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import io
+import json
+import re
 from collections import Counter, defaultdict
 from datetime import UTC, datetime, timedelta
 from statistics import mean
@@ -14,7 +17,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.api.deps.auth import get_current_user
+from app.api.deps.auth import get_current_user, require_teacher
 from app.api.routes.catalog import registry_or_503
 from app.core.config import Settings, get_settings
 from app.database import get_db
@@ -62,6 +65,31 @@ from app.services.practical_engine import (
 
 router = APIRouter(prefix="/api/v1", tags=["practical finance"])
 
+PUBLIC_HIDDEN_CONTENT_KEYS = frozenset(
+    {
+        "answer",
+        "correct_answer",
+        "correct_answers",
+        "effects",
+        "feedback",
+        "missing_information",
+        "next_action",
+        "quality",
+        "red_flag",
+        "reflection",
+        "risk_level",
+        "safe_action",
+        "solution",
+        "teacher_mode",
+        "verification_checks",
+    }
+)
+SENSITIVE_MENTOR_PATTERNS = (
+    re.compile(r"\b[A-Z]{2}\d{2}[A-Z0-9]{11,30}\b", re.IGNORECASE),
+    re.compile(r"\b[^\s@]+@[^\s@]+\.[^\s@]+\b"),
+    re.compile(r"\b\d{13,19}\b"),
+)
+
 
 def _content_error(exc: PracticalContentError) -> HTTPException:
     return HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(exc))
@@ -72,15 +100,67 @@ def _is_expired(value: datetime) -> bool:
     return candidate <= datetime.now(UTC)
 
 
+def _public_content(value: Any) -> Any:
+    if isinstance(value, list):
+        return [_public_content(item) for item in value]
+    if isinstance(value, dict):
+        return {
+            key: _public_content(item)
+            for key, item in value.items()
+            if key not in PUBLIC_HIDDEN_CONTENT_KEYS
+        }
+    return value
+
+
+def _partnership_values(request: PartnershipInterestIn) -> dict[str, Any]:
+    return {
+        "kind": request.kind,
+        "organisation": request.organisation.strip(),
+        "contact_role": request.contact_role.strip(),
+        "contact_email": request.contact_email,
+        "message": request.message.strip(),
+        "consent": request.consent,
+    }
+
+
+def _request_fingerprint(values: dict[str, Any]) -> str:
+    canonical = json.dumps(values, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def _mentor_context_exists(request: MentorRequest) -> bool:
+    registry = registry_or_503()
+    if request.context_type == "lesson":
+        return registry.lesson_by_id(request.context_id) is not None
+    if request.context_type == "decision_lab":
+        return registry.decision_case_by_id(request.context_id) is not None
+    if request.context_type == "scam_detector":
+        return registry.scam_scenario_by_id(request.context_id) is not None
+    scenario = registry.life_simulator.get("scenario")
+    if not isinstance(scenario, dict):
+        return False
+    if scenario.get("id") == request.context_id:
+        return True
+    return any(
+        isinstance(item, dict) and item.get("id") == request.context_id
+        for item in scenario.get("rounds", [])
+    )
+
+
+def _mentor_contains_sensitive_data(request: MentorRequest) -> bool:
+    text = f"{request.learner_message}\n{request.decision_summary}"
+    return any(pattern.search(text) for pattern in SENSITIVE_MENTOR_PATTERNS)
+
+
 @router.get("/practical-content")
 def practical_content() -> dict[str, Any]:
     registry = registry_or_503()
     return {
         "schema_version": registry.schema_version,
         "locales": registry.locales,
-        "life_simulator": registry.life_simulator,
-        "scam_scenarios": list(registry.scam_scenarios),
-        "decision_cases": list(registry.decision_cases),
+        "life_simulator": _public_content(registry.life_simulator),
+        "scam_scenarios": _public_content(list(registry.scam_scenarios)),
+        "decision_cases": _public_content(list(registry.decision_cases)),
         "competences": list(registry.competences),
         "classroom_activities": list(registry.classroom_activities),
         "disclaimer": {
@@ -248,10 +328,12 @@ def update_life_session(
     db: Session = Depends(get_db),
 ) -> LifeSimulationSession:
     session = db.scalar(
-        select(LifeSimulationSession).where(
+        select(LifeSimulationSession)
+        .where(
             LifeSimulationSession.id == session_id,
             LifeSimulationSession.user_id == user.id,
         )
+        .with_for_update()
     )
     if session is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Life Simulator session not found.")
@@ -332,7 +414,7 @@ def _teacher_session(db: Session, session_id: UUID, user_id: UUID) -> ClassroomS
 )
 def create_classroom(
     request: ClassroomCreate,
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_teacher),
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
 ) -> dict[str, Any]:
@@ -353,7 +435,7 @@ def create_classroom(
         content_version=request.content_version,
         duration_minutes=request.duration_minutes,
         status="active",
-        settings=request.settings,
+        settings=request.settings.model_dump(),
         expires_at=datetime.now(UTC) + timedelta(hours=4),
         started_at=datetime.now(UTC),
     )
@@ -371,7 +453,7 @@ def create_classroom(
 
 @router.get("/teacher/classrooms", response_model=list[ClassroomSessionRead])
 def list_classrooms(
-    user: User = Depends(get_current_user), db: Session = Depends(get_db)
+    user: User = Depends(require_teacher), db: Session = Depends(get_db)
 ) -> list[ClassroomSession]:
     return list(
         db.scalars(
@@ -385,7 +467,7 @@ def list_classrooms(
 @router.post("/teacher/classrooms/{session_id}/close", response_model=ClassroomSessionRead)
 def close_classroom(
     session_id: UUID,
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_teacher),
     db: Session = Depends(get_db),
 ) -> ClassroomSession:
     classroom = _teacher_session(db, session_id, user.id)
@@ -439,7 +521,7 @@ def _classroom_dashboard(db: Session, classroom: ClassroomSession) -> dict[str, 
 @router.get("/teacher/classrooms/{session_id}/dashboard", response_model=ClassroomDashboard)
 def classroom_dashboard(
     session_id: UUID,
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_teacher),
     db: Session = Depends(get_db),
 ) -> dict[str, Any]:
     return _classroom_dashboard(db, _teacher_session(db, session_id, user.id))
@@ -448,7 +530,7 @@ def classroom_dashboard(
 @router.get("/teacher/classrooms/{session_id}/report.csv")
 def classroom_report(
     session_id: UUID,
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_teacher),
     db: Session = Depends(get_db),
 ) -> StreamingResponse:
     dashboard = _classroom_dashboard(db, _teacher_session(db, session_id, user.id))
@@ -572,20 +654,59 @@ def submit_classroom_response(
 )
 def partnership_interest(
     request: PartnershipInterestIn,
+    idempotency_key: str | None = Header(
+        default=None, alias="Idempotency-Key", min_length=16, max_length=200
+    ),
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
 ) -> dict[str, Any]:
+    values = _partnership_values(request)
+    fingerprint = _request_fingerprint(values)
+    key_hash = (
+        hash_classroom_secret(idempotency_key, settings, purpose="partnership-idempotency-key")
+        if idempotency_key
+        else None
+    )
+    if key_hash:
+        existing = db.scalar(
+            select(PartnershipInterest).where(PartnershipInterest.idempotency_key_hash == key_hash)
+        )
+        if existing is not None:
+            if existing.request_fingerprint != fingerprint:
+                raise HTTPException(
+                    status.HTTP_409_CONFLICT,
+                    "Idempotency-Key was already used for a different submission.",
+                )
+            return {
+                "id": existing.id,
+                "retention_days": settings.partnership_retention_days,
+                "status": "accepted",
+            }
     interest = PartnershipInterest(
-        kind=request.kind,
-        organisation=request.organisation.strip(),
-        contact_role=request.contact_role.strip(),
-        contact_email=request.contact_email,
-        message=request.message.strip(),
-        consent=request.consent,
+        **values,
+        idempotency_key_hash=key_hash,
+        request_fingerprint=fingerprint if key_hash else None,
         expires_at=datetime.now(UTC) + timedelta(days=settings.partnership_retention_days),
     )
     db.add(interest)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        existing = (
+            db.scalar(
+                select(PartnershipInterest).where(
+                    PartnershipInterest.idempotency_key_hash == key_hash
+                )
+            )
+            if key_hash
+            else None
+        )
+        if existing is None or existing.request_fingerprint != fingerprint:
+            raise HTTPException(
+                status.HTTP_409_CONFLICT, "Partnership submission could not be accepted."
+            ) from exc
+        interest = existing
     db.refresh(interest)
     return {
         "id": interest.id,
@@ -600,6 +721,13 @@ def practical_mentor(
     user: User = Depends(get_current_user),
     settings: Settings = Depends(get_settings),
 ) -> MentorResponse:
+    if not _mentor_context_exists(request):
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "Mentor context not found.")
+    if _mentor_contains_sensitive_data(request):
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
+            "Remove personal contact, account, or payment identifiers before using the Mentor.",
+        )
     safety_identifier = hash_classroom_secret(
         str(user.id), settings, purpose="openai-safety-identifier"
     )

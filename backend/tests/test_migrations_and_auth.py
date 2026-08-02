@@ -22,7 +22,7 @@ def test_academy_migration_is_non_destructive_and_reversible(tmp_path: Path) -> 
     assert {"articles", "users", "lesson_progress", "simulation_trades"} <= tables
     with engine.connect() as connection:
         assert (
-            connection.execute(text("SELECT version_num FROM alembic_version")).scalar() == "0014"
+            connection.execute(text("SELECT version_num FROM alembic_version")).scalar() == "0015"
         )
 
     command.downgrade(config, "0011")
@@ -49,7 +49,11 @@ def test_supabase_auth_validates_user_through_official_user_endpoint(monkeypatch
         observed["headers"] = kwargs["headers"]
         return httpx.Response(
             200,
-            json={"id": "33333333-3333-4333-8333-333333333333", "email": "a@example.test"},
+            json={
+                "id": "33333333-3333-4333-8333-333333333333",
+                "email": "a@example.test",
+                "app_metadata": {"borza_role": "teacher"},
+            },
         )
 
     monkeypatch.setattr(httpx, "get", fake_get)
@@ -60,10 +64,11 @@ def test_supabase_auth_validates_user_through_official_user_endpoint(monkeypatch
         supabase_publishable_key="publishable-key",
     )
 
-    user_id, email = _authenticate_with_supabase("access-token", settings)
+    user_id, email, role = _authenticate_with_supabase("access-token", settings)
 
     assert str(user_id) == "33333333-3333-4333-8333-333333333333"
     assert email == "a@example.test"
+    assert role == "teacher"
     assert observed["url"] == "https://project.supabase.co/auth/v1/user"
     assert observed["headers"]["apikey"] == "publishable-key"
     assert observed["headers"]["Authorization"] == "Bearer access-token"
@@ -78,3 +83,34 @@ def test_migration_contains_server_only_supabase_access_controls() -> None:
     assert "REVOKE ALL" in migration
     assert "auth.uid()" in migration
     assert "anon" in migration and "authenticated" in migration
+
+    hardening = (BACKEND_ROOT / "alembic" / "versions" / "0015_platform_hardening.py").read_text(
+        encoding="utf-8"
+    )
+    assert "partnership_interests" in hardening
+    assert "classroom_responses" in hardening
+    assert "ENABLE ROW LEVEL SECURITY" in hardening
+    assert "REVOKE ALL PRIVILEGES" in hardening
+
+
+def test_user_editable_metadata_cannot_grant_teacher_role(monkeypatch) -> None:
+    def fake_get(_url, **_kwargs):
+        return httpx.Response(
+            200,
+            json={
+                "id": "44444444-4444-4444-8444-444444444444",
+                "user_metadata": {"borza_role": "teacher"},
+            },
+        )
+
+    monkeypatch.setattr(httpx, "get", fake_get)
+    settings = Settings(
+        environment="test",
+        database_url="sqlite:///./auth-role-test.db",
+        supabase_url="https://project.supabase.co",
+        supabase_publishable_key="publishable-key",
+    )
+
+    _user_id, _email, role = _authenticate_with_supabase("access-token", settings)
+
+    assert role == "learner"

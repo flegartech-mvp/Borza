@@ -56,6 +56,11 @@ class Settings(BaseSettings):
     database_max_overflow: int = Field(2, ge=0, le=10)
     database_pool_timeout_seconds: int = Field(10, ge=1, le=60)
     database_pool_recycle_seconds: int = Field(900, ge=60, le=3600)
+    max_request_body_bytes: int = Field(262_144, ge=16_384, le=10_485_760)
+    rate_limit_requests_per_minute: int = Field(240, ge=10, le=10_000)
+    rate_limit_sensitive_per_minute: int = Field(30, ge=5, le=1_000)
+    rate_limit_classroom_join_per_minute: int = Field(120, ge=10, le=2_000)
+    rate_limit_max_clients: int = Field(10_000, ge=100, le=1_000_000)
     cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
     allowed_hosts: str = "localhost,127.0.0.1,testserver"
     log_level: str = "INFO"
@@ -65,6 +70,7 @@ class Settings(BaseSettings):
     supabase_publishable_key: str | None = Field(default=None, max_length=1024)
     supabase_auth_timeout_seconds: float = Field(5, ge=1, le=20)
     classroom_code_secret: SecretStr = SecretStr("local-development-classroom-secret-change-me")
+    classroom_retention_days: int = Field(30, ge=1, le=365)
     partnership_retention_days: int = Field(180, ge=30, le=730)
     mentor_enabled: bool = False
     openai_api_key: SecretStr | None = None

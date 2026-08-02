@@ -118,3 +118,19 @@ def test_decimal_calculators_have_explicit_stable_results(client) -> None:
         },
     )
     assert invalid.status_code == 422
+
+    wrong_target = client.post(
+        "/api/v1/calculators/reward-to-risk",
+        json={
+            "entry_price": "50",
+            "stop_price": "49",
+            "target_price": "48",
+            "side": "long",
+        },
+    )
+    negative_equity = client.post(
+        "/api/v1/calculators/drawdown",
+        json={"equity_curve": ["100", "-10"]},
+    )
+    assert wrong_target.status_code == 422
+    assert negative_equity.status_code == 422
