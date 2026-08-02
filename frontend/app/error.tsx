@@ -2,7 +2,12 @@
 
 import { Button, ErrorState } from "@/components/ui";
 
-export default function Error({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
+export default function Error({
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
   return (
     <main className="grid min-h-dvh place-items-center p-6">
       <ErrorState

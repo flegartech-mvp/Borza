@@ -289,14 +289,19 @@ const de: AcademyDictionary = {
     lessonPreview: "Eine echte Lektion, nicht nur ein Kurskatalog",
     chartPreview: "Charts lesen, bevor du Entscheidungen bewertest",
     riskTitle: "Risiko vor Rendite",
-    riskBody: "Positionsgröße, Verlustgrenzen und Prozessqualität stehen vor Ergebnisdenken.",
+    riskBody:
+      "Positionsgröße, Verlustgrenzen und Prozessqualität stehen vor Ergebnisdenken.",
     multilingual: "Deutsch, Slovenščina und English",
-    multilingualBody: "Die Kernanwendung und die Demo-Lektion sind in allen drei Sprachen nutzbar.",
+    multilingualBody:
+      "Die Kernanwendung und die Demo-Lektion sind in allen drei Sprachen nutzbar.",
     toolsTitle: "Werkzeuge mit Erklärung",
-    toolsBody: "18 Rechner verbinden Formel, Beispiel, Interpretation und typische Fehler.",
+    toolsBody:
+      "18 Rechner verbinden Formel, Beispiel, Interpretation und typische Fehler.",
     pathsTitle: "Vier vollständige Startpfade",
-    pathsBody: "Finanzgrundlagen, Tradinggrundlagen, Risikomanagement und Technische Analyse.",
-    responsible: "Nur Bildung und Simulation. Keine Anlageberatung, keine Live-Orders und keine Gewinnversprechen.",
+    pathsBody:
+      "Finanzgrundlagen, Tradinggrundlagen, Risikomanagement und Technische Analyse.",
+    responsible:
+      "Nur Bildung und Simulation. Keine Anlageberatung, keine Live-Orders und keine Gewinnversprechen.",
   },
   auth: {
     signIn: "Anmelden",
@@ -312,12 +317,14 @@ const de: AcademyDictionary = {
     resetSent: "Prüfe dein Postfach. Der Link wurde angefordert.",
     submit: "Sicher fortfahren",
     configurationTitle: "Supabase Auth ist noch nicht konfiguriert",
-    configurationBody: "Die öffentliche Demo bleibt verfügbar. Für Konten müssen die öffentliche URL und der Publishable Key gesetzt sein.",
+    configurationBody:
+      "Die öffentliche Demo bleibt verfügbar. Für Konten müssen die öffentliche URL und der Publishable Key gesetzt sein.",
     error: "Die Anfrage konnte nicht abgeschlossen werden.",
   },
   onboarding: {
     title: "Dein Lernplan",
-    intro: "Acht kurze Antworten genügen für eine sinnvolle Empfehlung. Wir fragen nie nach Kontoständen.",
+    intro:
+      "Acht kurze Antworten genügen für eine sinnvolle Empfehlung. Wir fragen nie nach Kontoständen.",
     goal: "Lernziel",
     level: "Erfahrungsniveau",
     interest: "Finanzen oder Trading",
@@ -326,7 +333,8 @@ const de: AcademyDictionary = {
     risk: "Risikowissen",
     style: "Bevorzugter Lernstil",
     placement: "Optionaler Einstufungstest",
-    placementQuestion: "Was schützt ein Konto am direktesten vor einem einzelnen großen Verlust?",
+    placementQuestion:
+      "Was schützt ein Konto am direktesten vor einem einzelnen großen Verlust?",
     recommendation: "Empfohlener Start",
     finish: "Plan speichern und starten",
   },
@@ -345,7 +353,8 @@ const de: AcademyDictionary = {
   },
   learn: {
     title: "Lernpfade",
-    intro: "Baue Fähigkeiten in einer klaren Reihenfolge auf und sieh, was als Nächstes freigeschaltet wird.",
+    intro:
+      "Baue Fähigkeiten in einer klaren Reihenfolge auf und sieh, was als Nächstes freigeschaltet wird.",
     activePaths: "Aktive Lernpfade",
     skillMap: "Skill Map",
     available: "Verfügbar",
@@ -401,7 +410,8 @@ const de: AcademyDictionary = {
   },
   practice: {
     title: "Chart-Labor",
-    intro: "Trainiere Beobachtung und Risikodenken mit deterministischen, simulierten Kerzen.",
+    intro:
+      "Trainiere Beobachtung und Risikodenken mit deterministischen, simulierten Kerzen.",
     prompt: "Welche Marktstruktur ist sichtbar?",
     uptrend: "Aufwärtstrend",
     downtrend: "Abwärtstrend",
@@ -413,7 +423,8 @@ const de: AcademyDictionary = {
   },
   simulator: {
     title: "Lern-Simulator",
-    intro: "Übe Ausführung, Risiko und Disziplin in einer reproduzierbaren historischen Simulation.",
+    intro:
+      "Übe Ausführung, Risiko und Disziplin in einer reproduzierbaren historischen Simulation.",
     warning: "Nur Paper Trading. Es werden keine echten Aufträge übertragen.",
     balance: "Startguthaben",
     equity: "Kontowert",
@@ -444,7 +455,8 @@ const de: AcademyDictionary = {
   },
   tools: {
     title: "Finanztools",
-    intro: "Rechner, die nicht nur eine Zahl liefern, sondern die Entscheidung dahinter erklären.",
+    intro:
+      "Rechner, die nicht nur eine Zahl liefern, sondern die Entscheidung dahinter erklären.",
     calculate: "Berechnen",
     formula: "Formel",
     example: "Beispiel",
@@ -456,7 +468,8 @@ const de: AcademyDictionary = {
   },
   journal: {
     title: "Trading-Journal",
-    intro: "Dokumentiere Plan, Emotionen und Regelbefolgung – nicht nur Gewinn oder Verlust.",
+    intro:
+      "Dokumentiere Plan, Emotionen und Regelbefolgung – nicht nur Gewinn oder Verlust.",
     setup: "Setup",
     thesis: "These",
     context: "Marktkontext",
@@ -481,7 +494,8 @@ const de: AcademyDictionary = {
     progressTitle: "Fortschritt und Mastery",
     progressIntro: "Mehrere Evidenzarten zeigen, was du wirklich beherrschst.",
     achievementsTitle: "Erfolge",
-    achievementsIntro: "Belohnungen für Disziplin, Übung und ehrliche Reflexion.",
+    achievementsIntro:
+      "Belohnungen für Disziplin, Übung und ehrliche Reflexion.",
     settingsTitle: "Einstellungen",
     settingsIntro: "Sprache, Darstellung und Lernpräferenzen.",
     profileTitle: "Profil",
@@ -536,14 +550,19 @@ const sl: AcademyDictionary = {
     lessonPreview: "Prava lekcija, ne le katalog tečajev",
     chartPreview: "Preberi graf, preden oceniš odločitev",
     riskTitle: "Tveganje pred donosom",
-    riskBody: "Velikost pozicije, omejitve izgub in kakovost procesa so pomembnejši od rezultata.",
+    riskBody:
+      "Velikost pozicije, omejitve izgub in kakovost procesa so pomembnejši od rezultata.",
     multilingual: "Deutsch, Slovenščina in English",
-    multilingualBody: "Jedro aplikacije in demo lekcija sta na voljo v vseh treh jezikih.",
+    multilingualBody:
+      "Jedro aplikacije in demo lekcija sta na voljo v vseh treh jezikih.",
     toolsTitle: "Orodja z razlago",
-    toolsBody: "18 kalkulatorjev poveže formulo, primer, razlago in pogoste napake.",
+    toolsBody:
+      "18 kalkulatorjev poveže formulo, primer, razlago in pogoste napake.",
     pathsTitle: "Štiri celovite začetne poti",
-    pathsBody: "Osnove financ, osnove trgovanja, upravljanje tveganj in tehnična analiza.",
-    responsible: "Samo izobraževanje in simulacija. Brez investicijskih nasvetov, pravih naročil ali obljub o dobičku.",
+    pathsBody:
+      "Osnove financ, osnove trgovanja, upravljanje tveganj in tehnična analiza.",
+    responsible:
+      "Samo izobraževanje in simulacija. Brez investicijskih nasvetov, pravih naročil ali obljub o dobičku.",
   },
   auth: {
     ...de.auth,
@@ -560,12 +579,14 @@ const sl: AcademyDictionary = {
     resetSent: "Preveri pošto. Povezava je bila zahtevana.",
     submit: "Varno nadaljuj",
     configurationTitle: "Supabase Auth še ni nastavljen",
-    configurationBody: "Javni demo ostaja na voljo. Za račune nastavi javni URL in objavljivi ključ.",
+    configurationBody:
+      "Javni demo ostaja na voljo. Za račune nastavi javni URL in objavljivi ključ.",
     error: "Zahteve ni bilo mogoče dokončati.",
   },
   onboarding: {
     title: "Tvoj učni načrt",
-    intro: "Osem kratkih odgovorov zadošča za smiselno priporočilo. Nikoli ne sprašujemo po stanju na računu.",
+    intro:
+      "Osem kratkih odgovorov zadošča za smiselno priporočilo. Nikoli ne sprašujemo po stanju na računu.",
     goal: "Učni cilj",
     level: "Raven izkušenj",
     interest: "Finance ali trgovanje",
@@ -574,7 +595,8 @@ const sl: AcademyDictionary = {
     risk: "Znanje o tveganju",
     style: "Najljubši način učenja",
     placement: "Neobvezno preverjanje znanja",
-    placementQuestion: "Kaj neposredno najbolj varuje račun pred eno veliko izgubo?",
+    placementQuestion:
+      "Kaj neposredno najbolj varuje račun pred eno veliko izgubo?",
     recommendation: "Priporočen začetek",
     finish: "Shrani načrt in začni",
   },
@@ -651,7 +673,8 @@ const sl: AcademyDictionary = {
   practice: {
     ...de.practice,
     title: "Laboratorij grafov",
-    intro: "Vadi opazovanje in razmišljanje o tveganju z determinističnimi simuliranimi svečami.",
+    intro:
+      "Vadi opazovanje in razmišljanje o tveganju z determinističnimi simuliranimi svečami.",
     prompt: "Katera tržna struktura je vidna?",
     uptrend: "Naraščajoči trend",
     downtrend: "Padajoči trend",
@@ -663,7 +686,8 @@ const sl: AcademyDictionary = {
   simulator: {
     ...de.simulator,
     title: "Učni simulator",
-    intro: "Vadi izvedbo, tveganje in disciplino v ponovljivi zgodovinski simulaciji.",
+    intro:
+      "Vadi izvedbo, tveganje in disciplino v ponovljivi zgodovinski simulaciji.",
     warning: "Samo papirno trgovanje. Prava naročila se ne pošiljajo.",
     balance: "Začetno stanje",
     equity: "Vrednost računa",
@@ -701,7 +725,8 @@ const sl: AcademyDictionary = {
   journal: {
     ...de.journal,
     title: "Trgovalni dnevnik",
-    intro: "Zapiši načrt, čustva in upoštevanje pravil – ne le dobička ali izgube.",
+    intro:
+      "Zapiši načrt, čustva in upoštevanje pravil – ne le dobička ali izgube.",
     setup: "Postavitev",
     thesis: "Teza",
     context: "Tržni kontekst",
@@ -780,14 +805,19 @@ const en: AcademyDictionary = {
     lessonPreview: "A real lesson, not just a course catalogue",
     chartPreview: "Read the chart before judging the decision",
     riskTitle: "Risk before return",
-    riskBody: "Position size, loss limits, and process quality come before outcome thinking.",
+    riskBody:
+      "Position size, loss limits, and process quality come before outcome thinking.",
     multilingual: "Deutsch, Slovenščina, and English",
-    multilingualBody: "The core experience and complete demo lesson work in all three languages.",
+    multilingualBody:
+      "The core experience and complete demo lesson work in all three languages.",
     toolsTitle: "Tools with explanations",
-    toolsBody: "18 calculators connect the formula, example, interpretation, and common mistakes.",
+    toolsBody:
+      "18 calculators connect the formula, example, interpretation, and common mistakes.",
     pathsTitle: "Four complete starting paths",
-    pathsBody: "Finance Foundations, Trading Foundations, Risk Management, and Technical Analysis.",
-    responsible: "Education and simulation only. No investment advice, live orders, or profit claims.",
+    pathsBody:
+      "Finance Foundations, Trading Foundations, Risk Management, and Technical Analysis.",
+    responsible:
+      "Education and simulation only. No investment advice, live orders, or profit claims.",
   },
   auth: {
     signIn: "Sign in",
@@ -803,12 +833,14 @@ const en: AcademyDictionary = {
     resetSent: "Check your inbox. The reset link was requested.",
     submit: "Continue securely",
     configurationTitle: "Supabase Auth is not configured yet",
-    configurationBody: "The public demo remains available. Accounts require the public URL and publishable key.",
+    configurationBody:
+      "The public demo remains available. Accounts require the public URL and publishable key.",
     error: "The request could not be completed.",
   },
   onboarding: {
     title: "Your learning plan",
-    intro: "Eight short answers are enough for a useful recommendation. We never ask for account balances.",
+    intro:
+      "Eight short answers are enough for a useful recommendation. We never ask for account balances.",
     goal: "Learning goal",
     level: "Experience level",
     interest: "Finance or trading interest",
@@ -817,7 +849,8 @@ const en: AcademyDictionary = {
     risk: "Risk knowledge",
     style: "Preferred learning style",
     placement: "Optional placement check",
-    placementQuestion: "What most directly protects an account from one unusually large loss?",
+    placementQuestion:
+      "What most directly protects an account from one unusually large loss?",
     recommendation: "Recommended start",
     finish: "Save plan and begin",
   },
@@ -892,7 +925,8 @@ const en: AcademyDictionary = {
   },
   practice: {
     title: "Chart laboratory",
-    intro: "Train observation and risk thinking with deterministic simulated candles.",
+    intro:
+      "Train observation and risk thinking with deterministic simulated candles.",
     prompt: "Which market structure is visible?",
     uptrend: "Uptrend",
     downtrend: "Downtrend",
@@ -904,7 +938,8 @@ const en: AcademyDictionary = {
   },
   simulator: {
     title: "Learning simulator",
-    intro: "Practice execution, risk, and discipline in a reproducible historical simulation.",
+    intro:
+      "Practice execution, risk, and discipline in a reproducible historical simulation.",
     warning: "Paper trading only. No real order is ever transmitted.",
     balance: "Starting balance",
     equity: "Equity",
@@ -947,7 +982,8 @@ const en: AcademyDictionary = {
   },
   journal: {
     title: "Trading journal",
-    intro: "Record the plan, emotions, and rule adherence—not only profit or loss.",
+    intro:
+      "Record the plan, emotions, and rule adherence—not only profit or loss.",
     setup: "Setup",
     thesis: "Thesis",
     context: "Market context",
@@ -970,9 +1006,11 @@ const en: AcademyDictionary = {
     glossaryTitle: "Finance glossary",
     glossaryIntro: "Clear definitions with practical context.",
     progressTitle: "Progress and mastery",
-    progressIntro: "Multiple evidence types show what you genuinely understand.",
+    progressIntro:
+      "Multiple evidence types show what you genuinely understand.",
     achievementsTitle: "Achievements",
-    achievementsIntro: "Recognition for discipline, practice, and honest reflection.",
+    achievementsIntro:
+      "Recognition for discipline, practice, and honest reflection.",
     settingsTitle: "Settings",
     settingsIntro: "Language, appearance, and learning preferences.",
     profileTitle: "Profile",

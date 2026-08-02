@@ -1,2 +1,4 @@
 import { LearningDashboard } from "@/features/academy/dashboard";
-export default function Page() { return <LearningDashboard />; }
+export default function Page() {
+  return <LearningDashboard />;
+}

@@ -18,8 +18,22 @@ export function ThemeSwitcher() {
     en: { system: "System", light: "Light", dark: "Dark" },
   }[language];
   return (
-    <fieldset aria-label={language === "de" ? "Darstellung" : language === "sl" ? "Videz" : "Appearance"}>
-      <legend className="sr-only">{language === "de" ? "Darstellung" : language === "sl" ? "Videz" : "Appearance"}</legend>
+    <fieldset
+      aria-label={
+        language === "de"
+          ? "Darstellung"
+          : language === "sl"
+            ? "Videz"
+            : "Appearance"
+      }
+    >
+      <legend className="sr-only">
+        {language === "de"
+          ? "Darstellung"
+          : language === "sl"
+            ? "Videz"
+            : "Appearance"}
+      </legend>
       <div className="inline-grid grid-cols-3 gap-1 rounded-[var(--radius-sm)] border border-[var(--border-subtle)] bg-[var(--surface-2)] p-1">
         {options.map(({ value, icon: Icon }) => (
           <label key={value} className="cursor-pointer">

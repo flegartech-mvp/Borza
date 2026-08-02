@@ -10,8 +10,14 @@ import {
   solveIrr,
 } from "./calculators";
 
-function valuesFor(id: (typeof CALCULATOR_IDS)[number], overrides: Record<string, string> = {}) {
-  const outcome = calculateTool(id, { ...defaultInputs(getCalculator(id)), ...overrides });
+function valuesFor(
+  id: (typeof CALCULATOR_IDS)[number],
+  overrides: Record<string, string> = {},
+) {
+  const outcome = calculateTool(id, {
+    ...defaultInputs(getCalculator(id)),
+    ...overrides,
+  });
   expect(outcome.ok).toBe(true);
   if (!outcome.ok) throw new Error(JSON.stringify(outcome.issues));
   return outcome.values;
@@ -20,8 +26,12 @@ function valuesFor(id: (typeof CALCULATOR_IDS)[number], overrides: Record<string
 describe("calculator catalogue", () => {
   it("contains exactly 18 unique tools with complete DE/SL/EN learning metadata", () => {
     expect(CALCULATORS).toHaveLength(18);
-    expect(new Set(CALCULATORS.map((calculator) => calculator.id)).size).toBe(18);
-    expect(CALCULATORS.map((calculator) => calculator.id)).toEqual(CALCULATOR_IDS);
+    expect(new Set(CALCULATORS.map((calculator) => calculator.id)).size).toBe(
+      18,
+    );
+    expect(CALCULATORS.map((calculator) => calculator.id)).toEqual(
+      CALCULATOR_IDS,
+    );
 
     for (const calculator of CALCULATORS) {
       for (const localized of [
@@ -34,7 +44,9 @@ describe("calculator catalogue", () => {
         calculator.relatedLesson.label,
       ]) {
         expect(Object.keys(localized).sort()).toEqual(["de", "en", "sl"]);
-        expect(Object.values(localized).every((text) => text.trim().length > 0)).toBe(true);
+        expect(
+          Object.values(localized).every((text) => text.trim().length > 0),
+        ).toBe(true);
       }
       expect(calculator.formula).not.toBe("");
       expect(calculator.relatedLesson.id).toMatch(/^lesson-/);
@@ -54,27 +66,65 @@ describe("localized numeric parsing and validation", () => {
   });
 
   it("reports missing, non-numeric, bounded, integer, and relational errors", () => {
-    expect(calculateTool("position-size", { account: "", riskPercent: "1", entry: "100", stop: "99" })).toMatchObject({
+    expect(
+      calculateTool("position-size", {
+        account: "",
+        riskPercent: "1",
+        entry: "100",
+        stop: "99",
+      }),
+    ).toMatchObject({
       ok: false,
       issues: [{ code: "required", field: "account" }],
     });
-    expect(calculateTool("position-size", { account: "lots", riskPercent: "1", entry: "100", stop: "99" })).toMatchObject({
+    expect(
+      calculateTool("position-size", {
+        account: "lots",
+        riskPercent: "1",
+        entry: "100",
+        stop: "99",
+      }),
+    ).toMatchObject({
       ok: false,
       issues: [{ code: "invalidNumber", field: "account" }],
     });
-    expect(calculateTool("position-size", { account: "10000", riskPercent: "101", entry: "100", stop: "99" })).toMatchObject({
+    expect(
+      calculateTool("position-size", {
+        account: "10000",
+        riskPercent: "101",
+        entry: "100",
+        stop: "99",
+      }),
+    ).toMatchObject({
       ok: false,
       issues: [{ code: "maximum", field: "riskPercent", limit: 100 }],
     });
-    expect(calculateTool("compound-interest", { principal: "1000", annualRate: "5", years: "3", compounds: "2.5" })).toMatchObject({
+    expect(
+      calculateTool("compound-interest", {
+        principal: "1000",
+        annualRate: "5",
+        years: "3",
+        compounds: "2.5",
+      }),
+    ).toMatchObject({
       ok: false,
       issues: [{ code: "integer", field: "compounds" }],
     });
-    expect(calculateTool("reward-risk", { entry: "100", stop: "98", target: "95" })).toMatchObject({
+    expect(
+      calculateTool("reward-risk", { entry: "100", stop: "98", target: "95" }),
+    ).toMatchObject({
       ok: false,
       issues: [{ code: "oppositeSides", field: "target" }],
     });
-    expect(calculateTool("basic-dcf", { currentFcf: "100", growthRate: "5", years: "5", discountRate: "2", terminalGrowth: "2" })).toMatchObject({
+    expect(
+      calculateTool("basic-dcf", {
+        currentFcf: "100",
+        growthRate: "5",
+        years: "5",
+        discountRate: "2",
+        terminalGrowth: "2",
+      }),
+    ).toMatchObject({
       ok: false,
       issues: [{ code: "discountAboveGrowth", field: "discountRate" }],
     });
@@ -86,7 +136,8 @@ describe("trading calculators", () => {
     expect(valuesFor("position-size").units).toBeCloseTo(200, 10);
     expect(valuesFor("r-multiple").rMultiple).toBeCloseTo(2.5, 10);
     expect(
-      valuesFor("r-multiple", { entry: "100", stop: "102", exit: "95" }).rMultiple,
+      valuesFor("r-multiple", { entry: "100", stop: "102", exit: "95" })
+        .rMultiple,
     ).toBeCloseTo(2.5, 10);
   });
 
@@ -94,7 +145,10 @@ describe("trading calculators", () => {
     expect(valuesFor("reward-risk").ratio).toBeCloseTo(3, 10);
     expect(valuesFor("expectancy").expectancy).toBeCloseTo(0.35, 10);
     expect(valuesFor("profit-factor").profitFactor).toBeCloseTo(1.5, 10);
-    expect(valuesFor("break-even-win-rate").breakEvenWinRate).toBeCloseTo(33.333333, 5);
+    expect(valuesFor("break-even-win-rate").breakEvenWinRate).toBeCloseTo(
+      33.333333,
+      5,
+    );
   });
 
   it("calculates drawdown recovery and leverage consistently", () => {
@@ -114,7 +168,10 @@ describe("finance calculators", () => {
     expect(valuesFor("compound-interest").futureValue).toBeCloseTo(1157.625, 8);
     expect(valuesFor("present-value").presentValue).toBeCloseTo(1000, 6);
     expect(valuesFor("future-value").futureValue).toBeCloseTo(1472.875, 6);
-    expect(valuesFor("future-value", { rate: "0" }).futureValue).toBeCloseTo(1300, 10);
+    expect(valuesFor("future-value", { rate: "0" }).futureValue).toBeCloseTo(
+      1300,
+      10,
+    );
     expect(valuesFor("npv").npv).toBeCloseTo(-5.2592036, 5);
   });
 
@@ -125,10 +182,18 @@ describe("finance calculators", () => {
       expect(solved.rate).toBeCloseTo(0.0970103, 6);
       expect(npvAtRate([-1000, 400, 400, 400], solved.rate)).toBeCloseTo(0, 6);
     }
-    expect(solveIrr([100, 200, 300])).toEqual({ ok: false, code: "cashFlowSigns" });
-    expect(solveIrr([-100, 230, -132])).toEqual({ ok: false, code: "multipleIrr" });
+    expect(solveIrr([100, 200, 300])).toEqual({
+      ok: false,
+      code: "cashFlowSigns",
+    });
+    expect(solveIrr([-100, 230, -132])).toEqual({
+      ok: false,
+      code: "multipleIrr",
+    });
     expect(solveIrr([-1, 1000])).toEqual({ ok: false, code: "irrBracket" });
-    expect(solveIrr([-1000, 400, 400, 400], { maxIterations: 1, tolerance: 0 })).toEqual({
+    expect(
+      solveIrr([-1000, 400, 400, 400], { maxIterations: 1, tolerance: 0 }),
+    ).toEqual({
       ok: false,
       code: "irrConvergence",
     });

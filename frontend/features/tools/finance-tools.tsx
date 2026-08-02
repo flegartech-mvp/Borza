@@ -49,7 +49,8 @@ const COPY = {
     ready: "Gültige Eingaben berechnen, um das Ergebnis zu sehen.",
     learningContext: "Lernkontext",
     formulaAccessible: "Mathematische Formel",
-    educationOnly: "Lernwerkzeug – keine Anlageberatung. Ergebnisse sind Modellrechnungen und berücksichtigen nicht automatisch Steuern, Gebühren, Slippage oder individuelle Risiken.",
+    educationOnly:
+      "Lernwerkzeug – keine Anlageberatung. Ergebnisse sind Modellrechnungen und berücksichtigen nicht automatisch Steuern, Gebühren, Slippage oder individuelle Risiken.",
     units: "Stück",
     errors: {
       required: "Wert fehlt.",
@@ -60,13 +61,18 @@ const COPY = {
       maximum: "Der Wert darf höchstens {limit} sein.",
       integer: "Gib eine ganze Zahl ein.",
       entryStopDifferent: "Einstieg und Stop müssen verschieden sein.",
-      oppositeSides: "Stop und Ziel müssen auf gegenüberliegenden Seiten des Einstiegs liegen.",
+      oppositeSides:
+        "Stop und Ziel müssen auf gegenüberliegenden Seiten des Einstiegs liegen.",
       troughAbovePeak: "Der Tiefstand darf nicht über dem Höchststand liegen.",
-      cashFlowSigns: "Die Reihe braucht mindestens einen negativen und einen positiven Cashflow.",
-      multipleIrr: "Mehrere Vorzeichenwechsel können mehrere IRRs erzeugen; nutze NPV-Szenarien.",
-      irrBracket: "Im begrenzten Bereich von −99,99 % bis 1.000 % wurde keine Lösung gefunden.",
+      cashFlowSigns:
+        "Die Reihe braucht mindestens einen negativen und einen positiven Cashflow.",
+      multipleIrr:
+        "Mehrere Vorzeichenwechsel können mehrere IRRs erzeugen; nutze NPV-Szenarien.",
+      irrBracket:
+        "Im begrenzten Bereich von −99,99 % bis 1.000 % wurde keine Lösung gefunden.",
       irrConvergence: "Die begrenzte IRR-Suche ist nicht konvergiert.",
-      discountAboveGrowth: "Der Diskontsatz muss über dem ewigen Wachstum liegen.",
+      discountAboveGrowth:
+        "Der Diskontsatz muss über dem ewigen Wachstum liegen.",
       nonFiniteResult: "Diese Eingaben erzeugen kein endliches Ergebnis.",
     },
   },
@@ -76,7 +82,8 @@ const COPY = {
     trading: "Trgovanje in tveganje",
     finance: "Finance in vrednotenje",
     select: "Izberi kalkulator",
-    selectHint: "Vsak kalkulator vsebuje preverjanje, formulo in učni kontekst.",
+    selectHint:
+      "Vsak kalkulator vsebuje preverjanje, formulo in učni kontekst.",
     calculator: "Kalkulator",
     inputs: "Vnosi",
     useExample: "Vstavi primer",
@@ -84,7 +91,8 @@ const COPY = {
     ready: "Izračunaj veljavne vnose za prikaz rezultata.",
     learningContext: "Učni kontekst",
     formulaAccessible: "Matematična formula",
-    educationOnly: "Učno orodje – ne investicijski nasvet. Modelni rezultati samodejno ne vključujejo davkov, stroškov, zdrsa ali osebnega tveganja.",
+    educationOnly:
+      "Učno orodje – ne investicijski nasvet. Modelni rezultati samodejno ne vključujejo davkov, stroškov, zdrsa ali osebnega tveganja.",
     units: "enot",
     errors: {
       required: "Vrednost manjka.",
@@ -97,8 +105,10 @@ const COPY = {
       entryStopDifferent: "Vstop in stop morata biti različna.",
       oppositeSides: "Stop in cilj morata biti na nasprotnih straneh vstopa.",
       troughAbovePeak: "Dno ne sme biti nad vrhom.",
-      cashFlowSigns: "Niz potrebuje vsaj en negativen in en pozitiven denarni tok.",
-      multipleIrr: "Več sprememb predznaka lahko ustvari več IRR; uporabi scenarije NPV.",
+      cashFlowSigns:
+        "Niz potrebuje vsaj en negativen in en pozitiven denarni tok.",
+      multipleIrr:
+        "Več sprememb predznaka lahko ustvari več IRR; uporabi scenarije NPV.",
       irrBracket: "V omejenem območju od −99,99 % do 1.000 % ni rešitve.",
       irrConvergence: "Omejeno iskanje IRR ni konvergiralo.",
       discountAboveGrowth: "Diskontna mera mora biti višja od večne rasti.",
@@ -111,7 +121,8 @@ const COPY = {
     trading: "Trading & risk",
     finance: "Finance & valuation",
     select: "Choose a calculator",
-    selectHint: "Every calculator includes validation, its formula, and learning context.",
+    selectHint:
+      "Every calculator includes validation, its formula, and learning context.",
     calculator: "Calculator",
     inputs: "Inputs",
     useExample: "Use worked example",
@@ -119,7 +130,8 @@ const COPY = {
     ready: "Calculate valid inputs to see the result.",
     learningContext: "Learning context",
     formulaAccessible: "Mathematical formula",
-    educationOnly: "Learning tool—not investment advice. Model outputs do not automatically include tax, fees, slippage, or personal risk.",
+    educationOnly:
+      "Learning tool—not investment advice. Model outputs do not automatically include tax, fees, slippage, or personal risk.",
     units: "units",
     errors: {
       required: "A value is required.",
@@ -132,9 +144,12 @@ const COPY = {
       entryStopDifferent: "Entry and stop must be different.",
       oppositeSides: "Stop and target must be on opposite sides of entry.",
       troughAbovePeak: "Trough cannot be above peak.",
-      cashFlowSigns: "The series needs at least one negative and one positive cash flow.",
-      multipleIrr: "Multiple sign changes can create multiple IRRs; use NPV scenarios instead.",
-      irrBracket: "No solution was found in the bounded range from −99.99% to 1,000%.",
+      cashFlowSigns:
+        "The series needs at least one negative and one positive cash flow.",
+      multipleIrr:
+        "Multiple sign changes can create multiple IRRs; use NPV scenarios instead.",
+      irrBracket:
+        "No solution was found in the bounded range from −99.99% to 1,000%.",
       irrConvergence: "The bounded IRR search did not converge.",
       discountAboveGrowth: "Discount rate must be above perpetual growth.",
       nonFiniteResult: "These inputs do not produce a finite result.",
@@ -148,7 +163,13 @@ const NUMBER_LOCALES: Record<Language, string> = {
   en: "en-GB",
 };
 
-function Formula({ formula, language }: { formula: string; language: Language }) {
+function Formula({
+  formula,
+  language,
+}: {
+  formula: string;
+  language: Language;
+}) {
   const markup = useMemo(
     () =>
       katex.renderToString(formula, {
@@ -161,6 +182,7 @@ function Formula({ formula, language }: { formula: string; language: Language })
   return (
     <div
       className="overflow-x-auto py-2 text-center text-lg text-[var(--text-primary)] sm:text-xl"
+      role="region"
       aria-label={COPY[language].formulaAccessible}
       // Formula strings are static, version-controlled metadata—not user input.
       dangerouslySetInnerHTML={{ __html: markup }}
@@ -168,7 +190,11 @@ function Formula({ formula, language }: { formula: string; language: Language })
   );
 }
 
-function replaceLimit(template: string, issue: ValidationIssue, language: Language): string {
+function replaceLimit(
+  template: string,
+  issue: ValidationIssue,
+  language: Language,
+): string {
   if (issue.limit === undefined) return template;
   const formatted = new Intl.NumberFormat(NUMBER_LOCALES[language], {
     maximumFractionDigits: 6,
@@ -181,7 +207,9 @@ function validationMessage(
   definition: CalculatorDefinition,
   language: Language,
 ): string {
-  const input = definition.inputs.find((candidate) => candidate.key === issue.field);
+  const input = definition.inputs.find(
+    (candidate) => candidate.key === issue.field,
+  );
   const prefix = input ? `${input.label[language]}: ` : "";
   return `${prefix}${replaceLimit(COPY[language].errors[issue.code], issue, language)}`;
 }
@@ -203,13 +231,16 @@ function formatResult(
     minimumFractionDigits: output.decimals,
     maximumFractionDigits: output.decimals,
     signDisplay:
-      output.key === "rMultiple" || output.key === "expectancy" ? "exceptZero" : "auto",
+      output.key === "rMultiple" || output.key === "expectancy"
+        ? "exceptZero"
+        : "auto",
   }).format(value);
   if (output.kind === "percent") return `${formatted} %`;
   if (output.kind === "units") return `${formatted} ${COPY[language].units}`;
   if (output.key === "ratio") return `${formatted} : 1`;
   if (output.key === "leverage") return `${formatted}×`;
-  if (output.key === "rMultiple" || output.key === "expectancy") return `${formatted} R`;
+  if (output.key === "rMultiple" || output.key === "expectancy")
+    return `${formatted} R`;
   return formatted;
 }
 
@@ -252,7 +283,9 @@ function ToolSelector({
           {COPY[language][definition.category]}
         </span>
       </span>
-      <span className="mt-3 block font-semibold">{definition.title[language]}</span>
+      <span className="mt-3 block font-semibold">
+        {definition.title[language]}
+      </span>
       <span className="mt-1.5 line-clamp-2 block text-xs leading-5 text-[var(--text-secondary)]">
         {definition.summary[language]}
       </span>
@@ -321,12 +354,18 @@ function InputControl({
         ) : null}
       </div>
       {input.help ? (
-        <p id={helpId} className="mt-1.5 text-xs leading-5 text-[var(--text-tertiary)]">
+        <p
+          id={helpId}
+          className="mt-1.5 text-xs leading-5 text-[var(--text-tertiary)]"
+        >
           {input.help[language]}
         </p>
       ) : null}
       {issue ? (
-        <p id={errorId} className="mt-1.5 text-xs font-semibold text-[var(--negative)]">
+        <p
+          id={errorId}
+          className="mt-1.5 text-xs font-semibold text-[var(--negative)]"
+        >
           {validationMessage(issue, getCalculatorFromInput(input), language)}
         </p>
       ) : null}
@@ -335,7 +374,9 @@ function InputControl({
 }
 
 function getCalculatorFromInput(input: InputDefinition): CalculatorDefinition {
-  const definition = CALCULATORS.find((calculator) => calculator.inputs.includes(input));
+  const definition = CALCULATORS.find((calculator) =>
+    calculator.inputs.includes(input),
+  );
   if (!definition) throw new Error(`Orphan calculator input: ${input.key}`);
   return definition;
 }
@@ -377,7 +418,11 @@ function Results({
     );
   }
   return (
-    <div className="grid gap-3 sm:grid-cols-2" aria-live="polite" aria-atomic="true">
+    <div
+      className="grid gap-3 sm:grid-cols-2"
+      aria-live="polite"
+      aria-atomic="true"
+    >
       {definition.outputs.map((result) => (
         <div
           key={result.key}
@@ -413,7 +458,9 @@ function LearningCard({
       }`}
     >
       <h4 className="text-sm font-semibold">{title}</h4>
-      <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">{body}</p>
+      <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
+        {body}
+      </p>
     </article>
   );
 }
@@ -443,7 +490,9 @@ export function FinanceTools() {
   function selectCategory(nextCategory: CategoryFilter) {
     setCategory(nextCategory);
     if (nextCategory !== "all" && active.category !== nextCategory) {
-      const next = CALCULATORS.find((calculator) => calculator.category === nextCategory);
+      const next = CALCULATORS.find(
+        (calculator) => calculator.category === nextCategory,
+      );
       if (next) selectCalculator(next.id);
     }
   }
@@ -489,15 +538,23 @@ export function FinanceTools() {
       >
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h3 className="flex items-center gap-2 text-xl font-semibold">
-              <Calculator aria-hidden="true" className="text-[var(--brand)]" size={22} />
+            <h2 className="flex items-center gap-2 text-xl font-semibold">
+              <Calculator
+                aria-hidden="true"
+                className="text-[var(--brand)]"
+                size={22}
+              />
               {COPY[language].select}
-            </h3>
+            </h2>
             <p className="mt-1 text-sm text-[var(--text-secondary)]">
               {COPY[language].selectHint}
             </p>
           </div>
-          <div className="flex flex-wrap gap-2" role="group" aria-label={COPY[language].select}>
+          <div
+            className="flex flex-wrap gap-2"
+            role="group"
+            aria-label={COPY[language].select}
+          >
             {(["all", "trading", "finance"] as const).map((filter) => (
               <button
                 key={filter}
@@ -543,12 +600,14 @@ export function FinanceTools() {
                   {COPY[language][active.category]}
                 </span>
                 <span className="numeric text-xs text-[var(--text-tertiary)]">
-                  {COPY[language].calculator} {String(CALCULATORS.indexOf(active) + 1).padStart(2, "0")} / 18
+                  {COPY[language].calculator}{" "}
+                  {String(CALCULATORS.indexOf(active) + 1).padStart(2, "0")} /
+                  18
                 </span>
               </div>
-              <h3 className="mt-4 text-2xl font-semibold tracking-[-0.025em] sm:text-3xl">
+              <h2 className="mt-4 text-2xl font-semibold tracking-[-0.025em] sm:text-3xl">
                 {active.title[language]}
-              </h3>
+              </h2>
               <p className="mt-3 max-w-3xl text-sm leading-6 text-[var(--text-secondary)] sm:text-base">
                 {active.summary[language]}
               </p>
@@ -557,7 +616,11 @@ export function FinanceTools() {
             <form noValidate onSubmit={calculate} className="mt-6">
               <fieldset>
                 <legend className="flex items-center gap-2 text-lg font-semibold">
-                  <CircleDollarSign aria-hidden="true" size={20} className="text-[var(--electric)]" />
+                  <CircleDollarSign
+                    aria-hidden="true"
+                    size={20}
+                    className="text-[var(--electric)]"
+                  />
                   {COPY[language].inputs}
                 </legend>
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -590,16 +653,30 @@ export function FinanceTools() {
             </form>
 
             <section className="mt-7" aria-labelledby="tool-result-heading">
-              <h4 id="tool-result-heading" className="mb-3 text-lg font-semibold">
+              <h3
+                id="tool-result-heading"
+                className="mb-3 text-lg font-semibold"
+              >
                 {dictionary.tools.result}
-              </h4>
-              <Results definition={active} outcome={outcome} language={language} />
+              </h3>
+              <Results
+                definition={active}
+                outcome={outcome}
+                language={language}
+              />
             </section>
 
             <section className="mt-7" aria-labelledby="tool-formula-heading">
               <div className="rounded-[var(--radius-md)] border border-[var(--electric)] bg-[var(--electric-soft)] p-4 sm:p-5">
-                <h4 id="tool-formula-heading" className="flex items-center gap-2 font-semibold">
-                  <Info aria-hidden="true" size={18} className="text-[var(--electric)]" />
+                <h4
+                  id="tool-formula-heading"
+                  className="flex items-center gap-2 font-semibold"
+                >
+                  <Info
+                    aria-hidden="true"
+                    size={18}
+                    className="text-[var(--electric)]"
+                  />
                   {dictionary.tools.formula}
                 </h4>
                 <Formula formula={active.formula} language={language} />
@@ -610,20 +687,35 @@ export function FinanceTools() {
             </section>
 
             <section className="mt-5" aria-labelledby="tool-learning-heading">
-              <h4 id="tool-learning-heading" className="mb-3 flex items-center gap-2 text-lg font-semibold">
-                <BookOpen aria-hidden="true" size={19} className="text-[var(--brand)]" />
+              <h4
+                id="tool-learning-heading"
+                className="mb-3 flex items-center gap-2 text-lg font-semibold"
+              >
+                <BookOpen
+                  aria-hidden="true"
+                  size={19}
+                  className="text-[var(--brand)]"
+                />
                 {COPY[language].learningContext}
               </h4>
               <div className="grid gap-3 md:grid-cols-2">
-                <LearningCard title={dictionary.tools.example} body={active.workedExample[language]} />
-                <LearningCard title={dictionary.tools.interpretation} body={active.interpretation[language]} />
+                <LearningCard
+                  title={dictionary.tools.example}
+                  body={active.workedExample[language]}
+                />
+                <LearningCard
+                  title={dictionary.tools.interpretation}
+                  body={active.interpretation[language]}
+                />
                 <LearningCard
                   title={dictionary.tools.mistake}
                   body={active.commonMistake[language]}
                   tone="warning"
                 />
                 <article className="rounded-[var(--radius-md)] border border-[var(--brand)] bg-[var(--brand-soft)] p-4 sm:p-5">
-                  <h4 className="text-sm font-semibold">{dictionary.tools.related}</h4>
+                  <h4 className="text-sm font-semibold">
+                    {dictionary.tools.related}
+                  </h4>
                   <Link
                     href={`/lesson/${active.relatedLesson.id}`}
                     className="mt-3 inline-flex min-h-10 items-center gap-2 font-semibold text-[var(--brand)]"

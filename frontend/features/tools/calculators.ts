@@ -91,13 +91,20 @@ export type CalculationOutcome =
 
 type ParsedInputs = Record<string, number | number[]>;
 
-const t = (de: string, sl: string, en: string): LocalizedText => ({ de, sl, en });
+const t = (de: string, sl: string, en: string): LocalizedText => ({
+  de,
+  sl,
+  en,
+});
 
 function numberInput(
   key: string,
   label: LocalizedText,
   defaultValue: string,
-  options: Omit<InputDefinition, "key" | "kind" | "label" | "defaultValue"> = {},
+  options: Omit<
+    InputDefinition,
+    "key" | "kind" | "label" | "defaultValue"
+  > = {},
 ): InputDefinition {
   return { key, kind: "number", label, defaultValue, ...options };
 }
@@ -159,17 +166,41 @@ export const CALCULATORS: readonly CalculatorDefinition[] = [
       label: t("Positionsgröße", "Velikost pozicije", "Position sizing"),
     },
     inputs: [
-      numberInput("account", t("Kontowert", "Vrednost računa", "Account value"), "10000", { min: 0, exclusiveMin: true, suffix: euro }),
-      numberInput("riskPercent", t("Risiko pro Trade", "Tveganje na posel", "Risk per trade"), "1", { min: 0, max: 100, exclusiveMin: true, suffix: percent }),
-      numberInput("entry", t("Einstieg", "Vstop", "Entry"), "100", { min: 0, exclusiveMin: true, suffix: euro }),
-      numberInput("stop", t("Stop", "Stop", "Stop"), "99.5", { min: 0, exclusiveMin: true, suffix: euro }),
+      numberInput(
+        "account",
+        t("Kontowert", "Vrednost računa", "Account value"),
+        "10000",
+        { min: 0, exclusiveMin: true, suffix: euro },
+      ),
+      numberInput(
+        "riskPercent",
+        t("Risiko pro Trade", "Tveganje na posel", "Risk per trade"),
+        "1",
+        { min: 0, max: 100, exclusiveMin: true, suffix: percent },
+      ),
+      numberInput("entry", t("Einstieg", "Vstop", "Entry"), "100", {
+        min: 0,
+        exclusiveMin: true,
+        suffix: euro,
+      }),
+      numberInput("stop", t("Stop", "Stop", "Stop"), "99.5", {
+        min: 0,
+        exclusiveMin: true,
+        suffix: euro,
+      }),
     ],
-    outputs: [output("units", t("Stückzahl", "Število enot", "Units"), "units")],
+    outputs: [
+      output("units", t("Stückzahl", "Število enot", "Units"), "units"),
+    ],
   },
   {
     id: "reward-risk",
     category: "trading",
-    title: t("Chance-Risiko-Verhältnis", "Razmerje donos-tveganje", "Reward:risk ratio"),
+    title: t(
+      "Chance-Risiko-Verhältnis",
+      "Razmerje donos-tveganje",
+      "Reward:risk ratio",
+    ),
     summary: t(
       "Vergleiche geplante Zielstrecke und Invalidierungsstrecke.",
       "Primerjaj načrtovano pot do cilja in razveljavitve.",
@@ -196,13 +227,34 @@ export const CALCULATORS: readonly CalculatorDefinition[] = [
       "Visoko razmerje obravnavati kot jamstvo za dobro postavitev.",
       "Treating a high ratio as proof of a good setup.",
     ),
-    relatedLesson: { id: "lesson-rm-r-multiple", label: t("R-Multiple", "Večkratnik R", "R multiples") },
+    relatedLesson: {
+      id: "lesson-rm-r-multiple",
+      label: t("R-Multiple", "Večkratnik R", "R multiples"),
+    },
     inputs: [
-      numberInput("entry", t("Einstieg", "Vstop", "Entry"), "100", { min: 0, exclusiveMin: true, suffix: euro }),
-      numberInput("stop", t("Stop", "Stop", "Stop"), "98", { min: 0, exclusiveMin: true, suffix: euro }),
-      numberInput("target", t("Ziel", "Cilj", "Target"), "106", { min: 0, exclusiveMin: true, suffix: euro }),
+      numberInput("entry", t("Einstieg", "Vstop", "Entry"), "100", {
+        min: 0,
+        exclusiveMin: true,
+        suffix: euro,
+      }),
+      numberInput("stop", t("Stop", "Stop", "Stop"), "98", {
+        min: 0,
+        exclusiveMin: true,
+        suffix: euro,
+      }),
+      numberInput("target", t("Ziel", "Cilj", "Target"), "106", {
+        min: 0,
+        exclusiveMin: true,
+        suffix: euro,
+      }),
     ],
-    outputs: [output("ratio", t("Chance je 1 Risiko", "Donos na 1 tveganje", "Reward per 1 risk"), "ratio")],
+    outputs: [
+      output(
+        "ratio",
+        t("Chance je 1 Risiko", "Donos na 1 tveganje", "Reward per 1 risk"),
+        "ratio",
+      ),
+    ],
   },
   {
     id: "r-multiple",
@@ -234,11 +286,27 @@ export const CALCULATORS: readonly CalculatorDefinition[] = [
       "Naknadno spremeniti stop in s tem prepisati osnovo R.",
       "Changing the stop afterwards and rewriting the R baseline.",
     ),
-    relatedLesson: { id: "lesson-rm-r-multiple", label: t("R-Multiple", "Večkratnik R", "R multiples") },
+    relatedLesson: {
+      id: "lesson-rm-r-multiple",
+      label: t("R-Multiple", "Večkratnik R", "R multiples"),
+    },
     inputs: [
-      numberInput("entry", t("Einstieg", "Vstop", "Entry"), "100", { min: 0, exclusiveMin: true, suffix: euro }),
-      numberInput("stop", t("Anfänglicher Stop", "Začetni stop", "Initial stop"), "98", { min: 0, exclusiveMin: true, suffix: euro }),
-      numberInput("exit", t("Ausstieg", "Izstop", "Exit"), "105", { min: 0, exclusiveMin: true, suffix: euro }),
+      numberInput("entry", t("Einstieg", "Vstop", "Entry"), "100", {
+        min: 0,
+        exclusiveMin: true,
+        suffix: euro,
+      }),
+      numberInput(
+        "stop",
+        t("Anfänglicher Stop", "Začetni stop", "Initial stop"),
+        "98",
+        { min: 0, exclusiveMin: true, suffix: euro },
+      ),
+      numberInput("exit", t("Ausstieg", "Izstop", "Exit"), "105", {
+        min: 0,
+        exclusiveMin: true,
+        suffix: euro,
+      }),
     ],
     outputs: [output("rMultiple", t("Ergebnis", "Izid", "Outcome"), "ratio")],
   },
@@ -272,13 +340,41 @@ export const CALCULATORS: readonly CalculatorDefinition[] = [
       "Uporabiti povprečja iz premalo ali selektivno izbranih poslov.",
       "Using averages from too few or selectively chosen trades.",
     ),
-    relatedLesson: { id: "lesson-rm-expectancy", label: t("Erwartungswert", "Pričakovana vrednost", "Expectancy") },
+    relatedLesson: {
+      id: "lesson-rm-expectancy",
+      label: t("Erwartungswert", "Pričakovana vrednost", "Expectancy"),
+    },
     inputs: [
-      numberInput("winRate", t("Trefferquote", "Delež zmag", "Win rate"), "45", { min: 0, max: 100, suffix: percent }),
-      numberInput("averageWin", t("Durchschnittsgewinn", "Povprečna zmaga", "Average win"), "2", { min: 0, suffix: t("R", "R", "R") }),
-      numberInput("averageLoss", t("Durchschnittsverlust", "Povprečna izguba", "Average loss"), "1", { min: 0, suffix: t("R", "R", "R") }),
+      numberInput(
+        "winRate",
+        t("Trefferquote", "Delež zmag", "Win rate"),
+        "45",
+        { min: 0, max: 100, suffix: percent },
+      ),
+      numberInput(
+        "averageWin",
+        t("Durchschnittsgewinn", "Povprečna zmaga", "Average win"),
+        "2",
+        { min: 0, suffix: t("R", "R", "R") },
+      ),
+      numberInput(
+        "averageLoss",
+        t("Durchschnittsverlust", "Povprečna izguba", "Average loss"),
+        "1",
+        { min: 0, suffix: t("R", "R", "R") },
+      ),
     ],
-    outputs: [output("expectancy", t("Erwartungswert je Trade", "Pričakovanje na posel", "Expectancy per trade"), "ratio")],
+    outputs: [
+      output(
+        "expectancy",
+        t(
+          "Erwartungswert je Trade",
+          "Pričakovanje na posel",
+          "Expectancy per trade",
+        ),
+        "ratio",
+      ),
+    ],
   },
   {
     id: "profit-factor",
@@ -310,12 +406,35 @@ export const CALCULATORS: readonly CalculatorDefinition[] = [
       "Nič izgub prikazati kot neskončen in zanesljiv faktor dobička.",
       "Reporting zero losses as an infinitely reliable profit factor.",
     ),
-    relatedLesson: { id: "lesson-rm-profit-factor", label: t("Profit Factor", "Faktor dobička", "Profit factor") },
+    relatedLesson: {
+      id: "lesson-rm-profit-factor",
+      label: t("Profit Factor", "Faktor dobička", "Profit factor"),
+    },
     inputs: [
-      numberInput("grossProfit", t("Bruttogewinn", "Bruto dobiček", "Gross profit"), "2400", { min: 0, suffix: euro }),
-      numberInput("grossLoss", t("Bruttoverlust (positiv)", "Bruto izguba (pozitivno)", "Gross loss (positive)"), "1600", { min: 0, exclusiveMin: true, suffix: euro }),
+      numberInput(
+        "grossProfit",
+        t("Bruttogewinn", "Bruto dobiček", "Gross profit"),
+        "2400",
+        { min: 0, suffix: euro },
+      ),
+      numberInput(
+        "grossLoss",
+        t(
+          "Bruttoverlust (positiv)",
+          "Bruto izguba (pozitivno)",
+          "Gross loss (positive)",
+        ),
+        "1600",
+        { min: 0, exclusiveMin: true, suffix: euro },
+      ),
     ],
-    outputs: [output("profitFactor", t("Profit Factor", "Faktor dobička", "Profit factor"), "ratio")],
+    outputs: [
+      output(
+        "profitFactor",
+        t("Profit Factor", "Faktor dobička", "Profit factor"),
+        "ratio",
+      ),
+    ],
   },
   {
     id: "drawdown",
@@ -347,20 +466,42 @@ export const CALCULATORS: readonly CalculatorDefinition[] = [
       "Meniti, da 20-odstotni dobiček v celoti izravna 20-odstotno izgubo.",
       "Assuming a 20% gain fully offsets a 20% loss.",
     ),
-    relatedLesson: { id: "lesson-rm-drawdown-limits", label: t("Drawdown und Limits", "Padec in omejitve", "Drawdown and limits") },
+    relatedLesson: {
+      id: "lesson-rm-drawdown-limits",
+      label: t(
+        "Drawdown und Limits",
+        "Padec in omejitve",
+        "Drawdown and limits",
+      ),
+    },
     inputs: [
-      numberInput("peak", t("Höchststand", "Vrh", "Peak equity"), "10000", { min: 0, exclusiveMin: true, suffix: euro }),
-      numberInput("trough", t("Tiefstand", "Dno", "Trough equity"), "8000", { min: 0, suffix: euro }),
+      numberInput("peak", t("Höchststand", "Vrh", "Peak equity"), "10000", {
+        min: 0,
+        exclusiveMin: true,
+        suffix: euro,
+      }),
+      numberInput("trough", t("Tiefstand", "Dno", "Trough equity"), "8000", {
+        min: 0,
+        suffix: euro,
+      }),
     ],
     outputs: [
       output("drawdownPercent", t("Drawdown", "Padec", "Drawdown"), "percent"),
-      output("recoveryPercent", t("Nötige Erholung", "Potrebno okrevanje", "Required recovery"), "percent"),
+      output(
+        "recoveryPercent",
+        t("Nötige Erholung", "Potrebno okrevanje", "Required recovery"),
+        "percent",
+      ),
     ],
   },
   {
     id: "break-even-win-rate",
     category: "trading",
-    title: t("Break-even-Trefferquote", "Prag uspešnosti", "Break-even win rate"),
+    title: t(
+      "Break-even-Trefferquote",
+      "Prag uspešnosti",
+      "Break-even win rate",
+    ),
     summary: t(
       "Finde die Trefferquote, bei der durchschnittliche Gewinne und Verluste sich ausgleichen.",
       "Poišči delež zmag, pri katerem se povprečne zmage in izgube izenačijo.",
@@ -387,12 +528,31 @@ export const CALCULATORS: readonly CalculatorDefinition[] = [
       "Prezreti provizije, zdrs in spremembe velikosti zmag ali izgub.",
       "Ignoring fees, slippage, and changes in win or loss size.",
     ),
-    relatedLesson: { id: "lesson-rm-expectancy", label: t("Erwartungswert", "Pričakovana vrednost", "Expectancy") },
+    relatedLesson: {
+      id: "lesson-rm-expectancy",
+      label: t("Erwartungswert", "Pričakovana vrednost", "Expectancy"),
+    },
     inputs: [
-      numberInput("averageWin", t("Durchschnittsgewinn", "Povprečna zmaga", "Average win"), "2", { min: 0, exclusiveMin: true, suffix: t("R", "R", "R") }),
-      numberInput("averageLoss", t("Durchschnittsverlust", "Povprečna izguba", "Average loss"), "1", { min: 0, exclusiveMin: true, suffix: t("R", "R", "R") }),
+      numberInput(
+        "averageWin",
+        t("Durchschnittsgewinn", "Povprečna zmaga", "Average win"),
+        "2",
+        { min: 0, exclusiveMin: true, suffix: t("R", "R", "R") },
+      ),
+      numberInput(
+        "averageLoss",
+        t("Durchschnittsverlust", "Povprečna izguba", "Average loss"),
+        "1",
+        { min: 0, exclusiveMin: true, suffix: t("R", "R", "R") },
+      ),
     ],
-    outputs: [output("breakEvenWinRate", t("Break-even-Quote", "Prag uspešnosti", "Break-even rate"), "percent")],
+    outputs: [
+      output(
+        "breakEvenWinRate",
+        t("Break-even-Quote", "Prag uspešnosti", "Break-even rate"),
+        "percent",
+      ),
+    ],
   },
   {
     id: "leverage-margin",
@@ -424,14 +584,31 @@ export const CALCULATORS: readonly CalculatorDefinition[] = [
       "Zamenjati kritje z največjo sprejemljivo izgubo.",
       "Confusing margin posted with maximum acceptable loss.",
     ),
-    relatedLesson: { id: "lesson-tf-margin-leverage", label: t("Margin und Hebel", "Kritje in vzvod", "Margin and leverage") },
+    relatedLesson: {
+      id: "lesson-tf-margin-leverage",
+      label: t("Margin und Hebel", "Kritje in vzvod", "Margin and leverage"),
+    },
     inputs: [
-      numberInput("exposure", t("Positionswert", "Vrednost pozicije", "Position value"), "50000", { min: 0, exclusiveMin: true, suffix: euro }),
-      numberInput("equity", t("Eigenkapital", "Lastni kapital", "Equity committed"), "10000", { min: 0, exclusiveMin: true, suffix: euro }),
+      numberInput(
+        "exposure",
+        t("Positionswert", "Vrednost pozicije", "Position value"),
+        "50000",
+        { min: 0, exclusiveMin: true, suffix: euro },
+      ),
+      numberInput(
+        "equity",
+        t("Eigenkapital", "Lastni kapital", "Equity committed"),
+        "10000",
+        { min: 0, exclusiveMin: true, suffix: euro },
+      ),
     ],
     outputs: [
       output("leverage", t("Hebel", "Vzvod", "Leverage"), "ratio"),
-      output("marginPercent", t("Margin-Anteil", "Delež kritja", "Margin fraction"), "percent"),
+      output(
+        "marginPercent",
+        t("Margin-Anteil", "Delež kritja", "Margin fraction"),
+        "percent",
+      ),
     ],
   },
   {
@@ -464,14 +641,45 @@ export const CALCULATORS: readonly CalculatorDefinition[] = [
       "V formulo vnesti 5 namesto 0,05 ali mešati obdobja in mero.",
       "Entering 5 instead of 0.05 or mixing rate and period units.",
     ),
-    relatedLesson: { id: "lesson-ff-time-value", label: t("Zeitwert des Geldes", "Časovna vrednost denarja", "Time value of money") },
+    relatedLesson: {
+      id: "lesson-ff-time-value",
+      label: t(
+        "Zeitwert des Geldes",
+        "Časovna vrednost denarja",
+        "Time value of money",
+      ),
+    },
     inputs: [
-      numberInput("principal", t("Anfangskapital", "Začetni kapital", "Principal"), "1000", { min: 0, suffix: euro }),
-      numberInput("annualRate", t("Jahreszins", "Letna mera", "Annual rate"), "5", { min: -100, exclusiveMin: true, suffix: percent }),
-      numberInput("years", t("Jahre", "Leta", "Years"), "3", { min: 0, suffix: t("Jahre", "leta", "years") }),
-      numberInput("compounds", t("Perioden pro Jahr", "Obdobij na leto", "Compounds per year"), "1", { min: 1, integer: true }),
+      numberInput(
+        "principal",
+        t("Anfangskapital", "Začetni kapital", "Principal"),
+        "1000",
+        { min: 0, suffix: euro },
+      ),
+      numberInput(
+        "annualRate",
+        t("Jahreszins", "Letna mera", "Annual rate"),
+        "5",
+        { min: -100, exclusiveMin: true, suffix: percent },
+      ),
+      numberInput("years", t("Jahre", "Leta", "Years"), "3", {
+        min: 0,
+        suffix: t("Jahre", "leta", "years"),
+      }),
+      numberInput(
+        "compounds",
+        t("Perioden pro Jahr", "Obdobij na leto", "Compounds per year"),
+        "1",
+        { min: 1, integer: true },
+      ),
     ],
-    outputs: [output("futureValue", t("Endwert", "Prihodnja vrednost", "Future value"), "currency")],
+    outputs: [
+      output(
+        "futureValue",
+        t("Endwert", "Prihodnja vrednost", "Future value"),
+        "currency",
+      ),
+    ],
   },
   {
     id: "present-value",
@@ -503,18 +711,51 @@ export const CALCULATORS: readonly CalculatorDefinition[] = [
       "Združiti letno nominalno mero z mesečnimi obdobji brez pretvorbe.",
       "Combining an annual rate with monthly periods without conversion.",
     ),
-    relatedLesson: { id: "lesson-ff-time-value", label: t("Zeitwert des Geldes", "Časovna vrednost denarja", "Time value of money") },
+    relatedLesson: {
+      id: "lesson-ff-time-value",
+      label: t(
+        "Zeitwert des Geldes",
+        "Časovna vrednost denarja",
+        "Time value of money",
+      ),
+    },
     inputs: [
-      numberInput("futureValue", t("Zukunftswert", "Prihodnja vrednost", "Future value"), "1157.625", { min: 0, suffix: euro }),
-      numberInput("rate", t("Diskontsatz je Periode", "Diskontna mera na obdobje", "Discount rate per period"), "5", { min: -100, exclusiveMin: true, suffix: percent }),
-      numberInput("periods", t("Perioden", "Obdobja", "Periods"), "3", { min: 0 }),
+      numberInput(
+        "futureValue",
+        t("Zukunftswert", "Prihodnja vrednost", "Future value"),
+        "1157.625",
+        { min: 0, suffix: euro },
+      ),
+      numberInput(
+        "rate",
+        t(
+          "Diskontsatz je Periode",
+          "Diskontna mera na obdobje",
+          "Discount rate per period",
+        ),
+        "5",
+        { min: -100, exclusiveMin: true, suffix: percent },
+      ),
+      numberInput("periods", t("Perioden", "Obdobja", "Periods"), "3", {
+        min: 0,
+      }),
     ],
-    outputs: [output("presentValue", t("Barwert", "Sedanja vrednost", "Present value"), "currency")],
+    outputs: [
+      output(
+        "presentValue",
+        t("Barwert", "Sedanja vrednost", "Present value"),
+        "currency",
+      ),
+    ],
   },
   {
     id: "future-value",
     category: "finance",
-    title: t("Zukunftswert mit Sparrate", "Prihodnja vrednost z vplačili", "Future value with contributions"),
+    title: t(
+      "Zukunftswert mit Sparrate",
+      "Prihodnja vrednost z vplačili",
+      "Future value with contributions",
+    ),
     summary: t(
       "Projiziere Startkapital und gleichbleibende Zahlungen am Periodenende.",
       "Projiciraj začetni kapital in enaka vplačila ob koncu obdobja.",
@@ -541,19 +782,58 @@ export const CALCULATORS: readonly CalculatorDefinition[] = [
       "Brez prilagoditve enačiti vplačila na začetku in koncu obdobja.",
       "Treating beginning- and end-of-period payments as identical.",
     ),
-    relatedLesson: { id: "lesson-ff-time-value", label: t("Zeitwert des Geldes", "Časovna vrednost denarja", "Time value of money") },
+    relatedLesson: {
+      id: "lesson-ff-time-value",
+      label: t(
+        "Zeitwert des Geldes",
+        "Časovna vrednost denarja",
+        "Time value of money",
+      ),
+    },
     inputs: [
-      numberInput("presentValue", t("Startkapital", "Začetni kapital", "Starting capital"), "1000", { min: 0, suffix: euro }),
-      numberInput("payment", t("Zahlung je Periode", "Vplačilo na obdobje", "Contribution per period"), "100", { min: 0, suffix: euro }),
-      numberInput("rate", t("Rendite je Periode", "Donos na obdobje", "Return per period"), "5", { min: -100, exclusiveMin: true, suffix: percent }),
-      numberInput("periods", t("Perioden", "Obdobja", "Periods"), "3", { min: 0, integer: true }),
+      numberInput(
+        "presentValue",
+        t("Startkapital", "Začetni kapital", "Starting capital"),
+        "1000",
+        { min: 0, suffix: euro },
+      ),
+      numberInput(
+        "payment",
+        t(
+          "Zahlung je Periode",
+          "Vplačilo na obdobje",
+          "Contribution per period",
+        ),
+        "100",
+        { min: 0, suffix: euro },
+      ),
+      numberInput(
+        "rate",
+        t("Rendite je Periode", "Donos na obdobje", "Return per period"),
+        "5",
+        { min: -100, exclusiveMin: true, suffix: percent },
+      ),
+      numberInput("periods", t("Perioden", "Obdobja", "Periods"), "3", {
+        min: 0,
+        integer: true,
+      }),
     ],
-    outputs: [output("futureValue", t("Zukunftswert", "Prihodnja vrednost", "Future value"), "currency")],
+    outputs: [
+      output(
+        "futureValue",
+        t("Zukunftswert", "Prihodnja vrednost", "Future value"),
+        "currency",
+      ),
+    ],
   },
   {
     id: "npv",
     category: "finance",
-    title: t("Kapitalwert (NPV)", "Neto sedanja vrednost (NPV)", "Net present value (NPV)"),
+    title: t(
+      "Kapitalwert (NPV)",
+      "Neto sedanja vrednost (NPV)",
+      "Net present value (NPV)",
+    ),
     summary: t(
       "Bewerte eine Anfangsauszahlung, konstante Jahres-Cashflows und einen Endwert.",
       "Oceni začetni izdatek, enake letne denarne tokove in končno vrednost.",
@@ -580,20 +860,60 @@ export const CALCULATORS: readonly CalculatorDefinition[] = [
       "Nedosledno mešati nominalne in realne tokove ali obdobja.",
       "Mixing nominal and real cash flows or inconsistent periods.",
     ),
-    relatedLesson: { id: "lesson-ff-time-value", label: t("Zeitwert des Geldes", "Časovna vrednost denarja", "Time value of money") },
+    relatedLesson: {
+      id: "lesson-ff-time-value",
+      label: t(
+        "Zeitwert des Geldes",
+        "Časovna vrednost denarja",
+        "Time value of money",
+      ),
+    },
     inputs: [
-      numberInput("initialInvestment", t("Anfangsauszahlung", "Začetni izdatek", "Initial outlay"), "1000", { min: 0, suffix: euro }),
-      numberInput("annualCashFlow", t("Jährlicher Cashflow", "Letni denarni tok", "Annual cash flow"), "400", { suffix: euro }),
-      numberInput("terminalValue", t("Endwert", "Končna vrednost", "Terminal amount"), "0", { suffix: euro }),
-      numberInput("discountRate", t("Diskontsatz", "Diskontna mera", "Discount rate"), "10", { min: -100, exclusiveMin: true, suffix: percent }),
-      numberInput("years", t("Jahre", "Leta", "Years"), "3", { min: 1, integer: true }),
+      numberInput(
+        "initialInvestment",
+        t("Anfangsauszahlung", "Začetni izdatek", "Initial outlay"),
+        "1000",
+        { min: 0, suffix: euro },
+      ),
+      numberInput(
+        "annualCashFlow",
+        t("Jährlicher Cashflow", "Letni denarni tok", "Annual cash flow"),
+        "400",
+        { suffix: euro },
+      ),
+      numberInput(
+        "terminalValue",
+        t("Endwert", "Končna vrednost", "Terminal amount"),
+        "0",
+        { suffix: euro },
+      ),
+      numberInput(
+        "discountRate",
+        t("Diskontsatz", "Diskontna mera", "Discount rate"),
+        "10",
+        { min: -100, exclusiveMin: true, suffix: percent },
+      ),
+      numberInput("years", t("Jahre", "Leta", "Years"), "3", {
+        min: 1,
+        integer: true,
+      }),
     ],
-    outputs: [output("npv", t("Kapitalwert", "Neto sedanja vrednost", "Net present value"), "currency")],
+    outputs: [
+      output(
+        "npv",
+        t("Kapitalwert", "Neto sedanja vrednost", "Net present value"),
+        "currency",
+      ),
+    ],
   },
   {
     id: "irr",
     category: "finance",
-    title: t("Interner Zinsfuß (IRR)", "Notranja stopnja donosnosti (IRR)", "Internal rate of return (IRR)"),
+    title: t(
+      "Interner Zinsfuß (IRR)",
+      "Notranja stopnja donosnosti (IRR)",
+      "Internal rate of return (IRR)",
+    ),
     summary: t(
       "Finde den Diskontsatz, bei dem der Kapitalwert einer konventionellen Zahlungsreihe null ist.",
       "Poišči diskontno mero, pri kateri je NPV običajnega toka enak nič.",
@@ -620,16 +940,38 @@ export const CALCULATORS: readonly CalculatorDefinition[] = [
       "Prezreti več možnih IRR ali IRR razumeti kot absolutno ustvarjeno vrednost.",
       "Ignoring multiple possible IRRs or reading IRR as absolute value created.",
     ),
-    relatedLesson: { id: "lesson-ff-time-value", label: t("Zeitwert des Geldes", "Časovna vrednost denarja", "Time value of money") },
+    relatedLesson: {
+      id: "lesson-ff-time-value",
+      label: t(
+        "Zeitwert des Geldes",
+        "Časovna vrednost denarja",
+        "Time value of money",
+      ),
+    },
     inputs: [
       seriesInput(
         "cashFlows",
         t("Cashflows ab t=0", "Denarni tokovi od t=0", "Cash flows from t=0"),
         "-1000; 400; 400; 400",
-        t("Mit Semikolon trennen; mindestens ein negativer und ein positiver Wert.", "Loči s podpičjem; vsaj ena negativna in ena pozitivna vrednost.", "Separate with semicolons; include at least one negative and one positive value."),
+        t(
+          "Mit Semikolon trennen; mindestens ein negativer und ein positiver Wert.",
+          "Loči s podpičjem; vsaj ena negativna in ena pozitivna vrednost.",
+          "Separate with semicolons; include at least one negative and one positive value.",
+        ),
       ),
     ],
-    outputs: [output("irrPercent", t("Interner Zinsfuß", "Notranja stopnja donosnosti", "Internal rate of return"), "percent", 4)],
+    outputs: [
+      output(
+        "irrPercent",
+        t(
+          "Interner Zinsfuß",
+          "Notranja stopnja donosnosti",
+          "Internal rate of return",
+        ),
+        "percent",
+        4,
+      ),
+    ],
   },
   {
     id: "bond-price",
@@ -661,15 +1003,51 @@ export const CALCULATORS: readonly CalculatorDefinition[] = [
       "Mešati letni kupon in polletna obdobja donosa brez pretvorbe.",
       "Mixing an annual coupon with semiannual yield periods without conversion.",
     ),
-    relatedLesson: { id: "lesson-ff-stocks-bonds", label: t("Aktien und Anleihen", "Delnice in obveznice", "Stocks and bonds") },
+    relatedLesson: {
+      id: "lesson-ff-stocks-bonds",
+      label: t(
+        "Aktien und Anleihen",
+        "Delnice in obveznice",
+        "Stocks and bonds",
+      ),
+    },
     inputs: [
-      numberInput("faceValue", t("Nennwert", "Nominalna vrednost", "Face value"), "1000", { min: 0, exclusiveMin: true, suffix: euro }),
-      numberInput("couponRate", t("Jahreskupon", "Letni kupon", "Annual coupon rate"), "5", { min: 0, suffix: percent }),
-      numberInput("yieldRate", t("Marktrendite", "Tržni donos", "Market yield"), "5", { min: -100, exclusiveMin: true, suffix: percent }),
-      numberInput("years", t("Jahre", "Leta", "Years"), "5", { min: 1, integer: true }),
-      numberInput("frequency", t("Kupons pro Jahr", "Kuponov na leto", "Coupons per year"), "1", { min: 1, max: 12, integer: true }),
+      numberInput(
+        "faceValue",
+        t("Nennwert", "Nominalna vrednost", "Face value"),
+        "1000",
+        { min: 0, exclusiveMin: true, suffix: euro },
+      ),
+      numberInput(
+        "couponRate",
+        t("Jahreskupon", "Letni kupon", "Annual coupon rate"),
+        "5",
+        { min: 0, suffix: percent },
+      ),
+      numberInput(
+        "yieldRate",
+        t("Marktrendite", "Tržni donos", "Market yield"),
+        "5",
+        { min: -100, exclusiveMin: true, suffix: percent },
+      ),
+      numberInput("years", t("Jahre", "Leta", "Years"), "5", {
+        min: 1,
+        integer: true,
+      }),
+      numberInput(
+        "frequency",
+        t("Kupons pro Jahr", "Kuponov na leto", "Coupons per year"),
+        "1",
+        { min: 1, max: 12, integer: true },
+      ),
     ],
-    outputs: [output("bondPrice", t("Modellpreis", "Modelna cena", "Model price"), "currency")],
+    outputs: [
+      output(
+        "bondPrice",
+        t("Modellpreis", "Modelna cena", "Model price"),
+        "currency",
+      ),
+    ],
   },
   {
     id: "yield",
@@ -701,13 +1079,41 @@ export const CALCULATORS: readonly CalculatorDefinition[] = [
       "Tekoči donos prikazati kot celoten skupni donos.",
       "Reporting current yield as complete total return.",
     ),
-    relatedLesson: { id: "lesson-ff-stocks-bonds", label: t("Aktien und Anleihen", "Delnice in obveznice", "Stocks and bonds") },
+    relatedLesson: {
+      id: "lesson-ff-stocks-bonds",
+      label: t(
+        "Aktien und Anleihen",
+        "Delnice in obveznice",
+        "Stocks and bonds",
+      ),
+    },
     inputs: [
-      numberInput("faceValue", t("Nennwert", "Nominalna vrednost", "Face value"), "1000", { min: 0, exclusiveMin: true, suffix: euro }),
-      numberInput("couponRate", t("Jahreskupon", "Letni kupon", "Annual coupon rate"), "5", { min: 0, suffix: percent }),
-      numberInput("marketPrice", t("Marktpreis", "Tržna cena", "Market price"), "950", { min: 0, exclusiveMin: true, suffix: euro }),
+      numberInput(
+        "faceValue",
+        t("Nennwert", "Nominalna vrednost", "Face value"),
+        "1000",
+        { min: 0, exclusiveMin: true, suffix: euro },
+      ),
+      numberInput(
+        "couponRate",
+        t("Jahreskupon", "Letni kupon", "Annual coupon rate"),
+        "5",
+        { min: 0, suffix: percent },
+      ),
+      numberInput(
+        "marketPrice",
+        t("Marktpreis", "Tržna cena", "Market price"),
+        "950",
+        { min: 0, exclusiveMin: true, suffix: euro },
+      ),
     ],
-    outputs: [output("currentYield", t("Laufende Rendite", "Tekoči donos", "Current yield"), "percent")],
+    outputs: [
+      output(
+        "currentYield",
+        t("Laufende Rendite", "Tekoči donos", "Current yield"),
+        "percent",
+      ),
+    ],
   },
   {
     id: "capm",
@@ -739,13 +1145,39 @@ export const CALCULATORS: readonly CalculatorDefinition[] = [
       "Zgodovinsko beto obravnavati kot stalno fizično lastnost.",
       "Treating historical beta as a stable physical property.",
     ),
-    relatedLesson: { id: "lesson-ff-risk-return", label: t("Risiko und Rendite", "Tveganje in donos", "Risk and return") },
+    relatedLesson: {
+      id: "lesson-ff-risk-return",
+      label: t("Risiko und Rendite", "Tveganje in donos", "Risk and return"),
+    },
     inputs: [
-      numberInput("riskFreeRate", t("Risikofreier Satz", "Netvegana mera", "Risk-free rate"), "3", { min: -100, suffix: percent }),
-      numberInput("beta", t("Beta", "Beta", "Beta"), "1.2", { min: -10, max: 10 }),
-      numberInput("marketReturn", t("Erwartete Marktrendite", "Pričakovani tržni donos", "Expected market return"), "8", { min: -100, suffix: percent }),
+      numberInput(
+        "riskFreeRate",
+        t("Risikofreier Satz", "Netvegana mera", "Risk-free rate"),
+        "3",
+        { min: -100, suffix: percent },
+      ),
+      numberInput("beta", t("Beta", "Beta", "Beta"), "1.2", {
+        min: -10,
+        max: 10,
+      }),
+      numberInput(
+        "marketReturn",
+        t(
+          "Erwartete Marktrendite",
+          "Pričakovani tržni donos",
+          "Expected market return",
+        ),
+        "8",
+        { min: -100, suffix: percent },
+      ),
     ],
-    outputs: [output("expectedReturn", t("Geforderte Rendite", "Zahtevani donos", "Required return"), "percent")],
+    outputs: [
+      output(
+        "expectedReturn",
+        t("Geforderte Rendite", "Zahtevani donos", "Required return"),
+        "percent",
+      ),
+    ],
   },
   {
     id: "wacc",
@@ -777,13 +1209,49 @@ export const CALCULATORS: readonly CalculatorDefinition[] = [
       "Uporabiti knjigovodske namesto tržnih vrednosti ali dvakrat šteti davčni učinek.",
       "Using book rather than market values or counting the tax shield twice.",
     ),
-    relatedLesson: { id: "lesson-ff-finance-map", label: t("Was Finanzen leisten", "Kaj omogočajo finance", "What finance does") },
+    relatedLesson: {
+      id: "lesson-ff-finance-map",
+      label: t(
+        "Was Finanzen leisten",
+        "Kaj omogočajo finance",
+        "What finance does",
+      ),
+    },
     inputs: [
-      numberInput("equityValue", t("Marktwert Eigenkapital", "Tržna vrednost kapitala", "Market value of equity"), "60", { min: 0, suffix: t("Mio. €", "mio. €", "€m") }),
-      numberInput("debtValue", t("Marktwert Schulden", "Tržna vrednost dolga", "Market value of debt"), "40", { min: 0, suffix: t("Mio. €", "mio. €", "€m") }),
-      numberInput("costEquity", t("Eigenkapitalkosten", "Strošek kapitala", "Cost of equity"), "10", { min: -100, suffix: percent }),
-      numberInput("costDebt", t("Fremdkapitalkosten", "Strošek dolga", "Cost of debt"), "5", { min: -100, suffix: percent }),
-      numberInput("taxRate", t("Steuersatz", "Davčna stopnja", "Tax rate"), "25", { min: 0, max: 100, suffix: percent }),
+      numberInput(
+        "equityValue",
+        t(
+          "Marktwert Eigenkapital",
+          "Tržna vrednost kapitala",
+          "Market value of equity",
+        ),
+        "60",
+        { min: 0, suffix: t("Mio. €", "mio. €", "€m") },
+      ),
+      numberInput(
+        "debtValue",
+        t("Marktwert Schulden", "Tržna vrednost dolga", "Market value of debt"),
+        "40",
+        { min: 0, suffix: t("Mio. €", "mio. €", "€m") },
+      ),
+      numberInput(
+        "costEquity",
+        t("Eigenkapitalkosten", "Strošek kapitala", "Cost of equity"),
+        "10",
+        { min: -100, suffix: percent },
+      ),
+      numberInput(
+        "costDebt",
+        t("Fremdkapitalkosten", "Strošek dolga", "Cost of debt"),
+        "5",
+        { min: -100, suffix: percent },
+      ),
+      numberInput(
+        "taxRate",
+        t("Steuersatz", "Davčna stopnja", "Tax rate"),
+        "25",
+        { min: 0, max: 100, suffix: percent },
+      ),
     ],
     outputs: [output("wacc", t("WACC", "WACC", "WACC"), "percent")],
   },
@@ -817,19 +1285,67 @@ export const CALCULATORS: readonly CalculatorDefinition[] = [
       "Nastaviti končno rast enako ali višje od diskontne mere.",
       "Setting terminal growth equal to or above the discount rate.",
     ),
-    relatedLesson: { id: "lesson-ff-time-value", label: t("Zeitwert des Geldes", "Časovna vrednost denarja", "Time value of money") },
+    relatedLesson: {
+      id: "lesson-ff-time-value",
+      label: t(
+        "Zeitwert des Geldes",
+        "Časovna vrednost denarja",
+        "Time value of money",
+      ),
+    },
     inputs: [
-      numberInput("currentFcf", t("Aktueller freier Cashflow", "Trenutni prosti denarni tok", "Current free cash flow"), "100", { suffix: euro }),
-      numberInput("growthRate", t("Wachstum im Detailzeitraum", "Rast v napovedi", "Explicit growth rate"), "5", { min: -100, exclusiveMin: true, suffix: percent }),
-      numberInput("years", t("Detailjahre", "Leta napovedi", "Explicit years"), "5", { min: 1, max: 50, integer: true }),
-      numberInput("discountRate", t("Diskontsatz", "Diskontna mera", "Discount rate"), "10", { min: -100, exclusiveMin: true, suffix: percent }),
-      numberInput("terminalGrowth", t("Ewiges Wachstum", "Večna rast", "Terminal growth"), "2", { min: -100, exclusiveMin: true, suffix: percent }),
+      numberInput(
+        "currentFcf",
+        t(
+          "Aktueller freier Cashflow",
+          "Trenutni prosti denarni tok",
+          "Current free cash flow",
+        ),
+        "100",
+        { suffix: euro },
+      ),
+      numberInput(
+        "growthRate",
+        t(
+          "Wachstum im Detailzeitraum",
+          "Rast v napovedi",
+          "Explicit growth rate",
+        ),
+        "5",
+        { min: -100, exclusiveMin: true, suffix: percent },
+      ),
+      numberInput(
+        "years",
+        t("Detailjahre", "Leta napovedi", "Explicit years"),
+        "5",
+        { min: 1, max: 50, integer: true },
+      ),
+      numberInput(
+        "discountRate",
+        t("Diskontsatz", "Diskontna mera", "Discount rate"),
+        "10",
+        { min: -100, exclusiveMin: true, suffix: percent },
+      ),
+      numberInput(
+        "terminalGrowth",
+        t("Ewiges Wachstum", "Večna rast", "Terminal growth"),
+        "2",
+        { min: -100, exclusiveMin: true, suffix: percent },
+      ),
     ],
-    outputs: [output("enterpriseValue", t("Unternehmenswert", "Vrednost podjetja", "Enterprise value"), "currency")],
+    outputs: [
+      output(
+        "enterpriseValue",
+        t("Unternehmenswert", "Vrednost podjetja", "Enterprise value"),
+        "currency",
+      ),
+    ],
   },
 ] as const;
 
-const definitionById = new Map(CALCULATORS.map((definition) => [definition.id, definition]));
+const definitionById = new Map(
+  CALCULATORS.map((definition) => [definition.id, definition]),
+);
 
 export function getCalculator(id: CalculatorId): CalculatorDefinition {
   const definition = definitionById.get(id);
@@ -837,13 +1353,18 @@ export function getCalculator(id: CalculatorId): CalculatorDefinition {
   return definition;
 }
 
-export function defaultInputs(definition: CalculatorDefinition): Record<string, string> {
-  return Object.fromEntries(definition.inputs.map((input) => [input.key, input.defaultValue]));
+export function defaultInputs(
+  definition: CalculatorDefinition,
+): Record<string, string> {
+  return Object.fromEntries(
+    definition.inputs.map((input) => [input.key, input.defaultValue]),
+  );
 }
 
 export function parseLocalizedNumber(raw: string): number | null {
   const normalized = raw.trim().replaceAll(" ", "").replace(",", ".");
-  if (!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(normalized)) return null;
+  if (!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(normalized))
+    return null;
   const value = Number(normalized);
   return Number.isFinite(value) ? value : null;
 }
@@ -855,7 +1376,9 @@ function parseSeries(raw: string): number[] | null {
     .filter(Boolean);
   if (parts.length < 2) return null;
   const values = parts.map(parseLocalizedNumber);
-  return values.every((value): value is number => value !== null) ? values : null;
+  return values.every((value): value is number => value !== null)
+    ? values
+    : null;
 }
 
 function parseInputs(
@@ -883,7 +1406,11 @@ function parseInputs(
     }
     if (input.min !== undefined) {
       if (input.exclusiveMin && value <= input.min) {
-        issues.push({ code: "exclusiveMinimum", field: input.key, limit: input.min });
+        issues.push({
+          code: "exclusiveMinimum",
+          field: input.key,
+          limit: input.min,
+        });
       } else if (!input.exclusiveMin && value < input.min) {
         issues.push({ code: "minimum", field: input.key, limit: input.min });
       }
@@ -920,23 +1447,41 @@ export function stableSum(values: readonly number[]): number {
 }
 
 export function npvAtRate(cashFlows: readonly number[], rate: number): number {
-  return stableSum(cashFlows.map((cashFlow, index) => cashFlow / (1 + rate) ** index));
+  return stableSum(
+    cashFlows.map((cashFlow, index) => cashFlow / (1 + rate) ** index),
+  );
 }
 
-type IrrOptions = { maxIterations?: number; tolerance?: number; scanSteps?: number };
+type IrrOptions = {
+  maxIterations?: number;
+  tolerance?: number;
+  scanSteps?: number;
+};
 
 export function solveIrr(
   cashFlows: readonly number[],
   options: IrrOptions = {},
-): { ok: true; rate: number } | { ok: false; code: "cashFlowSigns" | "multipleIrr" | "irrBracket" | "irrConvergence" } {
-  if (!cashFlows.some((value) => value < 0) || !cashFlows.some((value) => value > 0)) {
+):
+  | { ok: true; rate: number }
+  | {
+      ok: false;
+      code: "cashFlowSigns" | "multipleIrr" | "irrBracket" | "irrConvergence";
+    } {
+  if (
+    !cashFlows.some((value) => value < 0) ||
+    !cashFlows.some((value) => value > 0)
+  ) {
     return { ok: false, code: "cashFlowSigns" };
   }
-  const nonZeroSigns = cashFlows.filter((value) => value !== 0).map((value) => Math.sign(value));
-  const signChanges = nonZeroSigns.slice(1).reduce(
-    (count, sign, index) => count + (sign !== nonZeroSigns[index] ? 1 : 0),
-    0,
-  );
+  const nonZeroSigns = cashFlows
+    .filter((value) => value !== 0)
+    .map((value) => Math.sign(value));
+  const signChanges = nonZeroSigns
+    .slice(1)
+    .reduce(
+      (count, sign, index) => count + (sign !== nonZeroSigns[index] ? 1 : 0),
+      0,
+    );
   if (signChanges > 1) return { ok: false, code: "multipleIrr" };
 
   const lowerBound = -0.9999;
@@ -957,9 +1502,13 @@ export function solveIrr(
     let previousValue = lowValue;
     let bracketed = false;
     for (let step = 1; step <= scanSteps; step += 1) {
-      const candidateRate = lowerBound + ((upperBound - lowerBound) * step) / scanSteps;
+      const candidateRate =
+        lowerBound + ((upperBound - lowerBound) * step) / scanSteps;
       const candidateValue = npvAtRate(cashFlows, candidateRate);
-      if (Number.isFinite(candidateValue) && Math.sign(previousValue) !== Math.sign(candidateValue)) {
+      if (
+        Number.isFinite(candidateValue) &&
+        Math.sign(previousValue) !== Math.sign(candidateValue)
+      ) {
         low = previousRate;
         lowValue = previousValue;
         high = candidateRate;
@@ -994,16 +1543,17 @@ export function solveIrr(
   return { ok: false, code: "irrConvergence" };
 }
 
-function evaluate(
-  id: CalculatorId,
-  inputs: ParsedInputs,
-): CalculationOutcome {
+function evaluate(id: CalculatorId, inputs: ParsedInputs): CalculationOutcome {
   const n = (key: string) => numberAt(inputs, key);
   let values: Record<string, number>;
   switch (id) {
     case "position-size": {
       const distance = Math.abs(n("entry") - n("stop"));
-      if (distance === 0) return { ok: false, issues: [{ code: "entryStopDifferent", field: "stop" }] };
+      if (distance === 0)
+        return {
+          ok: false,
+          issues: [{ code: "entryStopDifferent", field: "stop" }],
+        };
       values = { units: (n("account") * (n("riskPercent") / 100)) / distance };
       break;
     }
@@ -1011,9 +1561,16 @@ function evaluate(
       const entry = n("entry");
       const stop = n("stop");
       const target = n("target");
-      if (entry === stop) return { ok: false, issues: [{ code: "entryStopDifferent", field: "stop" }] };
+      if (entry === stop)
+        return {
+          ok: false,
+          issues: [{ code: "entryStopDifferent", field: "stop" }],
+        };
       if ((entry - stop) * (target - entry) <= 0) {
-        return { ok: false, issues: [{ code: "oppositeSides", field: "target" }] };
+        return {
+          ok: false,
+          issues: [{ code: "oppositeSides", field: "target" }],
+        };
       }
       values = { ratio: Math.abs(target - entry) / Math.abs(entry - stop) };
       break;
@@ -1021,16 +1578,23 @@ function evaluate(
     case "r-multiple": {
       const entry = n("entry");
       const stop = n("stop");
-      if (entry === stop) return { ok: false, issues: [{ code: "entryStopDifferent", field: "stop" }] };
+      if (entry === stop)
+        return {
+          ok: false,
+          issues: [{ code: "entryStopDifferent", field: "stop" }],
+        };
       const direction = stop < entry ? 1 : -1;
-      values = { rMultiple: (direction * (n("exit") - entry)) / Math.abs(entry - stop) };
+      values = {
+        rMultiple: (direction * (n("exit") - entry)) / Math.abs(entry - stop),
+      };
       break;
     }
     case "expectancy": {
       const winProbability = n("winRate") / 100;
       values = {
         expectancy:
-          winProbability * n("averageWin") - (1 - winProbability) * n("averageLoss"),
+          winProbability * n("averageWin") -
+          (1 - winProbability) * n("averageLoss"),
       };
       break;
     }
@@ -1040,11 +1604,18 @@ function evaluate(
     case "drawdown": {
       const peak = n("peak");
       const trough = n("trough");
-      if (trough > peak) return { ok: false, issues: [{ code: "troughAbovePeak", field: "trough" }] };
+      if (trough > peak)
+        return {
+          ok: false,
+          issues: [{ code: "troughAbovePeak", field: "trough" }],
+        };
       const drawdown = (peak - trough) / peak;
       values = {
         drawdownPercent: drawdown * 100,
-        recoveryPercent: trough === 0 ? Number.POSITIVE_INFINITY : ((peak - trough) / trough) * 100,
+        recoveryPercent:
+          trough === 0
+            ? Number.POSITIVE_INFINITY
+            : ((peak - trough) / trough) * 100,
       };
       break;
     }
@@ -1076,10 +1647,12 @@ function evaluate(
     case "future-value": {
       const rate = n("rate") / 100;
       const periods = n("periods");
-      const contributionFactor = rate === 0 ? periods : ((1 + rate) ** periods - 1) / rate;
+      const contributionFactor =
+        rate === 0 ? periods : ((1 + rate) ** periods - 1) / rate;
       values = {
         futureValue:
-          n("presentValue") * (1 + rate) ** periods + n("payment") * contributionFactor,
+          n("presentValue") * (1 + rate) ** periods +
+          n("payment") * contributionFactor,
       };
       break;
     }
@@ -1101,14 +1674,19 @@ function evaluate(
     }
     case "irr": {
       const solution = solveIrr(seriesAt(inputs, "cashFlows"));
-      if (!solution.ok) return { ok: false, issues: [{ code: solution.code, field: "cashFlows" }] };
+      if (!solution.ok)
+        return {
+          ok: false,
+          issues: [{ code: solution.code, field: "cashFlows" }],
+        };
       values = { irrPercent: solution.rate * 100 };
       break;
     }
     case "bond-price": {
       const periods = n("years") * n("frequency");
       const periodicYield = n("yieldRate") / 100 / n("frequency");
-      const coupon = (n("faceValue") * (n("couponRate") / 100)) / n("frequency");
+      const coupon =
+        (n("faceValue") * (n("couponRate") / 100)) / n("frequency");
       const coupons = Array.from(
         { length: periods },
         (_, index) => coupon / (1 + periodicYield) ** (index + 1),
@@ -1130,18 +1708,26 @@ function evaluate(
     case "capm":
       values = {
         expectedReturn:
-          n("riskFreeRate") + n("beta") * (n("marketReturn") - n("riskFreeRate")),
+          n("riskFreeRate") +
+          n("beta") * (n("marketReturn") - n("riskFreeRate")),
       };
       break;
     case "wacc": {
       const totalCapital = n("equityValue") + n("debtValue");
       if (totalCapital <= 0) {
-        return { ok: false, issues: [{ code: "exclusiveMinimum", field: "equityValue", limit: 0 }] };
+        return {
+          ok: false,
+          issues: [
+            { code: "exclusiveMinimum", field: "equityValue", limit: 0 },
+          ],
+        };
       }
       values = {
         wacc:
           (n("equityValue") / totalCapital) * n("costEquity") +
-          (n("debtValue") / totalCapital) * n("costDebt") * (1 - n("taxRate") / 100),
+          (n("debtValue") / totalCapital) *
+            n("costDebt") *
+            (1 - n("taxRate") / 100),
       };
       break;
     }
@@ -1149,7 +1735,10 @@ function evaluate(
       const discountRate = n("discountRate") / 100;
       const terminalGrowth = n("terminalGrowth") / 100;
       if (discountRate <= terminalGrowth) {
-        return { ok: false, issues: [{ code: "discountAboveGrowth", field: "discountRate" }] };
+        return {
+          ok: false,
+          issues: [{ code: "discountAboveGrowth", field: "discountRate" }],
+        };
       }
       const growthRate = n("growthRate") / 100;
       const years = n("years");
@@ -1161,7 +1750,8 @@ function evaluate(
         (cashFlow, index) => cashFlow / (1 + discountRate) ** (index + 1),
       );
       const terminalValue =
-        (projected.at(-1)! * (1 + terminalGrowth)) / (discountRate - terminalGrowth);
+        (projected.at(-1)! * (1 + terminalGrowth)) /
+        (discountRate - terminalGrowth);
       values = {
         enterpriseValue: stableSum([
           ...discounted,

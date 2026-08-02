@@ -10,7 +10,15 @@ export function isSupabaseConfigured(): boolean {
 
 export function getSupabaseBrowserClient(): SupabaseClient | null {
   const configuration = getSupabasePublicConfig();
-  if (!configuration.configured || !configuration.url || !configuration.publishableKey) return null;
-  browserClient ??= createBrowserClient(configuration.url, configuration.publishableKey);
+  if (
+    !configuration.configured ||
+    !configuration.url ||
+    !configuration.publishableKey
+  )
+    return null;
+  browserClient ??= createBrowserClient(
+    configuration.url,
+    configuration.publishableKey,
+  );
   return browserClient;
 }

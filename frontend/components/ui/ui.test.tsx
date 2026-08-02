@@ -87,13 +87,13 @@ describe("semantic status primitives", () => {
   it("uses polite status semantics for empty and degraded states", () => {
     render(
       <>
-        <EmptyState title="No stories yet" />
+        <EmptyState title="No lessons completed yet" />
         <DegradedState title="Delayed market data" />
       </>,
     );
 
     expect(
-      screen.getByRole("status", { name: "No stories yet" }),
+      screen.getByRole("status", { name: "No lessons completed yet" }),
     ).toHaveAttribute("data-state", "empty");
     expect(
       screen.getByRole("status", { name: "Delayed market data" }),
@@ -101,10 +101,10 @@ describe("semantic status primitives", () => {
   });
 
   it("uses alert semantics for errors", () => {
-    render(<ErrorState title="News could not be loaded" />);
+    render(<ErrorState title="Lesson content could not be loaded" />);
 
     expect(
-      screen.getByRole("alert", { name: "News could not be loaded" }),
+      screen.getByRole("alert", { name: "Lesson content could not be loaded" }),
     ).toHaveAttribute("data-state", "error");
   });
 

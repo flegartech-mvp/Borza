@@ -43,29 +43,47 @@ function items(
   definitions: ReadonlyArray<readonly [NavigationIconName, string]>,
   dictionary: AcademyDictionary,
 ): NavigationItem[] {
-  return definitions.map(([id, href]) => ({ id, href, icon: id, label: dictionary.nav[id] }));
+  return definitions.map(([id, href]) => ({
+    id,
+    href,
+    icon: id,
+    label: dictionary.nav[id],
+  }));
 }
 
-export function primaryNavigation(dictionary: AcademyDictionary): NavigationItem[] {
+export function primaryNavigation(
+  dictionary: AcademyDictionary,
+): NavigationItem[] {
   return items(primaryDefinitions, dictionary);
 }
 
-export function secondaryNavigation(dictionary: AcademyDictionary): NavigationItem[] {
+export function secondaryNavigation(
+  dictionary: AcademyDictionary,
+): NavigationItem[] {
   return items(secondaryDefinitions, dictionary);
 }
 
-export function mobileNavigation(dictionary: AcademyDictionary): NavigationItem[] {
+export function mobileNavigation(
+  dictionary: AcademyDictionary,
+): NavigationItem[] {
   return primaryNavigation(dictionary).slice(0, 4);
 }
 
-export function isNavigationItemActive(pathname: string, href: string): boolean {
+export function isNavigationItemActive(
+  pathname: string,
+  href: string,
+): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function pageTitle(pathname: string, dictionary: AcademyDictionary): string {
-  const item = [...primaryNavigation(dictionary), ...secondaryNavigation(dictionary)].find((entry) =>
-    isNavigationItemActive(pathname, entry.href),
-  );
+export function pageTitle(
+  pathname: string,
+  dictionary: AcademyDictionary,
+): string {
+  const item = [
+    ...primaryNavigation(dictionary),
+    ...secondaryNavigation(dictionary),
+  ].find((entry) => isNavigationItemActive(pathname, entry.href));
   if (pathname.startsWith("/lesson/")) return dictionary.lesson.core;
   if (pathname.startsWith("/quiz/")) return dictionary.quiz.title;
   if (pathname.startsWith("/onboarding")) return dictionary.onboarding.title;

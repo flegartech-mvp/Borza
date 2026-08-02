@@ -4,8 +4,16 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useSyncExternalStore } from "react";
-import { LanguageSwitcher, ThemeSwitcher, usePreferences } from "@/features/preferences";
-import { isNavigationItemActive, primaryNavigation, secondaryNavigation } from "@/lib/navigation";
+import {
+  LanguageSwitcher,
+  ThemeSwitcher,
+  usePreferences,
+} from "@/features/preferences";
+import {
+  isNavigationItemActive,
+  primaryNavigation,
+  secondaryNavigation,
+} from "@/lib/navigation";
 import { BrandMark } from "./brand-mark";
 import { NavigationIcon } from "./navigation-icon";
 import { shellCopy } from "./shell-copy";
@@ -17,7 +25,12 @@ const subscribe = (listener: () => void) => {
   return () => window.removeEventListener(EVENT, listener);
 };
 const snapshot = () => {
-  try { return localStorage.getItem(STORAGE_KEY) === "true"; } catch { return false; }
+  try {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem(STORAGE_KEY) === "true";
+  } catch {
+    return false;
+  }
 };
 
 export function SidebarNav() {
@@ -26,7 +39,11 @@ export function SidebarNav() {
   const copy = shellCopy[language];
   const collapsed = useSyncExternalStore(subscribe, snapshot, () => false);
   const setCollapsed = (next: boolean) => {
-    try { localStorage.setItem(STORAGE_KEY, String(next)); } catch { /* optional */ }
+    try {
+      localStorage.setItem(STORAGE_KEY, String(next));
+    } catch {
+      /* optional */
+    }
     window.dispatchEvent(new Event(EVENT));
   };
   const renderItems = (items: ReturnType<typeof primaryNavigation>) =>
@@ -46,12 +63,22 @@ export function SidebarNav() {
       );
     });
   return (
-    <aside data-collapsed={collapsed} className={`sticky top-0 hidden h-dvh shrink-0 flex-col border-r border-[var(--border-subtle)] bg-[var(--background-raised)] lg:flex ${collapsed ? "w-[var(--sidebar-collapsed-width)]" : "w-[var(--sidebar-width)]"}`} aria-label={copy.academyNav}>
-      <div className="flex min-h-[var(--topbar-height)] items-center border-b border-[var(--border-subtle)] px-4"><BrandMark compact={collapsed} /></div>
+    <aside
+      data-collapsed={collapsed}
+      className={`sticky top-0 hidden h-dvh shrink-0 flex-col border-r border-[var(--border-subtle)] bg-[var(--background-raised)] lg:flex ${collapsed ? "w-[var(--sidebar-collapsed-width)]" : "w-[var(--sidebar-width)]"}`}
+      aria-label={copy.academyNav}
+    >
+      <div className="flex min-h-[var(--topbar-height)] items-center border-b border-[var(--border-subtle)] px-4">
+        <BrandMark compact={collapsed} />
+      </div>
       <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-3">
-        <nav aria-label={copy.primary} className="space-y-1">{renderItems(primaryNavigation(dictionary))}</nav>
+        <nav aria-label={copy.primary} className="space-y-1">
+          {renderItems(primaryNavigation(dictionary))}
+        </nav>
         <div className="h-px bg-[var(--border-subtle)]" />
-        <nav aria-label={copy.details} className="space-y-1">{renderItems(secondaryNavigation(dictionary))}</nav>
+        <nav aria-label={copy.details} className="space-y-1">
+          {renderItems(secondaryNavigation(dictionary))}
+        </nav>
         {collapsed ? null : (
           <div className="space-y-3 pt-3">
             <LanguageSwitcher />
@@ -59,8 +86,20 @@ export function SidebarNav() {
           </div>
         )}
       </div>
-      <button type="button" onClick={() => setCollapsed(!collapsed)} aria-label={collapsed ? copy.expand : copy.collapse} className="m-3 flex min-h-10 items-center justify-center gap-2 rounded-[var(--radius-sm)] border border-[var(--border-subtle)] text-sm text-[var(--text-secondary)]">
-        {collapsed ? <ChevronRight aria-hidden="true" size={17} /> : <><ChevronLeft aria-hidden="true" size={17} /> <span>{copy.compact}</span></>}
+      <button
+        type="button"
+        onClick={() => setCollapsed(!collapsed)}
+        aria-label={collapsed ? copy.expand : copy.collapse}
+        className="m-3 flex min-h-10 items-center justify-center gap-2 rounded-[var(--radius-sm)] border border-[var(--border-subtle)] text-sm text-[var(--text-secondary)]"
+      >
+        {collapsed ? (
+          <ChevronRight aria-hidden="true" size={17} />
+        ) : (
+          <>
+            <ChevronLeft aria-hidden="true" size={17} />{" "}
+            <span>{copy.compact}</span>
+          </>
+        )}
       </button>
     </aside>
   );

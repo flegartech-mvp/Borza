@@ -21,16 +21,16 @@
   --border-strong: #3a5062;
   --text-primary: #f4f7f9;
   --text-secondary: #aebbc6;
-  --text-tertiary: #7f909d;
+  --text-tertiary: #b4c4d3;
   --brand: #64e1ba;
   --brand-strong: #32cfa0;
   --brand-soft: rgb(100 225 186 / 12%);
   --brand-contrast: #06110e;
   --electric: #6caeff;
   --electric-soft: rgb(108 174 255 / 12%);
-  --positive: #60d99a;
+  --positive: #6ae0a3;
   --negative: #ff7777;
-  --warning: #f2bf68;
+  --warning: #f5c46e;
   --information: #6caeff;
   --positive-soft: rgb(96 217 154 / 12%);
   --negative-soft: rgb(255 119 119 / 12%);
@@ -77,21 +77,21 @@ html[data-theme="light"] {
   --border-subtle: #dcdedc;
   --border-strong: #b9c1c1;
   --text-primary: #141d25;
-  --text-secondary: #52616a;
-  --text-tertiary: #748188;
-  --brand: #087f61;
-  --brand-strong: #056a51;
-  --brand-soft: rgb(8 127 97 / 10%);
+  --text-secondary: #3b4952;
+  --text-tertiary: #3e4d58;
+  --brand: #044b39;
+  --brand-strong: #033a2c;
+  --brand-soft: rgb(4 75 57 / 10%);
   --brand-contrast: #ffffff;
-  --electric: #276fbe;
-  --electric-soft: rgb(39 111 190 / 10%);
-  --positive: #168756;
-  --negative: #c74747;
-  --warning: #9b6816;
-  --information: #276fbe;
-  --positive-soft: rgb(22 135 86 / 10%);
-  --negative-soft: rgb(199 71 71 / 9%);
-  --warning-soft: rgb(155 104 22 / 10%);
+  --electric: #1a5ca6;
+  --electric-soft: rgb(26 92 166 / 10%);
+  --positive: #0e6e44;
+  --negative: #b52b2b;
+  --warning: #855308;
+  --information: #1a5ca6;
+  --positive-soft: rgb(14 110 68 / 10%);
+  --negative-soft: rgb(181 43 43 / 9%);
+  --warning-soft: rgb(133 83 8 / 10%);
   --status-soft: var(--electric-soft);
   --chart-grid: #e2e6e4;
   --chart-up: #168756;
@@ -124,7 +124,11 @@ body {
   margin: 0;
   overflow-x: clip;
   background:
-    radial-gradient(circle at 88% -10%, rgb(100 225 186 / 8%), transparent 34rem),
+    radial-gradient(
+      circle at 88% -10%,
+      rgb(100 225 186 / 8%),
+      transparent 34rem
+    ),
     var(--background);
   color: var(--text-primary);
   font-family: var(--font-geist-sans), Arial, sans-serif;

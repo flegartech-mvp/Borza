@@ -105,8 +105,7 @@ def test_simulator_sessions_and_journals_are_owner_scoped(
     assert journal.status_code == 201
     journal_id = journal.json()["id"]
     assert (
-        client.get(f"/api/v1/journal/{journal_id}", headers=other_auth_headers).status_code
-        == 404
+        client.get(f"/api/v1/journal/{journal_id}", headers=other_auth_headers).status_code == 404
     )
     assert (
         client.put(

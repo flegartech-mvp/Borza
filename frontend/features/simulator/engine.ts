@@ -43,15 +43,37 @@ export type Analytics = {
   violations: number;
 };
 
-export function executionPrice(rawPrice: number, side: SimulatorSide, spreadBps: number, slippageBps: number, closing = false): number {
+export function executionPrice(
+  rawPrice: number,
+  side: SimulatorSide,
+  spreadBps: number,
+  slippageBps: number,
+  closing = false,
+): number {
   const direction = side === "long" ? 1 : -1;
   const signedDirection = closing ? -direction : direction;
-  return rawPrice * (1 + signedDirection * (spreadBps / 20_000 + slippageBps / 10_000));
+  return (
+    rawPrice *
+    (1 + signedDirection * (spreadBps / 20_000 + slippageBps / 10_000))
+  );
 }
 
-export function validateProtectiveLevels(side: SimulatorSide, referencePrice: number, stop?: number, target?: number): string | null {
-  if (stop !== undefined && (side === "long" ? stop >= referencePrice : stop <= referencePrice)) return "invalid_stop";
-  if (target !== undefined && (side === "long" ? target <= referencePrice : target >= referencePrice)) return "invalid_target";
+export function validateProtectiveLevels(
+  side: SimulatorSide,
+  referencePrice: number,
+  stop?: number,
+  target?: number,
+): string | null {
+  if (
+    stop !== undefined &&
+    (side === "long" ? stop >= referencePrice : stop <= referencePrice)
+  )
+    return "invalid_stop";
+  if (
+    target !== undefined &&
+    (side === "long" ? target <= referencePrice : target >= referencePrice)
+  )
+    return "invalid_target";
   return null;
 }
 
@@ -70,7 +92,13 @@ export function validateExposure({
   maximumRiskPercent?: number;
   maximumLeverage?: number;
 }): string | null {
-  if (!Number.isFinite(quantity) || quantity <= 0 || !Number.isFinite(riskPercent) || riskPercent <= 0) return "positive_values";
+  if (
+    !Number.isFinite(quantity) ||
+    quantity <= 0 ||
+    !Number.isFinite(riskPercent) ||
+    riskPercent <= 0
+  )
+    return "positive_values";
   if (riskPercent > maximumRiskPercent) return "risk_cap";
   if ((price * quantity) / balance > maximumLeverage) return "leverage_cap";
   return null;
@@ -91,7 +119,13 @@ export function closeLocalPosition({
   commission: number;
   candleIndex: number;
 }): LocalTrade {
-  const exit = executionPrice(rawPrice, position.side, spreadBps, slippageBps, true);
+  const exit = executionPrice(
+    rawPrice,
+    position.side,
+    spreadBps,
+    slippageBps,
+    true,
+  );
   const direction = position.side === "long" ? 1 : -1;
   const grossPnl = (exit - position.entry) * position.quantity * direction;
   const pnl = grossPnl - position.entryCommission - commission;
@@ -133,12 +167,23 @@ export function calculateAnalytics(trades: LocalTrade[]): Analytics {
     averageLoss,
     payoff: averageLoss ? averageWin / averageLoss : 0,
     expectancy: trades.length ? net / trades.length : 0,
-    profitFactor: grossLoss ? grossProfit / grossLoss : grossProfit ? Number.POSITIVE_INFINITY : 0,
+    profitFactor: grossLoss
+      ? grossProfit / grossLoss
+      : grossProfit
+        ? Number.POSITIVE_INFINITY
+        : 0,
     maxDrawdown,
-    averageR: trades.length ? trades.reduce((sum, trade) => sum + trade.r, 0) / trades.length : 0,
+    averageR: trades.length
+      ? trades.reduce((sum, trade) => sum + trade.r, 0) / trades.length
+      : 0,
     best: trades.length ? Math.max(...trades.map((trade) => trade.pnl)) : 0,
     worst: trades.length ? Math.min(...trades.map((trade) => trade.pnl)) : 0,
-    holding: trades.length ? trades.reduce((sum, trade) => sum + trade.bars, 0) / trades.length : 0,
-    violations: trades.reduce((sum, trade) => sum + trade.ruleViolations.length, 0),
+    holding: trades.length
+      ? trades.reduce((sum, trade) => sum + trade.bars, 0) / trades.length
+      : 0,
+    violations: trades.reduce(
+      (sum, trade) => sum + trade.ruleViolations.length,
+      0,
+    ),
   };
 }

@@ -13,7 +13,12 @@ import type {
   LocalizedText,
   ReviewCardDefinition,
 } from "@/lib/academy-types";
-import { DEMO_LESSON, DEMO_MODULES, DEMO_PATHS, DEMO_QUIZ } from "@/lib/demo-academy";
+import {
+  DEMO_LESSON,
+  DEMO_MODULES,
+  DEMO_PATHS,
+  DEMO_QUIZ,
+} from "@/lib/demo-academy";
 
 type BackendPath = {
   id: string;
@@ -66,10 +71,27 @@ type BackendLesson = {
   resolved_review_cards?: BackendReviewCard[];
 };
 
-type BackendGlossary = { id: string; term: LocalizedText; definition: LocalizedText };
-type BackendReviewCard = { id: string; front: LocalizedText; back: LocalizedText };
-type BackendSource = { id: string; title: string; publisher?: string; url: string };
-type BackendQuiz = { id: string; lesson_id: string; questions: BackendQuestion[] };
+type BackendGlossary = {
+  id: string;
+  term: LocalizedText;
+  definition: LocalizedText;
+};
+type BackendReviewCard = {
+  id: string;
+  front: LocalizedText;
+  back: LocalizedText;
+};
+type BackendSource = {
+  id: string;
+  title: string;
+  publisher?: string;
+  url: string;
+};
+type BackendQuiz = {
+  id: string;
+  lesson_id: string;
+  questions: BackendQuestion[];
+};
 type BackendQuestion = {
   id: string;
   lesson_id: string;
@@ -86,7 +108,12 @@ type BackendQuestion = {
 
 const EMPTY_TEXT: LocalizedText = { de: "", sl: "", en: "" };
 
-function localizedBlock(value: LocalizedText | { caption?: LocalizedText; prompt?: LocalizedText } | undefined): LocalizedText {
+function localizedBlock(
+  value:
+    | LocalizedText
+    | { caption?: LocalizedText; prompt?: LocalizedText }
+    | undefined,
+): LocalizedText {
   if (!value) return EMPTY_TEXT;
   if ("de" in value) return value;
   return value.caption ?? value.prompt ?? EMPTY_TEXT;
@@ -112,9 +139,18 @@ export function lessonFromBackend(lesson: BackendLesson): DemoLesson {
     glossaryIds: lesson.glossary ?? [],
     sourceIds: lesson.sources ?? [],
     knowledgeCheckIds: lesson.knowledge_checks ?? [],
-    resolvedGlossary: lesson.resolved_glossary?.map((item): GlossaryDefinition => item),
-    resolvedSources: lesson.resolved_sources?.map((item) => ({ id: item.id, title: item.title, publisher: item.publisher ?? "", url: item.url })),
-    resolvedReviewCards: lesson.resolved_review_cards?.map((item): ReviewCardDefinition => item),
+    resolvedGlossary: lesson.resolved_glossary?.map(
+      (item): GlossaryDefinition => item,
+    ),
+    resolvedSources: lesson.resolved_sources?.map((item) => ({
+      id: item.id,
+      title: item.title,
+      publisher: item.publisher ?? "",
+      url: item.url,
+    })),
+    resolvedReviewCards: lesson.resolved_review_cards?.map(
+      (item): ReviewCardDefinition => item,
+    ),
   };
 }
 
@@ -181,27 +217,45 @@ export function useLearningPaths() {
   const query = useQuery({
     queryKey: ["academy", "learning-paths"],
     queryFn: async () => {
-      const response = await academyApi<BackendPath[] | { items: BackendPath[] }>("/learning-paths");
-      return (Array.isArray(response) ? response : response.items).map(pathFromBackend);
+      const response = await academyApi<
+        BackendPath[] | { items: BackendPath[] }
+      >("/learning-paths");
+      return (Array.isArray(response) ? response : response.items).map(
+        pathFromBackend,
+      );
     },
     retry: 1,
   });
-  return { ...query, paths: query.data?.length ? query.data : DEMO_PATHS, usingFallback: !query.data };
+  return {
+    ...query,
+    paths: query.data?.length ? query.data : DEMO_PATHS,
+    usingFallback: !query.data,
+  };
 }
 
 export function useLesson(lessonId: string) {
   const query = useQuery({
     queryKey: ["academy", "lesson", lessonId],
-    queryFn: async () => lessonFromBackend(await academyApi<BackendLesson>(`/lessons/${lessonId}`)),
+    queryFn: async () =>
+      lessonFromBackend(
+        await academyApi<BackendLesson>(`/lessons/${lessonId}`),
+      ),
     retry: 1,
   });
-  return { ...query, lesson: query.data ?? (lessonId === DEMO_LESSON.id ? DEMO_LESSON : null), usingFallback: !query.data };
+  return {
+    ...query,
+    lesson: query.data ?? (lessonId === DEMO_LESSON.id ? DEMO_LESSON : null),
+    usingFallback: !query.data,
+  };
 }
 
 export function useLearningPath(pathId: string) {
   const query = useQuery({
     queryKey: ["academy", "learning-path", pathId],
-    queryFn: async () => pathDetailFromBackend(await academyApi<BackendPath>(`/learning-paths/${pathId}`)),
+    queryFn: async () =>
+      pathDetailFromBackend(
+        await academyApi<BackendPath>(`/learning-paths/${pathId}`),
+      ),
     retry: 1,
   });
   const fallbackPath = DEMO_PATHS.find((path) => path.id === pathId);
@@ -209,7 +263,10 @@ export function useLearningPath(pathId: string) {
     ? {
         ...fallbackPath,
         prerequisitePathIds: [],
-        completionCriteria: fallbackPath.status === "active" ? { required_lessons: fallbackPath.lessonCount } : null,
+        completionCriteria:
+          fallbackPath.status === "active"
+            ? { required_lessons: fallbackPath.lessonCount }
+            : null,
         finalAssessmentId: null,
         modules: pathId === "path-finance-foundations" ? DEMO_MODULES : [],
         lessons: pathId === "path-finance-foundations" ? [DEMO_LESSON] : [],
@@ -221,22 +278,27 @@ export function useLearningPath(pathId: string) {
 export function useQuiz(quizId: string) {
   const query = useQuery({
     queryKey: ["academy", "quiz", quizId],
-    queryFn: async () => quizFromBackend(await academyApi<BackendQuiz>(`/quizzes/${quizId}`)),
+    queryFn: async () =>
+      quizFromBackend(await academyApi<BackendQuiz>(`/quizzes/${quizId}`)),
     retry: 1,
   });
-  const fallback: AcademyQuiz | null = quizId === DEMO_LESSON.id || quizId === "quiz-ff-finance-map"
-    ? {
-        id: quizId,
-        lessonId: DEMO_LESSON.id,
-        questions: DEMO_QUIZ.map((question) => ({
-          id: question.id,
+  const fallback: AcademyQuiz | null =
+    quizId === DEMO_LESSON.id || quizId === "quiz-ff-finance-map"
+      ? {
+          id: quizId,
           lessonId: DEMO_LESSON.id,
-          type: "single_choice",
-          prompt: question.prompt,
-          options: question.options.map((option) => ({ id: option.id, text: option.label })),
-          reviewRecommended: true,
-        })),
-      }
-    : null;
+          questions: DEMO_QUIZ.map((question) => ({
+            id: question.id,
+            lessonId: DEMO_LESSON.id,
+            type: "single_choice",
+            prompt: question.prompt,
+            options: question.options.map((option) => ({
+              id: option.id,
+              text: option.label,
+            })),
+            reviewRecommended: true,
+          })),
+        }
+      : null;
   return { ...query, quiz: query.data ?? fallback, usingFallback: !query.data };
 }

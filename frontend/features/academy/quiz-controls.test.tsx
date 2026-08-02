@@ -16,7 +16,28 @@ const options = [
 function TwoQuestions() {
   const [first, setFirst] = useState<string[]>([]);
   const [second, setSecond] = useState<string[]>([]);
-  return <><OptionList groupName="question-one" options={options} selected={first} multiple={false} disabled={false} language="en" onChange={setFirst} /><OptionList groupName="question-two" options={options} selected={second} multiple={false} disabled={false} language="en" onChange={setSecond} /></>;
+  return (
+    <>
+      <OptionList
+        groupName="question-one"
+        options={options}
+        selected={first}
+        multiple={false}
+        disabled={false}
+        language="en"
+        onChange={setFirst}
+      />
+      <OptionList
+        groupName="question-two"
+        options={options}
+        selected={second}
+        multiple={false}
+        disabled={false}
+        language="en"
+        onChange={setSecond}
+      />
+    </>
+  );
 }
 
 describe("quiz controls", () => {

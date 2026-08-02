@@ -31,8 +31,10 @@ export default defineConfig({
         env: {
           NEXT_PUBLIC_SUPABASE_URL: "",
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "",
+          NEXT_PUBLIC_API_URL: "http://localhost:8000",
+          BORZA_STRICT_PUBLIC_ENV: "false",
         },
-        reuseExistingServer: false,
+        reuseExistingServer: true,
         timeout: 120_000,
       },
 });

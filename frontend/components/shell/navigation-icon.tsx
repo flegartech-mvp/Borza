@@ -30,7 +30,15 @@ const icons = {
   settings: Settings,
 } satisfies Record<NavigationIconName, typeof BookText>;
 
-export function NavigationIcon({ name, size = 18, className }: { name: NavigationIconName; size?: number; className?: string }) {
+export function NavigationIcon({
+  name,
+  size = 18,
+  className,
+}: {
+  name: NavigationIconName;
+  size?: number;
+  className?: string;
+}) {
   const Icon = icons[name];
   return <Icon aria-hidden="true" size={size} className={className} />;
 }

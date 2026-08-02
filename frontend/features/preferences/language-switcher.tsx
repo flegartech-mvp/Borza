@@ -1,7 +1,11 @@
 "use client";
 
 import { Languages } from "lucide-react";
-import { dictionaries, SUPPORTED_LANGUAGES, type Language } from "@/i18n/dictionaries";
+import {
+  dictionaries,
+  SUPPORTED_LANGUAGES,
+  type Language,
+} from "@/i18n/dictionaries";
 import { usePreferences } from "./preferences-provider";
 
 export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {

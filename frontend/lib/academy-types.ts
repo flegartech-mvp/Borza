@@ -42,7 +42,12 @@ export type DemoLesson = {
   sourceIds: string[];
   knowledgeCheckIds?: string[];
   resolvedGlossary?: GlossaryDefinition[];
-  resolvedSources?: Array<{ id: string; title: string; publisher: string; url: string }>;
+  resolvedSources?: Array<{
+    id: string;
+    title: string;
+    publisher: string;
+    url: string;
+  }>;
   resolvedReviewCards?: ReviewCardDefinition[];
 };
 

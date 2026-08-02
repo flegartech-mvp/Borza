@@ -10,7 +10,10 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { getSupabaseBrowserClient, isSupabaseConfigured } from "@/lib/supabase-client";
+import {
+  getSupabaseBrowserClient,
+  isSupabaseConfigured,
+} from "@/lib/supabase-client";
 
 type AuthContextValue = {
   configured: boolean;
@@ -19,7 +22,11 @@ type AuthContextValue = {
   user: User | null;
   passwordRecovery: boolean;
   signIn: (email: string, password: string) => Promise<string | null>;
-  signUp: (email: string, password: string, fullName: string) => Promise<string | null>;
+  signUp: (
+    email: string,
+    password: string,
+    fullName: string,
+  ) => Promise<string | null>;
   requestPasswordReset: (email: string) => Promise<string | null>;
   updatePassword: (password: string) => Promise<string | null>;
   signOut: () => Promise<void>;
@@ -61,22 +68,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return error?.message ?? null;
   }, []);
 
-  const signUp = useCallback(async (email: string, password: string, fullName: string) => {
-    const client = getSupabaseBrowserClient();
-    if (!client) return "Supabase Auth is not configured.";
-    const { error } = await client.auth.signUp({
-      email,
-      password,
-      options: { data: { full_name: fullName } },
-    });
-    return error?.message ?? null;
-  }, []);
+  const signUp = useCallback(
+    async (email: string, password: string, fullName: string) => {
+      const client = getSupabaseBrowserClient();
+      if (!client) return "Supabase Auth is not configured.";
+      const { error } = await client.auth.signUp({
+        email,
+        password,
+        options: { data: { full_name: fullName } },
+      });
+      return error?.message ?? null;
+    },
+    [],
+  );
 
   const requestPasswordReset = useCallback(async (email: string) => {
     const client = getSupabaseBrowserClient();
     if (!client) return "Supabase Auth is not configured.";
     const redirectTo = `${window.location.origin}/update-password`;
-    const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo });
+    const { error } = await client.auth.resetPasswordForEmail(email, {
+      redirectTo,
+    });
     return error?.message ?? null;
   }, []);
 
@@ -93,8 +105,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<AuthContextValue>(
-    () => ({ configured, loading, session, user: session?.user ?? null, passwordRecovery, signIn, signUp, requestPasswordReset, updatePassword, signOut }),
-    [configured, loading, passwordRecovery, requestPasswordReset, session, signIn, signOut, signUp, updatePassword],
+    () => ({
+      configured,
+      loading,
+      session,
+      user: session?.user ?? null,
+      passwordRecovery,
+      signIn,
+      signUp,
+      requestPasswordReset,
+      updatePassword,
+      signOut,
+    }),
+    [
+      configured,
+      loading,
+      passwordRecovery,
+      requestPasswordReset,
+      session,
+      signIn,
+      signOut,
+      signUp,
+      updatePassword,
+    ],
   );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
